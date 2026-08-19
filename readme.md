@@ -32,6 +32,8 @@ And there are implementations that have changed, and possibly no longer work the
 
 When we want to know what Frontier does, we refer to the Frontier source code archived by Ted C. Howard. I'm not sure of the date he archived it. 
 
+https://github.com/tedchoward/Frontier
+
 ### Policy about who writes
 
 People are starting to paste huge documents from ChatGPT or Claude into issues sections of repos, and I want to stamp that out right now, if not everywhere, here. It's realllly rude to have a bot speak for you, and then to not speak to us as if we're all busy people who need you to get to the point. 
