@@ -1,6 +1,6 @@
 # Hello Frontier
 
-I'm working on a new version of Frontier, a complete rewrite, running in Electron, a project that could only be approached with the new AI tools. 
+I'm working on a new version of Frontier, a complete rewrite, running in Electron, a project that could only be approached with the new AI tools, in this case Claude Code. 
 
 Dave Winer, August 2026
 
