@@ -2,6 +2,8 @@
 
 I'm working on a new version of Frontier, a complete rewrite, running in Electron, a project that could only be approached with the new AI tools, in this case Claude Code. 
 
+To start it's just for sharing bits of code and documenting decisions I had to make while we're going along. And to give people with Frontier expertise a way to be involved and help Frontier emerge from its holiday, to return to party with us, same as it ever was. There will be a rule in this repo -- people only.
+
 Dave Winer, August 2026
 
 ### Background
@@ -30,9 +32,7 @@ And there are implementations that have changed, and possibly no longer work the
 
 ### What is Frontier?
 
-When we want to know what Frontier does, we refer to the Frontier source code archived by Ted C. Howard. I'm not sure of the date he archived it. 
-
-https://github.com/tedchoward/Frontier
+When we want to know what Frontier does, we refer to the Frontier source code [archived](https://github.com/tedchoward/Frontier) by Ted C. Howard, archived in November 2011. 
 
 ### Policy about who writes
 
