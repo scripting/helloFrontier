@@ -30,10 +30,6 @@ There also will be features we will add, for example, we have much better feed r
 
 And there are implementations that have changed, and possibly no longer work the same way as the original app worked. Those are bugs, and we're fixing them as they are discovered. 
 
-### What is Frontier?
-
-When we want to know what Frontier does, we refer to the Frontier source code [archived](https://github.com/tedchoward/Frontier) by Ted C. Howard, archived in November 2011. 
-
 ### Policy about who writes
 
 People are starting to paste huge documents from ChatGPT or Claude into issues sections of repos, and I want to stamp that out right now, if not everywhere, here. It's realllly rude to have a bot speak for you, and then to not speak to us as if we're all busy people who need you to get to the point. 
@@ -41,4 +37,8 @@ People are starting to paste huge documents from ChatGPT or Claude into issues s
 That said, Claude is much better at writing up the issues than I am. But it's posts will be carefully identitifed, and probably in a special folder on the repo, pointed to by me. 
 
 We're all building with these tools now, and they're fantastic, but this is a place for humans to communicate with humans. 
+
+### What is Frontier?
+
+When we want to know what Frontier does, we refer to the Frontier source code [archived](https://github.com/tedchoward/Frontier) by Ted C. Howard, archived in November 2011. 
 
