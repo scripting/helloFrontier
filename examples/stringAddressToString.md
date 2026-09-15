@@ -6,13 +6,20 @@ I noticed that the names of objects in the Window menu were much longer than the
 
 ```javascript
 on addressToString (adr)
-	//Changes
+```
+<details><summary><code>&nbsp;&nbsp;&nbsp;&nbsp;//Changes</code></summary>
+
+```javascript
 		//9/14/26; 10:41:45 AM by DW
 			//Searches are now unicase. 
 		//9/11/26; 5:30:00 PM by DW & CC
 			//Created. Returns the shortest possible string to represent the object. Instead of system.verbs.builtins.string.addressToString it returns string.addressToString. Both work, but the shorter one is nicer to use in your code. ;-)
 			//This is a new verb in Atlantis, the 2026 release.
 			//This code is a good illustration of the role the paths table plays.
+```
+</details>
+
+```javascript
 	local (fullpath = string (adr), lowerfullpath = string.lower (fullpath), shortest = string (adr), adrpath)
 	for adrpath in @system.paths
 		local (prefix = string.lower (adrpath^) + ".")

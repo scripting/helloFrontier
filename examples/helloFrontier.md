@@ -4,7 +4,10 @@ The first object that we're distributing through rootupdates.
 
 ```javascript
 on helloFrontier ()
-	//Changes
+```
+<details><summary><code>&nbsp;&nbsp;&nbsp;&nbsp;//Changes</code></summary>
+
+```javascript
 		//9/9/26; 1:24:18 PM by DW
 			//I had previously subscribed to the https location in FeedLand and then ping'd on the http location. 
 		//9/9/26; 1:15:38 PM by DW
@@ -24,6 +27,10 @@ on helloFrontier ()
 			//This is the first update. All I did was put an exclam at the end of Hello World. Let's see how the feed reacts.
 		//9/6/2026; 12:36:41 PM by DW
 			//A script I am using to help test the rootUpdates mechanism. At first it is just be a Hello World dialog from Frontier. Maybe it will become more than that. Not sure. 
+```
+</details>
+
+```javascript
 	dialog.alert ("Hello World")
 bundle //test code
 	helloFrontier ()
