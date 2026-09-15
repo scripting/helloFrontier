@@ -6,16 +6,6 @@ The last time we ran this script was in August, now it takes approx twice the ti
 
 ```javascript
 on doVeryLittle ()
-```
-<details><summary><code>&nbsp;&nbsp;&nbsp;&nbsp;//Changes</code></summary>
-
-```javascript
-		//8/17/2026; 12:29:14 PM by DW
-			//Created.
-```
-</details>
-
-```javascript
 	return (100 + 959)
 bundle //test code
 	doVeryLittle ()
@@ -24,16 +14,6 @@ bundle //test code
 
 ```javascript
 on timing ()
-```
-<details><summary><code>&nbsp;&nbsp;&nbsp;&nbsp;//Changes</code></summary>
-
-```javascript
-		//8/17/2026; 12:08:09 PM by DW
-			//Created.
-```
-</details>
-
-```javascript
 	local (ctloops = 500000)
 	on secondsSince (whenstart)
 		local (ctsecs = number (clock.now ()) - number (whenstart))
