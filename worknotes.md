@@ -1,3 +1,27 @@
+### 9/18/26; 10:23:17 AM by DW
+
+Coming to you from the new laptop, named Vermont. I am trying to build a project without any of the stuff I have on the old desktop machine. It's like setting up a mobile data center in current lingo. 
+
+How this test will work. 
+
+* First I will build the site. 
+
+* Then see what's in the nodeEditor folder it generates in the file system. 
+
+* This is the place I can run local tests, either in Node or the browser.
+
+* See what ended up in the GitHub folder.
+
+* Open it in the GitHub app. 
+
+* Upload result to GitHub.
+
+* Iterate.
+
+### 9/17/26; 10:32:20 AM by DW
+
+Now running entirely within Atlantis. Proof that it can be used to manage NodeEditor projects, which is where I've been doing all my code-writing since 2013 or so. 
+
 ### 9/13/26; 5:52:59 PM by DW
 
 First update since this site was created in August. 
