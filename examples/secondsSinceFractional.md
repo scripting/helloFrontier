@@ -1,6 +1,6 @@
 # date.secondsSinceFractional and clock.milliseconds
 
-New verb. date.secondsSince, a great utility for log messages and such, in Frontier has always been expressed in whole numbers. But there are times when you need more precision. The difference here is that the <i>when</i> value must come from clock.milliseconds, where you used clock.now for date.secondsSince. 
+New verbs. date.secondsSince, a great utility for log messages and such, in Frontier has always been expressed in whole numbers. But there are times when you need more precision. The difference here is that the <i>when</i> value must come from clock.milliseconds, where you used clock.now for date.secondsSince. 
 
 clock.milliseconds is also a new kernel-implemented verb.
 
