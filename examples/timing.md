@@ -4,7 +4,27 @@
 
 9/15/26 by DW: The last time we ran this script was in August, now it takes approx twice the time for each call. That's why we have benchmark scripts like this. ;-)
 
-&lt;%exampleUsertalkCode (@workspace.timing)%&gt;
+```javascript
+on timing ()
+	local (ctloops = 100000)
+	on secondsSince (whenstart)
+		local (ctsecs = number (clock.now ()) - number (whenstart))
+		return (ctsecs)
+	local (whenstart = clock.milliseconds (), x = 0)
+	for i = 1 to ctloops
+		workspace.doVeryLittle ()
+	op.console.start ()
+	op.console.log (ctloops + " loops took " + date.secondsSinceFractional (whenstart) + " seconds.")
+bundle //test code
+	timing ()
+```
 
-&lt;%exampleUsertalkCode (@workspace.doVeryLittle)%&gt;
+
+```javascript
+on doVeryLittle ()
+	return (100 + 959)
+bundle //test code
+	doVeryLittle ()
+```
+
 

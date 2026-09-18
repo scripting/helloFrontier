@@ -18,6 +18,8 @@ How this test will work.
 
 * Iterate.
 
+New example script -- op.console.start and op.console.log
+
 ### 9/17/26; 10:32:20 AM by DW
 
 Now running entirely within Atlantis. Proof that it can be used to manage NodeEditor projects, which is where I've been doing all my code-writing since 2013 or so. 
