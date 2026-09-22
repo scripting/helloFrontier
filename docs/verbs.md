@@ -1,97 +1,20 @@
 # Full current list of verbs in Atlantis
 
-This is a list prepared by Claude of all the verbs in the Atlantis version of Frontier, in development, as of <%date%>. I asked Claude to make this list, and we will try to keep it current. And I will add notes here when it's updated and want to point out interesting items. 9/22/26 by DW
+This is a list prepared by Claude of all the verbs in the Atlantis version of Frontier, in development, as of <!--date-->9/22/26<!--/date-->. I asked Claude to make this list, and we will try to keep it current. And I will add notes here when it's updated and want to point out interesting items. 9/22/26 by DW
 
-### globals
-
-* abs
-* address
-* alias
-* binary
-* boolean
-* callScript
-* char
-* close
-* date
-* delete
-* direction
-* displayString
-* double
-* edit
-* enum
-* evaluate
-* filespec
-* fixed
-* getBinaryType
-* list
-* long
-* memAvail
-* mod
-* msg
-* new
-* number
-* point
-* random
-* record
-* rect
-* rgb
-* rollBeachBall
-* runSelection
-* scriptError
-* setBinaryType
-* short
-* single
-* string
-* string4
-* timeCreated
-* timeModified
+<a name="implemented"></a>
+## Implemented verbs
 
 ### app verbs
 
-* app.alertDialog
-* app.askDialog
 * app.bringToFront
 * app.clearNetworkApp
 * app.closeAllWindows
-* app.closeWindow
-* app.confirmDialog
-* app.countWindows
-* app.editWindow
-* app.enableDialogs
-* app.getErrorString
-* app.getFilePath
-* app.getPageRectangle
-* app.getPicture
-* app.getTargetWindow
-* app.getText
-* app.getWindowPosition
 * app.linkToNetworkApp
-* app.madeChanges
-* app.moveWindow
-* app.newWindow
-* app.nthWindow
-* app.openWindow
-* app.performanceTest
-* app.printWindow
-* app.putPicture
-* app.putText
-* app.quit
-* app.revertWindow
-* app.saveWindow
-* app.selectAll
-* app.selectWindow
-* app.setFont
-* app.setFontSize
-* app.setTargetWindow
-* app.setWindowTitle
-* app.somethingSelected
 * app.start
-* app.startWithDocument
-* app.zoomWindow
 
 ### backups verbs
 
-* backups.backupRoot
 * backups.init
 
 ### base64 verbs
@@ -140,15 +63,11 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 
 ### bookmarksMenu verbs
 
-* bookmarksMenu.add
 * bookmarksMenu.addBoilerplateItem
 * bookmarksMenu.addBookmark
 * bookmarksMenu.addNode
 * bookmarksMenu.builtinNodeTypes-toBeDeleted.getManilaMessageLogic
 * bookmarksMenu.builtinNodeTypes-toBeDeleted.nodeTypes.manilaHomePage
-* bookmarksMenu.builtinNodeTypes-toBeDeleted.nodeTypes.manilaMessage
-* bookmarksMenu.builtinNodeTypes-toBeDeleted.nodeTypes.manilaMessageReadOnly
-* bookmarksMenu.builtinNodeTypes-toBeDeleted.nodeTypes.manilaSiteStructureMessage
 * bookmarksMenu.builtinNodeTypes-toBeDeleted.nodeTypes.manilaTemplate
 * bookmarksMenu.getFileLogic
 * bookmarksMenu.getLogic
@@ -162,18 +81,13 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 
 * card.bringCardToFront
 * card.bringToFront
-* card.close
 * card.details.backup
-* card.details.iowafrontier
 * card.details.notsupported
-* card.getCardAttributes
 * card.getCardBackColor
 * card.getCardGrid
 * card.getCardGridUnits
 * card.getCardSize
 * card.getGlobalTable
-* card.getNamedValues
-* card.getObjectAttributes
 * card.getObjectEnabled
 * card.getObjectFillColor
 * card.getObjectFlag
@@ -190,10 +104,7 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * card.getObjectTextColor
 * card.getObjectType
 * card.getObjectVisible
-* card.getPackedTable
 * card.import
-* card.isModal
-* card.memAvail
 * card.popup.getCheckedItem
 * card.popup.getHasLabel
 * card.popup.getMenu
@@ -203,16 +114,12 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * card.popup.setMenu
 * card.popup.setSelectedText
 * card.quit
-* card.run
 * card.runFromFile
 * card.runsCards
-* card.setCardAttributes
 * card.setCardBackColor
 * card.setCardGrid
 * card.setCardSize
 * card.setGlobalTable
-* card.setModalTimeout
-* card.setObjectAttributes
 * card.setObjectEnabled
 * card.setObjectFillColor
 * card.setObjectFlag
@@ -241,7 +148,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 
 ### clock verbs
 
-* clock.idleTime
 * clock.milliseconds
 * clock.now
 * clock.set
@@ -301,7 +207,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * date.sameMonth
 * date.second
 * date.secondsSince
-* date.secondsSinceFractional
 * date.set
 * date.shortString
 * date.timeString
@@ -321,25 +226,11 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 
 ### db verbs
 
-* db.close
-* db.countItems
-* db.defined
-* db.delete
 * db.get
-* db.getModDate
-* db.getNthItem
-* db.getValue
-* db.isTable
-* db.new
-* db.newTable
-* db.open
-* db.save
 * db.set
-* db.setValue
 
 ### desktop verbs
 
-* desktop.getFileDialog
 * desktop.getFolderDialog
 * desktop.putFileDialog
 
@@ -349,44 +240,23 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * dialog.ask
 * dialog.confirm
 * dialog.fileInfo
-* dialog.getInt
-* dialog.getPassword
-* dialog.getValue
-* dialog.hideItem
 * dialog.loadFromFile
 * dialog.notify
 * dialog.olddialogs.alert
 * dialog.olddialogs.ask
 * dialog.olddialogs.threeWay
 * dialog.olddialogs.twoWay
-* dialog.run
 * dialog.runFromFile
-* dialog.runModeless
-* dialog.setItemEnable
-* dialog.setValue
-* dialog.showItem
 * dialog.threeWay
 * dialog.twoWay
 * dialog.yesNo
 * dialog.yesNoCancel
 
-### dll verbs
-
-* dll.call
-* dll.isLoaded
-* dll.load
-* dll.unload
-
 ### editMenu verbs
 
-* editMenu.clear
-* editMenu.copy
-* editMenu.cut
 * editMenu.getFont
 * editMenu.getFontSize
-* editMenu.paste
 * editMenu.plainText
-* editMenu.selectAll
 * editMenu.setBold
 * editMenu.setFont
 * editMenu.setFontSize
@@ -394,14 +264,12 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * editMenu.setOutline
 * editMenu.setShadow
 * editMenu.setUnderline
-* editMenu.undo
 
 ### export verbs
 
 * export.addToLog
 * export.callimporter
 * export.callImportSubMenu
-* export.card.doExport
 * export.card.ok
 * export.card.run
 * export.card.startCard
@@ -420,7 +288,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 
 ### fatPages verbs
 
-* fatPages.buildFileAtts
 * fatPages.buildPageAtts
 * fatPages.confirmAddress
 * fatPages.dataIsFat
@@ -436,7 +303,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * fatPages.importFatFile
 * fatPages.noObjectError
 * fatPages.readSourceFile
-* fatPages.unpackFileObject
 * fatPages.unpackOdbObject
 
 ### file verbs
@@ -466,7 +332,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * file.filesOnVolume
 * file.fileToURL
 * file.filteredCopy
-* file.findApplication
 * file.findInFile
 * file.findInFolder
 * file.folderFromPath
@@ -562,18 +427,13 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 ### fileMenu verbs
 
 * fileMenu.close
-* fileMenu.closeAll
 * fileMenu.new
 * fileMenu.open
 * fileMenu.openGuestDatabase
-* fileMenu.print
-* fileMenu.quit
-* fileMenu.revert
 * fileMenu.save
 * fileMenu.saveCopy
 * fileMenu.saveCopyOpenDatabases
 * fileMenu.saveMyRoot
-* fileMenu.saveNamedRoot
 * fileMenu.saveOpenDatabases
 
 ### fileSynch verbs
@@ -610,7 +470,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * Frontier.clickers.typeosax
 * Frontier.clickers.typersrc
 * Frontier.clickers.typeSTAK
-* Frontier.clickers.typeTEXT
 * Frontier.clickers.typeTXT
 * Frontier.clickers.typeUCMD
 * Frontier.countThreads
@@ -624,7 +483,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * Frontier.getProgramPath
 * Frontier.getString
 * Frontier.getSubFolder
-* Frontier.hideApplication
 * Frontier.isPowerPC
 * Frontier.isRuntime
 * Frontier.new2ClickFile
@@ -660,15 +518,8 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * Frontier.tools.data.nodeTypes.rss.getInfo
 * Frontier.tools.data.nodeTypes.thumbList.collapse
 * Frontier.tools.data.nodeTypes.thumbList.expand
-* Frontier.tools.data.scripts.everyHour
-* Frontier.tools.data.scripts.everyMinute
-* Frontier.tools.data.scripts.everyNight
-* Frontier.tools.data.scripts.index
-* Frontier.tools.data.scripts.init
 * Frontier.tools.data.scripts.main
 * Frontier.tools.data.scripts.statusCenterMessage
-* Frontier.tools.data.scripts.threadScript
-* Frontier.tools.data.updateCommandScript
 * Frontier.tools.data.virginWebsite.#filters.finalFilter
 * Frontier.tools.data.virginWebsite.#filters.firstFilter
 * Frontier.tools.data.virginWebsite.#filters.pagefilter
@@ -676,16 +527,12 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * Frontier.tools.data.windowTypes.outlinerFile.getBookmarkLogic
 * Frontier.tools.data.windowTypes.outlinerFile.open
 * Frontier.tools.data.windowTypes.outlinerFile.revert
-* Frontier.tools.data.windowTypes.outlinerFile.save
 * Frontier.tools.data.windowTypes.outlinerFile.saveAs
-* Frontier.tools.data.windowTypes.outlinerFile.saveAsHtml
 * Frontier.tools.data.windowTypes.outlinerFile.saveAsPlainText
 * Frontier.tools.enable
 * Frontier.tools.everyMinute
 * Frontier.tools.getInfoTable
 * Frontier.tools.getToolsFolderPath
-* Frontier.tools.init
-* Frontier.tools.install
 * Frontier.tools.installNewTools
 * Frontier.tools.installSubMenu
 * Frontier.tools.isEnabled
@@ -698,7 +545,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * Frontier.tools.nodeTypes.expand
 * Frontier.tools.nodeTypes.findNodeType
 * Frontier.tools.nodeTypes.getInfo
-* Frontier.tools.startup
 * Frontier.tools.thread.script
 * Frontier.tools.uninstall
 * Frontier.tools.uninstallSubMenu
@@ -711,22 +557,15 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * Frontier.tools.windowTypes.callbacks.opInsert
 * Frontier.tools.windowTypes.callbacks.opReturnKey
 * Frontier.tools.windowTypes.callbacks.saveWindow
-* Frontier.tools.windowTypes.callWindowType
 * Frontier.tools.windowTypes.commands.close
 * Frontier.tools.windowTypes.commands.find
 * Frontier.tools.windowTypes.commands.findNext
-* Frontier.tools.windowTypes.commands.huge
 * Frontier.tools.windowTypes.commands.insertDateTime
-* Frontier.tools.windowTypes.commands.medium
-* Frontier.tools.windowTypes.commands.new
-* Frontier.tools.windowTypes.commands.open
 * Frontier.tools.windowTypes.commands.openManilaMessage
 * Frontier.tools.windowTypes.commands.openManilaSite
 * Frontier.tools.windowTypes.commands.openManilaTemplate
 * Frontier.tools.windowTypes.commands.openNotepad
-* Frontier.tools.windowTypes.commands.openUrl
 * Frontier.tools.windowTypes.commands.quit
-* Frontier.tools.windowTypes.commands.readable
 * Frontier.tools.windowTypes.commands.replace
 * Frontier.tools.windowTypes.commands.replaceAndFindNext
 * Frontier.tools.windowTypes.commands.revert
@@ -734,7 +573,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * Frontier.tools.windowTypes.commands.saveAs
 * Frontier.tools.windowTypes.commands.saveAsHtml
 * Frontier.tools.windowTypes.commands.saveAsPlainText
-* Frontier.tools.windowTypes.commands.tiny
 * Frontier.tools.windowTypes.commands.update
 * Frontier.tools.windowTypes.commands.viewInBrowser
 * Frontier.tools.windowTypes.commands.workOffline
@@ -765,7 +603,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * html.buildPageTable
 * html.callFileWriterShutdown
 * html.callFileWriterStartup
-* html.cleanForExport
 * html.commands.importWebsite
 * html.commands.loadImageFile
 * html.commands.newPage
@@ -801,7 +638,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * html.data.standardMacros.linkPrev
 * html.data.standardMacros.linkStyleSheet
 * html.data.standardMacros.metaTags
-* html.data.standardMacros.navbar
 * html.data.standardMacros.nestedTableDisplayer
 * html.data.standardMacros.opmlToBlogroll
 * html.data.standardMacros.outlineSite
@@ -831,20 +667,15 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * html.directory.getFirstComment
 * html.directory.getInclusionFromCache
 * html.directory.getInclusionXstruct
-* html.directory.getRawHtml
 * html.directory.init
 * html.directory.initDirectoryTable
 * html.directory.popUri
 * html.directory.stripTitle
-* html.directory.suggestALinkForm
-* html.directory.viewDirectory
 * html.directory.viewNodetype
-* html.directory.walk
 * html.drawCalendar
 * html.editor.formStart
 * html.editor.get
 * html.editor.getEditingTool
-* html.expandURLs
 * html.fileWriters.file.shutdown
 * html.fileWriters.file.startup
 * html.fileWriters.file.write
@@ -887,7 +718,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * html.loadImageFile
 * html.loadTextFile
 * html.menu.addHtmlTag
-* html.menu.formatText
 * html.menu.htmlMenuEnabled
 * html.menu.init
 * html.menu.insertComment
@@ -920,7 +750,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * html.runDirectives
 * html.runOutlineDirectives
 * html.setPageTableAddress
-* html.shutdown
 * html.table.addColumn
 * html.table.addRow
 * html.table.delete
@@ -929,23 +758,18 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * html.table.render
 * html.tenderRender
 * html.translateToEntities
-* html.traversalSkip
-* html.ucmds.getOutlineHtml
-* html.ucmds.getRefconHtml
 * html.ucmds.testoutlinecmd
 * html.untaint
 * html.utilities.backup
 * html.utilities.buildCDF
 * html.utilities.buildMCF
 * html.utilities.convertclayglossary
-* html.utilities.convertclaysite
 * html.utilities.findAllHREFs
 * html.utilities.glossaryperformance
 * html.utilities.installEmbeddedScript
 * html.utilities.mcfToOutline
 * html.utilities.prefsReportBuild
 * html.utilities.renderStyleSheet
-* html.utilities.testDavenet
 * html.utilities.testMacros
 * html.utilities.testShutdown
 * html.writeFile
@@ -980,7 +804,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * io.client.menuCommands.attachObject
 * io.client.menuCommands.deleteBuddy
 * io.client.menuCommands.extractObject
-* io.client.menuCommands.newPost
 * io.client.menuCommands.openPrefs
 * io.client.menuCommands.refreshOneBuddy
 * io.client.menuCommands.supportButton
@@ -991,7 +814,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * io.client.openBuddyOutline
 * io.client.openMyOutline
 * io.client.refreshBuddies
-* io.client.saveBlogPost
 * io.client.saveOutline
 * io.client.unfollow
 * io.client.updateUser
@@ -1025,7 +847,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 ### json verbs
 
 * json.compile
-* json.decompile
 * json.encode
 
 ### kb verbs
@@ -1038,11 +859,9 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 ### launch verbs
 
 * launch.anything
-* launch.appleMenu
 * launch.application
 * launch.appWithDocument
 * launch.controlPanel
-* launch.resource
 * launch.usingID
 
 ### log verbs
@@ -1076,11 +895,8 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * mainResponder.adminSite.macros.adminMenu
 * mainResponder.adminSite.macros.databaseInfo
 * mainResponder.adminSite.macros.diskInfo
-* mainResponder.adminSite.macros.initSiteListCache
 * mainResponder.adminSite.macros.listSites
-* mainResponder.adminSite.macros.manageSite
 * mainResponder.adminSite.macros.recentEvents
-* mainResponder.adminSite.macros.recentlyUpdatedSites
 * mainResponder.adminSite.macros.search
 * mainResponder.adminSite.macros.serverStats
 * mainResponder.adminSite.macros.statusCenter
@@ -1095,14 +911,11 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * mainResponder.adminSite.prefs.listObjects
 * mainResponder.adminSite.prefs.listSubscribableDatabases
 * mainResponder.adminSite.prefs.listWebeditUsers
-* mainResponder.adminSite.prefs.megabytePref
 * mainResponder.adminSite.prefs.mimeTypes
 * mainResponder.adminSite.prefs.numberPopup
 * mainResponder.adminSite.prefs.renderDomainTree
 * mainResponder.adminSite.prefs.securityLevel
-* mainResponder.adminSite.prefs.subscriptions
 * mainResponder.adminSite.prefs.themes
-* mainResponder.adminSite.prefs.updateNowButton
 * mainResponder.adminSite.website.#filters.finalFilter
 * mainResponder.adminSite.website.#filters.firstFilter
 * mainResponder.adminSite.website.#filters.pageFilter
@@ -1116,9 +929,7 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * mainResponder.adminSite.website.inetdLog
 * mainResponder.adminSite.website.maintenance
 * mainResponder.adminSite.website.memberProfile
-* mainResponder.adminSite.website.newSite
 * mainResponder.adminSite.website.objects
-* mainResponder.adminSite.website.readouts
 * mainResponder.adminSite.website.renewLicense
 * mainResponder.adminSite.website.rootUpdatesLog
 * mainResponder.adminSite.website.rpcLog
@@ -1127,10 +938,7 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * mainResponder.adminSite.website.searchEngineIndexerLog
 * mainResponder.adminSite.website.searchEngineLog
 * mainResponder.adminSite.website.serialNumber
-* mainResponder.adminSite.website.serverMonitor
 * mainResponder.adminSite.website.settings
-* mainResponder.adminSite.website.setupFrontier
-* mainResponder.adminSite.website.tools
 * mainResponder.adminSite.website.updates
 * mainResponder.background.everyHour
 * mainResponder.background.everyMinute
@@ -1140,22 +948,15 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * mainResponder.calendar.addTo
 * mainResponder.calendar.dateTopathArgs
 * mainResponder.calendar.draw
-* mainResponder.calendar.getAddressDay
 * mainResponder.calendar.getDayAddress
-* mainResponder.calendar.getFirstAddress
 * mainResponder.calendar.getFirstDay
-* mainResponder.calendar.getLastAddress
 * mainResponder.calendar.getLastDay
 * mainResponder.calendar.getLink
 * mainResponder.calendar.getLinks
 * mainResponder.calendar.getLinkToNextMonth
 * mainResponder.calendar.getLinkToPrevMonth
-* mainResponder.calendar.getMostRecentAddress
 * mainResponder.calendar.getMostRecentDay
-* mainResponder.calendar.getNextAddress
-* mainResponder.calendar.getNextDay
 * mainResponder.calendar.getPreviousDay
-* mainResponder.calendar.navigate
 * mainResponder.calendar.nextPrevLinks
 * mainResponder.calendar.pathArgsToDate
 * mainResponder.calendar.visitReverseChronologic
@@ -1170,7 +971,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * mainResponder.controlPanel.#tools.buildInitialXml
 * mainResponder.controlPanel.#tools.customStyleSheet
 * mainResponder.controlPanel.#tools.diskStats
-* mainResponder.controlPanel.#tools.drawNavigator
 * mainResponder.controlPanel.#tools.helpLinks
 * mainResponder.controlPanel.#tools.homePageLink
 * mainResponder.controlPanel.#tools.indexerLogBrowser
@@ -1180,21 +980,14 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * mainResponder.controlPanel.#tools.webEditLogBrowser
 * mainResponder.controlPanel.#wizard.callbacks.afterCompile
 * mainResponder.controlPanel.#wizard.callbacks.customRenderer
-* mainResponder.controlPanel.#wizard.callbacks.getValue
-* mainResponder.controlPanel.#wizard.callbacks.setValue
-* mainResponder.controlPanel.addIn
 * mainResponder.controlPanel.databases
 * mainResponder.controlPanel.domains
 * mainResponder.controlPanel.emailConfig
 * mainResponder.controlPanel.mimeTypes
-* mainResponder.controlPanel.newSite
 * mainResponder.controlPanel.objects
 * mainResponder.controlPanel.popupWindow
 * mainResponder.controlPanel.searchEngine
-* mainResponder.controlPanel.settings
-* mainResponder.controlPanel.sites
 * mainResponder.controlPanel.system
-* mainResponder.controlPanel.tools
 * mainResponder.controlPanel.updates
 * mainResponder.crawler
 * mainResponder.data.partsPacker
@@ -1230,9 +1023,7 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * mainResponder.discuss.postAttachedFile
 * mainResponder.discuss.postEditedMessage
 * mainResponder.discuss.postMessage
-* mainResponder.discuss.readMessage
 * mainResponder.discuss.readThread
-* mainResponder.discuss.renderOneMessage
 * mainResponder.discuss.rpcMessageEnclosure
 * mainResponder.discuss.sendMessageToClient
 * mainResponder.discuss.setMessageText
@@ -1294,16 +1085,13 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * mainResponder.members.useHashedCookies
 * mainResponder.members.validMailAddress
 * mainResponder.menuCommands.addToUserDatabases
-* mainResponder.menuCommands.changeSiteUrl
 * mainResponder.menuCommands.closeEverything
 * mainResponder.menuCommands.enableDisableMenuItem
-* mainResponder.menuCommands.installSite
 * mainResponder.menuCommands.lookupDomain
 * mainResponder.menuCommands.lookupDomainReverse
 * mainResponder.menuCommands.mapToDomain
 * mainResponder.menuCommands.mustBeSixPointOne
 * mainResponder.menuCommands.toggleControlPanel
-* mainResponder.menuCommands.unInstallSite
 * mainResponder.neuterOutline
 * mainResponder.neuterText
 * mainResponder.news.editStory
@@ -1319,8 +1107,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * mainResponder.openFile
 * mainResponder.parseMultipart
 * mainResponder.redirect
-* mainResponder.respond
-* mainResponder.respondx
 * mainResponder.rpcHandlers.discuss.attachEnclosure
 * mainResponder.rpcHandlers.discuss.editMessage
 * mainResponder.rpcHandlers.discuss.getMessage
@@ -1348,7 +1134,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * mainResponder.search.client.addMessageCallback
 * mainResponder.search.client.buildSearchTable
 * mainResponder.search.client.checkSearchTable
-* mainResponder.search.client.index
 * mainResponder.search.client.indexDiscussionMessage
 * mainResponder.search.client.indexPage
 * mainResponder.search.client.inWebsite
@@ -1379,10 +1164,8 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * mainResponder.search.server.renderResultCallbacks.googleClone
 * mainResponder.search.server.restartIndex
 * mainResponder.search.server.resultFilterCallbacks.filterBySiteUrl
-* mainResponder.search.server.searchPage
 * mainResponder.search.server.storePageForIndexing
 * mainResponder.search.utilities.assureIndex
-* mainResponder.search.utilities.cleanText
 * mainResponder.search.utilities.compactText
 * mainResponder.search.utilities.deletePageFromLocalIndex
 * mainResponder.search.utilities.getIndexPath
@@ -1402,7 +1185,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * mainResponder.subscriptions.server
 * mainResponder.tableToHTML
 * mainResponder.testing.buildDaveNetCalendar
-* mainResponder.testing.convertDiscussionGroup
 * mainResponder.testing.copyWebsites
 * mainResponder.testing.hierarchyPage
 * mainResponder.testing.makeHttpRequest
@@ -1412,7 +1194,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * mainResponder.utilities.countMessageReads
 * mainResponder.utilities.findDatabases
 * mainResponder.utilities.getConfigInfo
-* mainResponder.utilities.getHashStats
 * mainResponder.utilities.getThreadStats
 * mainResponder.utilities.initializeDiscussArchives
 * mainResponder.utilities.mailConfig
@@ -1440,11 +1221,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * menu.toggle
 * menu.zoomScript
 
-### mouse verbs
-
-* mouse.button
-* mouse.location
-
 ### mrcalendar verbs
 
 * mrcalendar.getDayAddress
@@ -1457,7 +1233,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * odbServer.addToLog
 * odbServer.commandDecode
 * odbServer.commandEncode
-* odbServer.commandHandle
 * odbServer.commandSend
 * odbServer.daemon.daemon
 * odbServer.init
@@ -1480,16 +1255,13 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * op.console.start
 * op.countSubs
 * op.countSummits
-* op.deHoist
 * op.deHoistAll
 * op.deleteLine
 * op.deleteSubs
 * op.demote
 * op.expand
-* op.find
 * op.findNext
 * op.firstSummit
-* op.flatCursorKeys
 * op.fullCollapse
 * op.fullExpand
 * op.getCursor
@@ -1501,15 +1273,11 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * op.getNetXstruct
 * op.getRefCon
 * op.getScrollState
-* op.getSelectedSubOutlines
-* op.getSelection
 * op.getSubOutline
 * op.go
-* op.hoist
 * op.init
 * op.insert
 * op.insertAtEndOfList
-* op.insertOutline
 * op.level
 * op.listToOutline
 * op.newOutlineObject
@@ -1520,7 +1288,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * op.render.compileRules
 * op.render.getFontIncludes
 * op.render.testing.runtest
-* op.render.viewOutline
 * op.reorg
 * op.rssToOutline
 * op.setCursor
@@ -1528,14 +1295,11 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * op.setExpansionState
 * op.setLineText
 * op.setModified
-* op.setRefcon
 * op.setScrollState
 * op.sort
 * op.subsExpanded
-* op.tabKeyReorg
 * op.utilities.backupFrontOutline
 * op.visit
-* op.visitAll
 * op.visitSelection
 * op.wipe
 * op.xmlToOutline
@@ -1565,7 +1329,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * opmlEditor.httpLog.viewHttpLog
 * opmlEditor.init
 * opmlEditor.initServerOnPort80
-* opmlEditor.initStaticText
 * opmlEditor.initUser
 * opmlEditor.installTool
 * opmlEditor.isSameMachine
@@ -1580,7 +1343,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * opmlEditor.member.getMemberPrefs
 * opmlEditor.member.getRedirectUrl
 * opmlEditor.member.initGroup
-* opmlEditor.member.initMember
 * opmlEditor.member.signin
 * opmlEditor.member.signout
 * opmlEditor.member.signup
@@ -1693,7 +1455,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * opmlEditor.worldOutline.addBookmarkCallback
 * opmlEditor.worldOutline.addToRSS
 * opmlEditor.worldOutline.archiveSubOutline
-* opmlEditor.worldOutline.buildRss
 * opmlEditor.worldOutline.buttons.archive.00001000	Save
 * opmlEditor.worldOutline.buttons.archive.00004000	New Post
 * opmlEditor.worldOutline.buttons.archive.00004000	RSS+
@@ -1735,19 +1496,10 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * opmlEditor.worldOutline.viewHeadline
 * opmlEditor.writeStaticFile
 
-### osa verbs
-
-* osa.compile
-* osa.getSource
-
 ### pict verbs
 
-* pict.expressions
-* pict.getPicture
 * pict.PICTToPicture
 * pict.pictureToPICT
-* pict.scheduleUpdate
-* pict.setPicture
 
 ### pikeRenderer verbs
 
@@ -1761,11 +1513,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * pikeRenderer.drivers.html.textstyle
 * pikeRenderer.init
 * pikeRenderer.theRenderer
-
-### point verbs
-
-* point.get
-* point.set
 
 ### prefs2 verbs
 
@@ -1785,13 +1532,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * prefs2.viewIndex
 * prefs2.viewPanel
 
-### quickTime verbs
-
-* quickTime.isPlaying
-* quickTime.open
-* quickTime.play
-* quickTime.stop
-
 ### radio verbs
 
 * radio.prefs.browseHelp
@@ -1800,35 +1540,21 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * radio.prefs.browser
 * radio.prefs.browseSystemPrefs
 * radio.prefs.checkboxPref
-* radio.prefs.compileIfDirty
 * radio.prefs.errorString
 * radio.prefs.numberPref
 * radio.prefs.popupMenuPref
 * radio.prefs.postCatcher
-* radio.prefs.refreshAfterPost
 * radio.prefs.seeAlso
-* radio.prefs.special.ftp
 * radio.prefs.special.languagePopup
-* radio.prefs.special.mailPassword
 * radio.prefs.special.newPassword
 * radio.prefs.special.passwords
 * radio.prefs.special.wizzyEditorCheckbox
 * radio.prefs.special.xmlRpcAndSoapCheckbox
 * radio.prefs.stringPref
-* radio.prefs.templatePref
 * radio.prefs.textAreaPref
 
 ### re verbs
 
-* re.compile
-* re.expand
-* re.extract
-* re.getPatternInfo
-* re.grep
-* re.join
-* re.match
-* re.replace
-* re.split
 * re.testing.comparison
 * re.testing.expand
 * re.testing.extract
@@ -1842,7 +1568,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * re.testing.stressTest
 * re.testing.umlauts
 * re.testing.visit
-* re.visit
 
 ### realtime verbs
 
@@ -1874,36 +1599,14 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 
 ### rectangle verbs
 
-* rectangle.get
 * rectangle.inset
 * rectangle.outset
 * rectangle.random
-* rectangle.set
 
 ### rez verbs
 
-* rez.countResources
-* rez.countResTypes
-* rez.deleteNamedResource
-* rez.deleteResource
-* rez.getNamedResource
-* rez.getNthResInfo
-* rez.getNthResource
-* rez.getNthResType
-* rez.getResource
-* rez.getResourceAttributes
 * rez.getStringResource
-* rez.namedResourceExists
-* rez.putNamedResource
-* rez.putResource
 * rez.putStringResource
-* rez.resourceExists
-* rez.setResourceAttributes
-
-### rgb verbs
-
-* rgb.get
-* rgb.set
 
 ### rootUpdates verbs
 
@@ -1916,7 +1619,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * rootUpdates.multiRootUpdate
 * rootUpdates.threadedMultiRootUpdate
 * rootUpdates.threadedUpdate
-* rootUpdates.update
 
 ### scheduler verbs
 
@@ -1940,51 +1642,34 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 
 ### script verbs
 
-* script.clearBreakpoint
 * script.compile
-* script.getBreakpoint
-* script.getLanguage
 * script.isComment
 * script.makeComment
 * script.newScriptObject
-* script.removeSource
 * script.scriptToOutline
-* script.setBreakpoint
-* script.setLanguage
-* script.startProfile
-* script.stopProfile
 * script.subOutlineToScript
 * script.unComment
-* script.unCompile
 
 ### search verbs
 
 * search.dialog
 * search.find
-* search.findNext
 * search.globalReplace
-* search.replace
-* search.replaceAll
-* search.reset
 
 ### searchEngine verbs
 
 * searchEngine.checkStopWords
 * searchEngine.cleanText
 * searchEngine.createPreview
-* searchEngine.deIndexPage
-* searchEngine.doSearch
 * searchEngine.getIndexAddress
 * searchEngine.getPreviewsAddress
 * searchEngine.indexCurrentPage
 * searchEngine.indexFolder
 * searchEngine.indexLocalPage
 * searchEngine.indexLocalSite
-* searchEngine.indexPage
 * searchEngine.indexRemotePage
 * searchEngine.indexViaHTTP
 * searchEngine.init
-* searchEngine.mergeResults
 * searchEngine.replaceAll
 * searchEngine.saveIndex
 * searchEngine.searchMacro
@@ -2001,11 +1686,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * semaphores.lock
 * semaphores.unlock
 * semaphores.unlockAll
-
-### simpleRootUpdatex verbs
-
-* simpleRootUpdatex.doUpdate
-* simpleRootUpdatex.init
 
 ### soap verbs
 
@@ -2046,7 +1726,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * soap.xmlutils.getElementName
 * soap.xmlutils.getFirstChildElement
 * soap.xmlutils.getNamedChildElement
-* soap.xmlutils.getNextSiblingElement
 * soap.xmlutils.getNthChildElement
 * soap.xmlutils.getQualifiedName
 * soap.xmlutils.hasChildren
@@ -2064,7 +1743,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 
 * speaker.beep
 * speaker.ouch
-* speaker.playNamedSound
 * speaker.sound
 
 ### stack verbs
@@ -2193,7 +1871,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * sys.osName
 * sys.osVersion
 * sys.setAppSize
-* sys.setFrontApp
 * sys.setMinAppSize
 * sys.systemTask
 * sys.unixShellCommand
@@ -2201,19 +1878,13 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 ### table verbs
 
 * table.assign
-* table.compareContents
 * table.copy
 * table.copyContents
 * table.emptyTable
 * table.getCursor
 * table.getCursorAddress
 * table.getRootAddress
-* table.getSelection
-* table.getSortOrder
-* table.go
-* table.goto
 * table.gotoAddress
-* table.gotoName
 * table.inGuestDatabase
 * table.move
 * table.moveAndRename
@@ -2228,10 +1899,8 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * table.tableContains
 * table.tableToXml
 * table.uniqueName
-* table.validate
 * table.visit
 * table.visitOpenDatabases
-* table.xmlToTable
 
 ### target verbs
 
@@ -2267,7 +1936,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * tcp.ftp.daemon
 * tcp.ftp.delete
 * tcp.ftp.openConnection
-* tcp.ftp.read
 * tcp.ftp.readResponse
 * tcp.ftp.removeDirectory
 * tcp.ftp.sendCommand
@@ -2275,7 +1943,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * tcp.ftp.yieldProcessor
 * tcp.getCurrentTime
 * tcp.getLocationInfo
-* tcp.getMail
 * tcp.getPeerAddress
 * tcp.getPeerPort
 * tcp.httpClient
@@ -2358,14 +2025,9 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * tcp.im.builtinDrivers.aim.stop
 * tcp.im.builtinDrivers.jabber.code.closeConnection
 * tcp.im.builtinDrivers.jabber.code.deleteHandler
-* tcp.im.builtinDrivers.jabber.code.everyMinute
 * tcp.im.builtinDrivers.jabber.code.examples.chef.chef
 * tcp.im.builtinDrivers.jabber.code.examples.chef.chefMessageHandler
-* tcp.im.builtinDrivers.jabber.code.examples.directWeblogPoster
 * tcp.im.builtinDrivers.jabber.code.examples.presenceTrackingShell
-* tcp.im.builtinDrivers.jabber.code.examples.pubsub.callbacks.subscribeService
-* tcp.im.builtinDrivers.jabber.code.examples.pubsub.callbacks.unsubscribeService
-* tcp.im.builtinDrivers.jabber.code.examples.pubsub.pubsubPublishHandler
 * tcp.im.builtinDrivers.jabber.code.examples.pubsub.pubsubSubscribe
 * tcp.im.builtinDrivers.jabber.code.examples.pubsub.pubsubUnsubscribe
 * tcp.im.builtinDrivers.jabber.code.examples.rpc.handler
@@ -2375,11 +2037,9 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * tcp.im.builtinDrivers.jabber.code.examples.tcpImServer
 * tcp.im.builtinDrivers.jabber.code.getHandler
 * tcp.im.builtinDrivers.jabber.code.getPresenceInfo
-* tcp.im.builtinDrivers.jabber.code.handleMessage
 * tcp.im.builtinDrivers.jabber.code.handlers.iqLoggedIn
 * tcp.im.builtinDrivers.jabber.code.handlers.iqRegister
 * tcp.im.builtinDrivers.jabber.code.handlers.iqRoster
-* tcp.im.builtinDrivers.jabber.code.handlers.iqVersion
 * tcp.im.builtinDrivers.jabber.code.handlers.message
 * tcp.im.builtinDrivers.jabber.code.handlers.presence
 * tcp.im.builtinDrivers.jabber.code.idTables.create
@@ -2392,8 +2052,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * tcp.im.builtinDrivers.jabber.code.messages.iqVersionRequest
 * tcp.im.builtinDrivers.jabber.code.messages.message
 * tcp.im.builtinDrivers.jabber.code.messages.presence
-* tcp.im.builtinDrivers.jabber.code.messages.subscribe
-* tcp.im.builtinDrivers.jabber.code.messages.unsubscribe
 * tcp.im.builtinDrivers.jabber.code.openConnection
 * tcp.im.builtinDrivers.jabber.code.parseJabberId
 * tcp.im.builtinDrivers.jabber.code.registerHandler
@@ -2463,7 +2121,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * tcp.im.stop
 * tcp.im.stopAll
 * tcp.im.utilities.cleanError
-* tcp.isOffline
 * tcp.listenStream
 * tcp.myAddress
 * tcp.myDottedID
@@ -2474,7 +2131,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * tcp.readStreamUntil
 * tcp.readStreamUntilClosed
 * tcp.sendMail
-* tcp.setOffline
 * tcp.statusStream
 * tcp.writeFileToStream
 * tcp.writeStream
@@ -2483,7 +2139,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 ### thread verbs
 
 * thread.callScript
-* thread.easyCall
 * thread.evaluate
 * thread.evaluateTo
 * thread.exists
@@ -2508,28 +2163,19 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 
 ### userland verbs
 
-* userland.addServerMenu
 * userland.cleanRoot
-* userland.completeSetup
 * userland.copyResources
-* userland.createDefaultIspSite
-* userland.createDefaultManilaSite
-* userland.createDefaultSite
 * userland.dwExport
 * userland.dwRestore
 * userland.finishInstall
 * userland.firstRootRun
 * userland.installApp
 * userland.isValidSerialNumber
-* userland.oldstuff.buildChangesOutline
 * userland.oldstuff.createReadMeFile
 * userland.oldstuff.deleteArethaStats
-* userland.oldstuff.everything
-* userland.oldstuff.Frontier3toAretha
 * userland.oldstuff.loadFolder
 * userland.oldstuff.partsExport
 * userland.oldstuff.release
-* userland.oldstuff.reload
 * userland.oldstuff.sanitizer
 * userland.oldstuff.testscripts.testlog
 * userland.oldstuff.testscripts.testparentof
@@ -2538,7 +2184,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * userland.randomizeAllPasswords
 * userland.readmeSite.#filters.finalfilter
 * userland.readmeSite.#filters.pagefilter
-* userland.trialVersionCheck
 * userland.workarounds.initialMacDisplayGlitch
 
 ### webApp verbs
@@ -2556,59 +2201,31 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 
 ### webBrowser verbs
 
-* webBrowser.beginProgress
 * webBrowser.bringToFront
 * webBrowser.callBrowser
-* webBrowser.cancelTransaction
 * webBrowser.displayText
-* webBrowser.endProgress
-* webBrowser.getDefaultBrowser
-* webBrowser.getFrontWindowSource
 * webBrowser.getFrontWindowTitle
 * webBrowser.getFrontWindowURL
-* webBrowser.getID
 * webBrowser.getScriptPrefsFolder
-* webBrowser.getSource
-* webBrowser.getWindowInfo
-* webBrowser.getWindowList
 * webBrowser.init
 * webBrowser.isRunning
 * webBrowser.launch
 * webBrowser.launchMacBrowser
-* webBrowser.makingProgress
 * webBrowser.openDocument
 * webBrowser.openFromGlossary
-* webBrowser.openURL
-* webBrowser.parseAnchor
-* webBrowser.printDocument
 * webBrowser.protocols.handleURL
 * webBrowser.protocols.otherhandlers.ftp
 * webBrowser.protocols.otherhandlers.mailto
-* webBrowser.protocols.otherhandlers.usrtlk
 * webBrowser.protocols.safetyCheck
 * webBrowser.protocols.shutdown
 * webBrowser.protocols.startup
 * webBrowser.protocols.testing.test
-* webBrowser.queryVersion
-* webBrowser.quit
-* webBrowser.registerDone
-* webBrowser.registerProtocol
-* webBrowser.registerUrlEcho
-* webBrowser.registerViewer
-* webBrowser.registerWindowClose
-* webBrowser.setProgressRange
-* webBrowser.showfile
 * webBrowser.supportedBrowsers
 * webBrowser.tourMenuMessage
 * webBrowser.tours.endTour
-* webBrowser.tours.handleURL
 * webBrowser.tours.openMenu
 * webBrowser.tours.startTour
 * webBrowser.tours.visitSite
-* webBrowser.unregisterProtocol
-* webBrowser.unregisterUrlEcho
-* webBrowser.unregisterViewer
-* webBrowser.unregisterWindowClose
 * webBrowser.utilities.getGlossaryHTML
 * webBrowser.utilities.viewGlossary
 * webBrowser.utilities.whoIs
@@ -2623,10 +2240,8 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * webserver.apache.start
 * webserver.apache.stop
 * webserver.buildErrorPage
-* webserver.data.actions.macro
 * webserver.data.actions.preprocessor
 * webserver.data.cgis.samples.runtimeError
-* webserver.data.cgis.samples.syntaxError
 * webserver.data.cgis.samples.tellParams
 * webserver.data.cgis.samples.tellTime
 * webserver.data.postFilters.debug
@@ -2637,7 +2252,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * webserver.data.responders.helloWorld.methods.GET
 * webserver.data.responders.websiteFramework.condition
 * webserver.data.trap
-* webserver.data.trapScript
 * webserver.debugCGI
 * webserver.dispatch
 * webserver.echoResponder
@@ -2650,7 +2264,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * webserver.init
 * webserver.initCleanAndSafe
 * webserver.openFolder
-* webserver.parseArgs
 * webserver.postFilters.commonLog
 * webserver.postFilters.domainStats
 * webserver.processMacros
@@ -2661,7 +2274,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * webserver.responders.default.methods.PUT
 * webserver.responders.echo.methods.GET
 * webserver.responders.server.methods.OPTIONS
-* webserver.responders.websiteFramework.methods.any
 * webserver.responders.wormDefense.methods.any
 * webserver.sendPartial
 * webserver.server
@@ -2702,7 +2314,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * window.attributes.setOne
 * window.bringToFront
 * window.close
-* window.dbStats
 * window.frontmost
 * window.getFile
 * window.getPosition
@@ -2722,13 +2333,8 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * window.next
 * window.open
 * window.quickScript
-* window.quickTime
-* window.runSelection
-* window.scroll
-* window.sendToBack
 * window.setModified
 * window.setPosition
-* window.setQuickScript
 * window.setSize
 * window.setTitle
 * window.show
@@ -2738,33 +2344,14 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 
 ### wp verbs
 
-* wp.clearTabs
-* wp.getDisplay
-* wp.getIndent
-* wp.getLeftMargin
-* wp.getRightMargin
-* wp.getRuler
 * wp.getSelect
 * wp.getSelText
 * wp.getText
-* wp.go
 * wp.insert
 * wp.inTextMode
 * wp.newTextObject
 * wp.readFileIntoTextObject
-* wp.rulerLength
-* wp.selectLine
-* wp.selectParagraph
-* wp.selectWord
-* wp.setDisplay
-* wp.setIndent
-* wp.setJustification
-* wp.setLeftMargin
-* wp.setRightMargin
-* wp.setRuler
 * wp.setSelect
-* wp.setSpacing
-* wp.setTab
 * wp.setText
 * wp.setTextMode
 
@@ -2777,10 +2364,8 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * xml.aggregator.clearCache
 * xml.aggregator.everyMinute
 * xml.aggregator.getEnclosureData
-* xml.aggregator.getServicesXml
 * xml.aggregator.init
 * xml.aggregator.menuCommands.importSubscriptions
-* xml.aggregator.readAllServices
 * xml.aggregator.readService
 * xml.aggregator.rpcHandlers.deleteItem
 * xml.aggregator.rpcHandlers.deleteItems
@@ -2794,14 +2379,10 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * xml.aggregator.rpcHandlers.unsubscribe
 * xml.aggregator.rpcTesting.testItems
 * xml.aggregator.rpcTesting.testSubs
-* xml.aggregator.saveServicesXml
-* xml.aggregator.securityForRpc
 * xml.aggregator.storyArrivedCallback
 * xml.aggregator.subscribeService
 * xml.aggregator.unsubscribeErrantServices
 * xml.aggregator.unsubscribeService
-* xml.aggregator.updateArchives
-* xml.aggregator.updateSubscriptions
 * xml.aggregator.visitServices
 * xml.alidl.get
 * xml.coercions.frontierValueToTaggedText
@@ -2839,9 +2420,7 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * xml.macros.readableXML
 * xml.opml.getBodyAddress
 * xml.opml.getHtmlFromOpml
-* xml.opml.getOpmlText
 * xml.opml.getTextAtt
-* xml.opml.glossToOpml
 * xml.opml.neuterStruct
 * xml.opml.opmlToGloss
 * xml.opml.opmlToJson
@@ -2856,7 +2435,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * xml.pubsub.xmlRpcNotify
 * xml.rpc
 * xml.rss.compileService
-* xml.rss.decodeString
 * xml.rss.defaultCloud.getCloudElement
 * xml.rss.defaultCloud.init
 * xml.rss.defaultCloud.ping
@@ -2892,3 +2470,509 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * xml.thread.initStruct
 * xml.thread.newVersion
 * xml.valToString
+
+<a name="notImplemented"></a>
+## Not-implemented verbs
+
+### app verbs
+
+* app.alertDialog
+* app.askDialog
+* app.closeWindow
+* app.confirmDialog
+* app.countWindows
+* app.editWindow
+* app.enableDialogs
+* app.getErrorString
+* app.getFilePath
+* app.getPageRectangle
+* app.getPicture
+* app.getTargetWindow
+* app.getText
+* app.getWindowPosition
+* app.madeChanges
+* app.moveWindow
+* app.newWindow
+* app.nthWindow
+* app.openWindow
+* app.performanceTest
+* app.printWindow
+* app.putPicture
+* app.putText
+* app.quit
+* app.revertWindow
+* app.saveWindow
+* app.selectAll
+* app.selectWindow
+* app.setFont
+* app.setFontSize
+* app.setTargetWindow
+* app.setWindowTitle
+* app.somethingSelected
+* app.startWithDocument
+* app.zoomWindow
+
+### backups verbs
+
+* backups.backupRoot
+
+### bookmarksMenu verbs
+
+* bookmarksMenu.add
+* bookmarksMenu.builtinNodeTypes-toBeDeleted.nodeTypes.manilaMessage
+* bookmarksMenu.builtinNodeTypes-toBeDeleted.nodeTypes.manilaMessageReadOnly
+* bookmarksMenu.builtinNodeTypes-toBeDeleted.nodeTypes.manilaSiteStructureMessage
+
+### card verbs
+
+* card.close
+* card.details.iowafrontier
+* card.getCardAttributes
+* card.getNamedValues
+* card.getObjectAttributes
+* card.getPackedTable
+* card.isModal
+* card.memAvail
+* card.run
+* card.setCardAttributes
+* card.setModalTimeout
+* card.setObjectAttributes
+
+### clock verbs
+
+* clock.idleTime
+
+### db verbs
+
+* db.close
+* db.countItems
+* db.defined
+* db.delete
+* db.getModDate
+* db.getNthItem
+* db.getValue
+* db.isTable
+* db.new
+* db.newTable
+* db.open
+* db.save
+* db.setValue
+
+### desktop verbs
+
+* desktop.getFileDialog
+
+### dialog verbs
+
+* dialog.getInt
+* dialog.getPassword
+* dialog.getValue
+* dialog.hideItem
+* dialog.run
+* dialog.runModeless
+* dialog.setItemEnable
+* dialog.setValue
+* dialog.showItem
+
+### dll verbs
+
+* dll.call
+* dll.isLoaded
+* dll.load
+* dll.unload
+
+### editMenu verbs
+
+* editMenu.clear
+* editMenu.copy
+* editMenu.cut
+* editMenu.paste
+* editMenu.selectAll
+* editMenu.undo
+
+### export verbs
+
+* export.card.doExport
+
+### fatPages verbs
+
+* fatPages.buildFileAtts
+* fatPages.unpackFileObject
+
+### file verbs
+
+* file.findApplication
+
+### fileMenu verbs
+
+* fileMenu.closeAll
+* fileMenu.print
+* fileMenu.quit
+* fileMenu.revert
+
+### Frontier verbs
+
+* Frontier.clickers.typeTEXT
+* Frontier.hideApplication
+* Frontier.tools.data.scripts.everyHour
+* Frontier.tools.data.scripts.everyMinute
+* Frontier.tools.data.scripts.everyNight
+* Frontier.tools.data.scripts.index
+* Frontier.tools.data.scripts.init
+* Frontier.tools.data.scripts.threadScript
+* Frontier.tools.data.updateCommandScript
+* Frontier.tools.data.windowTypes.outlinerFile.save
+* Frontier.tools.data.windowTypes.outlinerFile.saveAsHtml
+* Frontier.tools.init
+* Frontier.tools.install
+* Frontier.tools.startup
+* Frontier.tools.windowTypes.callWindowType
+* Frontier.tools.windowTypes.commands.huge
+* Frontier.tools.windowTypes.commands.medium
+* Frontier.tools.windowTypes.commands.new
+* Frontier.tools.windowTypes.commands.open
+* Frontier.tools.windowTypes.commands.openUrl
+* Frontier.tools.windowTypes.commands.readable
+* Frontier.tools.windowTypes.commands.tiny
+
+### html verbs
+
+* html.cleanForExport
+* html.data.standardMacros.navbar
+* html.directory.getRawHtml
+* html.directory.suggestALinkForm
+* html.directory.viewDirectory
+* html.directory.walk
+* html.expandURLs
+* html.menu.formatText
+* html.shutdown
+* html.traversalSkip
+* html.ucmds.getOutlineHtml
+* html.ucmds.getRefconHtml
+* html.utilities.convertclaysite
+* html.utilities.testDavenet
+
+### io verbs
+
+* io.client.menuCommands.newPost
+* io.client.saveBlogPost
+
+### json verbs
+
+* json.decompile
+
+### launch verbs
+
+* launch.appleMenu
+* launch.resource
+
+### mainResponder verbs
+
+* mainResponder.adminSite.macros.initSiteListCache
+* mainResponder.adminSite.macros.manageSite
+* mainResponder.adminSite.macros.recentlyUpdatedSites
+* mainResponder.adminSite.prefs.megabytePref
+* mainResponder.adminSite.prefs.subscriptions
+* mainResponder.adminSite.prefs.updateNowButton
+* mainResponder.adminSite.website.newSite
+* mainResponder.adminSite.website.readouts
+* mainResponder.adminSite.website.serverMonitor
+* mainResponder.adminSite.website.setupFrontier
+* mainResponder.adminSite.website.tools
+* mainResponder.calendar.getAddressDay
+* mainResponder.calendar.getFirstAddress
+* mainResponder.calendar.getLastAddress
+* mainResponder.calendar.getMostRecentAddress
+* mainResponder.calendar.getNextAddress
+* mainResponder.calendar.getNextDay
+* mainResponder.calendar.navigate
+* mainResponder.controlPanel.#tools.drawNavigator
+* mainResponder.controlPanel.#wizard.callbacks.getValue
+* mainResponder.controlPanel.#wizard.callbacks.setValue
+* mainResponder.controlPanel.addIn
+* mainResponder.controlPanel.newSite
+* mainResponder.controlPanel.settings
+* mainResponder.controlPanel.sites
+* mainResponder.controlPanel.tools
+* mainResponder.discuss.readMessage
+* mainResponder.discuss.renderOneMessage
+* mainResponder.menuCommands.changeSiteUrl
+* mainResponder.menuCommands.installSite
+* mainResponder.menuCommands.unInstallSite
+* mainResponder.respond
+* mainResponder.respondx
+* mainResponder.search.client.index
+* mainResponder.search.server.searchPage
+* mainResponder.search.utilities.cleanText
+* mainResponder.testing.convertDiscussionGroup
+* mainResponder.utilities.getHashStats
+
+### mouse verbs
+
+* mouse.button
+* mouse.location
+
+### odbServer verbs
+
+* odbServer.commandHandle
+
+### op verbs
+
+* op.deHoist
+* op.find
+* op.flatCursorKeys
+* op.getSelectedSubOutlines
+* op.getSelection
+* op.hoist
+* op.insertOutline
+* op.render.viewOutline
+* op.setRefcon
+* op.tabKeyReorg
+* op.visitAll
+
+### opmlEditor verbs
+
+* opmlEditor.initStaticText
+* opmlEditor.member.initMember
+* opmlEditor.worldOutline.buildRss
+
+### osa verbs
+
+* osa.compile
+* osa.getSource
+
+### pict verbs
+
+* pict.expressions
+* pict.getPicture
+* pict.scheduleUpdate
+* pict.setPicture
+
+### point verbs
+
+* point.get
+* point.set
+
+### quickTime verbs
+
+* quickTime.isPlaying
+* quickTime.open
+* quickTime.play
+* quickTime.stop
+
+### radio verbs
+
+* radio.prefs.compileIfDirty
+* radio.prefs.refreshAfterPost
+* radio.prefs.special.ftp
+* radio.prefs.special.mailPassword
+* radio.prefs.templatePref
+
+### re verbs
+
+* re.compile
+* re.expand
+* re.extract
+* re.getPatternInfo
+* re.grep
+* re.join
+* re.match
+* re.replace
+* re.split
+* re.visit
+
+### rectangle verbs
+
+* rectangle.get
+* rectangle.set
+
+### rez verbs
+
+* rez.countResources
+* rez.countResTypes
+* rez.deleteNamedResource
+* rez.deleteResource
+* rez.getNamedResource
+* rez.getNthResInfo
+* rez.getNthResource
+* rez.getNthResType
+* rez.getResource
+* rez.getResourceAttributes
+* rez.namedResourceExists
+* rez.putNamedResource
+* rez.putResource
+* rez.resourceExists
+* rez.setResourceAttributes
+
+### rgb verbs
+
+* rgb.get
+* rgb.set
+
+### rootUpdates verbs
+
+* rootUpdates.update
+
+### script verbs
+
+* script.clearBreakpoint
+* script.getBreakpoint
+* script.getLanguage
+* script.removeSource
+* script.setBreakpoint
+* script.setLanguage
+* script.startProfile
+* script.stopProfile
+* script.unCompile
+
+### search verbs
+
+* search.findNext
+* search.replace
+* search.replaceAll
+* search.reset
+
+### searchEngine verbs
+
+* searchEngine.deIndexPage
+* searchEngine.doSearch
+* searchEngine.indexPage
+* searchEngine.mergeResults
+
+### soap verbs
+
+* soap.xmlutils.getNextSiblingElement
+
+### speaker verbs
+
+* speaker.playNamedSound
+
+### sys verbs
+
+* sys.setFrontApp
+
+### table verbs
+
+* table.compareContents
+* table.getSelection
+* table.getSortOrder
+* table.go
+* table.goto
+* table.gotoName
+* table.validate
+* table.xmlToTable
+
+### tcp verbs
+
+* tcp.ftp.read
+* tcp.getMail
+* tcp.im.builtinDrivers.jabber.code.everyMinute
+* tcp.im.builtinDrivers.jabber.code.examples.directWeblogPoster
+* tcp.im.builtinDrivers.jabber.code.examples.pubsub.callbacks.subscribeService
+* tcp.im.builtinDrivers.jabber.code.examples.pubsub.callbacks.unsubscribeService
+* tcp.im.builtinDrivers.jabber.code.examples.pubsub.pubsubPublishHandler
+* tcp.im.builtinDrivers.jabber.code.handleMessage
+* tcp.im.builtinDrivers.jabber.code.handlers.iqVersion
+* tcp.im.builtinDrivers.jabber.code.messages.subscribe
+* tcp.im.builtinDrivers.jabber.code.messages.unsubscribe
+* tcp.isOffline
+* tcp.setOffline
+
+### thread verbs
+
+* thread.easyCall
+
+### userland verbs
+
+* userland.addServerMenu
+* userland.completeSetup
+* userland.createDefaultIspSite
+* userland.createDefaultManilaSite
+* userland.createDefaultSite
+* userland.oldstuff.buildChangesOutline
+* userland.oldstuff.everything
+* userland.oldstuff.Frontier3toAretha
+* userland.oldstuff.reload
+* userland.trialVersionCheck
+
+### webBrowser verbs
+
+* webBrowser.beginProgress
+* webBrowser.cancelTransaction
+* webBrowser.endProgress
+* webBrowser.getDefaultBrowser
+* webBrowser.getFrontWindowSource
+* webBrowser.getID
+* webBrowser.getSource
+* webBrowser.getWindowInfo
+* webBrowser.getWindowList
+* webBrowser.makingProgress
+* webBrowser.openURL
+* webBrowser.parseAnchor
+* webBrowser.printDocument
+* webBrowser.protocols.otherhandlers.usrtlk
+* webBrowser.queryVersion
+* webBrowser.quit
+* webBrowser.registerDone
+* webBrowser.registerProtocol
+* webBrowser.registerUrlEcho
+* webBrowser.registerViewer
+* webBrowser.registerWindowClose
+* webBrowser.setProgressRange
+* webBrowser.showfile
+* webBrowser.tours.handleURL
+* webBrowser.unregisterProtocol
+* webBrowser.unregisterUrlEcho
+* webBrowser.unregisterViewer
+* webBrowser.unregisterWindowClose
+
+### webserver verbs
+
+* webserver.data.actions.macro
+* webserver.data.cgis.samples.syntaxError
+* webserver.data.trapScript
+* webserver.parseArgs
+* webserver.responders.websiteFramework.methods.any
+
+### window verbs
+
+* window.dbStats
+* window.quickTime
+* window.runSelection
+* window.scroll
+* window.sendToBack
+
+### wp verbs
+
+* wp.clearTabs
+* wp.getDisplay
+* wp.getIndent
+* wp.getLeftMargin
+* wp.getRightMargin
+* wp.getRuler
+* wp.go
+* wp.rulerLength
+* wp.selectLine
+* wp.selectParagraph
+* wp.selectWord
+* wp.setDisplay
+* wp.setIndent
+* wp.setJustification
+* wp.setLeftMargin
+* wp.setRightMargin
+* wp.setRuler
+* wp.setSpacing
+* wp.setTab
+
+### xml verbs
+
+* xml.aggregator.getServicesXml
+* xml.aggregator.readAllServices
+* xml.aggregator.saveServicesXml
+* xml.aggregator.securityForRpc
+* xml.aggregator.updateArchives
+* xml.aggregator.updateSubscriptions
+* xml.opml.getOpmlText
+* xml.opml.glossToOpml
+* xml.rss.decodeString
+
