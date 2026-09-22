@@ -1,6 +1,6 @@
 # Full current list of verbs in Atlantis
 
-This is a list prepared by Claude of all the verbs in the Atlantis version of Frontier, in development, as of <!--date-->9/22/26<!--/date-->. I asked Claude to make this list, and we will try to keep it current. And I will add notes here when it's updated and want to point out interesting items. 9/22/26 by DW
+This is a list prepared by Claude of all the verbs in the Atlantis version of Frontier, in development, as of <!--date-->9/22/26<!--/date-->. I asked Claude to make this list, and we will try to keep it current. It's in two parts, the verbs that <a href="#implemented">are implemented</a> as of the last release, and those that are <a href="#notImplemented">not implemented</a>. I may add notes here as things change. 9/22/26 by DW
 
 <a name="implemented"></a>
 ## Implemented verbs
@@ -2975,4 +2975,3 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * xml.opml.getOpmlText
 * xml.opml.glossToOpml
 * xml.rss.decodeString
-
