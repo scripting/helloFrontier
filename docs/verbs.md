@@ -1,5 +1,7 @@
 # Full current list of verbs in Atlantis
 
+This is a list prepared by Claude of all the verbs in the Atlantis version of Frontier, in development, as of <%date%>. I asked Claude to make this list, and we will try to keep it current. And I will add notes here when it's updated and want to point out interesting items. 
+
 ### globals
 
 * abs
@@ -2890,4 +2892,3 @@
 * xml.thread.initStruct
 * xml.thread.newVersion
 * xml.valToString
-
