@@ -1,9 +1,9 @@
-# mastodon.buildRss
+# workspace.userlandsamples.mastodon.exportMyMastofeed
 
-How we build an RSS feed from a user's Mastodon account.     
+Builds the RSS feed of Mastodon posts for the indicated user, saving the file on the desktop folder.
 
 ```javascript
-on buildRss (siteUrl, accountName, ctPosts=25, f=nil, feedUrl=nil)
+on buildRss (siteUrl, accountName, ctPosts=25, feedUrl=nil)
 	local (xmltext = "", indentlevel = 0, now = clock.now (), accountId, account, posts, ctItems = 0)
 	on add (s)
 		xmltext = xmltext + string.filledString ("\t", indentlevel) + s + "\r\n"
@@ -110,8 +110,6 @@ on buildRss (siteUrl, accountName, ctPosts=25, f=nil, feedUrl=nil)
 			ctItems++
 	add ("</channel>"); indentlevel--
 	add ("</rss>"); indentlevel--
-	if f != nil
-		file.writeWholeFile (f, xmltext)
 	return (xmltext)
 bundle //test code
 	local (f = file.getSpecialFolderPath ("", "desktop folder", true) + "rss.xml") 
