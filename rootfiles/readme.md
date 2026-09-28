@@ -2,13 +2,13 @@
 
 Frontier apps are also called root files because their names end with .root. They are also called Guest Databases, basically they are the apps of Frontier.
 
-### frontier.root
+### frontier.root, guest databases
 
 Frontier has one main root file called frontier.root. 
 
 All the builtin verbs live there, as well as user prefs, big pieces of the menubar are edited with the outliner. It's where all the scripts and data for the core functionality live.
 
-Then we added the ability to have extra databases that are packages of functionality and user interfaces.
+Then we added the ability to have extra databases, also called "guest databases" that are packages of functionality and user interfaces.
 
 We're going to collect them here as examples and as ways to test new releases. 
 

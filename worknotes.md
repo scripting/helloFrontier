@@ -1,3 +1,7 @@
+### 9/28/26; 4:35:59 PM by DW
+
+Started the <a href="https://github.com/scripting/helloFrontier/tree/master/rootfiles">rootfiles</a> folder with docserver.root.
+
 ### 9/18/26; 10:23:17 AM by DW
 
 Coming to you from the new laptop, named Vermont. I am trying to build a project without any of the stuff I have on the old desktop machine. It's like setting up a mobile data center in current lingo. 
