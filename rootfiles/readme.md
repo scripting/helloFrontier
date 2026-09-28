@@ -20,3 +20,5 @@ We started with docserver.root, because we needed to get to work on how we're go
 
 You can see the site it builds at <a href="https://docserver.userland.com/">docserver.userland.com</a>. This was built in Sept 2026 with Atlantis and was quite a milestone.
 
+To  download the file click on the link to docserver.root above and and press Cmd-Shift-S.
+
