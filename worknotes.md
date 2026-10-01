@@ -1,3 +1,11 @@
+### 10/1/26; 11:44:40 AM by DW
+
+Started the download page. 
+
+Where the download lives.
+
+* https://download.hellofrontier.com/electricFrontier.zip
+
 ### 9/28/26; 4:35:59 PM by DW
 
 Started the <a href="https://github.com/scripting/helloFrontier/tree/master/rootfiles">rootfiles</a> folder with docserver.root.
