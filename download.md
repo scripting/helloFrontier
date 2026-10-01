@@ -2,7 +2,9 @@
 
 This is where you will go to get a very early version of Atlantis to look at, try out, and it will help people participate in discussions. 
 
-Big caveat: Don't download it yet, we're trying to do this quickly and will have the testing releases here, but even that isn't ready yet as of 10/1/26 by DW -- still diggin. ;-)
+### Big caveat
+
+Don't download it yet, we're trying to do this quickly and will have the testing releases here, but even that isn't ready yet as of 10/1/26 by DW -- still diggin. ;-)
 
 ### Requirements
 
