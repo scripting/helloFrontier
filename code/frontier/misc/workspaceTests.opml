@@ -1,0 +1,131 @@
+<?xml version="1.0"?>
+<opml version="2.0">
+	<head>
+		<title>workspace.tests</title>
+		</head>
+	<body>
+		<outline text="theBeep" type="script">
+			<outline text="speaker.beep ()" />
+			<outline text="return (&quot;ok if you heard the beep -- the same one Drummer and Fargo make, not a synthesized tone&quot;)" />
+		</outline>
+		<outline text="expansionState" type="script">
+			<outline text="local (before, after, s = &quot;&quot;)" />
+			<outline text="before = op.getExpansionState ()" />
+			<outline text="op.fullExpand ()" />
+			<outline text="after = op.getExpansionState ()" />
+			<outline text="s = &quot;collapsed: &quot; + string (before) + &quot; -- expanded: &quot; + string (after)" />
+			<outline text="op.setExpansionState (before)" />
+			<outline text="if op.getExpansionState () == before">
+				<outline text="return (&quot;ok. &quot; + s)" />
+			</outline>
+			<outline text="return (&quot;setExpansionState did not put it back. &quot; + s)" />
+		</outline>
+		<outline text="scrollState" type="script">
+			<outline text="local (before, after)" />
+			<outline text="before = op.getScrollState ()" />
+			<outline text="op.setScrollState (1)" />
+			<outline text="after = op.getScrollState ()" />
+			<outline text="op.setScrollState (before)" />
+			<outline text="if after == 1">
+				<outline text="return (&quot;ok. it was at line &quot; + before + &quot;, went to 1, and is back at &quot; + op.getScrollState ())" />
+			</outline>
+			<outline text="return (&quot;setScrollState (1) left it at line &quot; + after)" />
+		</outline>
+		<outline text="windowPosition" type="script">
+			<outline text="local (h, v, h2, v2)" />
+			<outline text="if not window.getPosition (@workspace.tests, @h, @v)">
+				<outline text="return (&quot;no window is open on workspace.tests -- open it and run this again&quot;)" />
+			</outline>
+			<outline text="window.setPosition (@workspace.tests, h + 40, v + 40)" />
+			<outline text="window.getPosition (@workspace.tests, @h2, @v2)" />
+			<outline text="window.setPosition (@workspace.tests, h, v)" />
+			<outline text="if (h2 == h + 40) and (v2 == v + 40)">
+				<outline text="return (&quot;ok. it was at &quot; + h + &quot;, &quot; + v + &quot;, moved 40 and came back&quot;)" />
+			</outline>
+			<outline text="return (&quot;moved to &quot; + h2 + &quot;, &quot; + v2 + &quot; instead of &quot; + (h + 40) + &quot;, &quot; + (v + 40))" />
+		</outline>
+		<outline text="windowSize" type="script">
+			<outline text="local (w, h, w2, h2)" />
+			<outline text="if not window.getSize (@workspace.tests, @w, @h)">
+				<outline text="return (&quot;no window is open on workspace.tests -- open it and run this again&quot;)" />
+			</outline>
+			<outline text="window.setSize (@workspace.tests, w + 60, h + 60)" />
+			<outline text="window.getSize (@workspace.tests, @w2, @h2)" />
+			<outline text="window.setSize (@workspace.tests, w, h)" />
+			<outline text="if (w2 == w + 60) and (h2 == h + 60)">
+				<outline text="return (&quot;ok. it was &quot; + w + &quot; by &quot; + h + &quot;, grew 60 and shrank back&quot;)" />
+			</outline>
+			<outline text="return (&quot;sized to &quot; + w2 + &quot; by &quot; + h2 + &quot; instead of &quot; + (w + 60) + &quot; by &quot; + (h + 60))" />
+		</outline>
+		<outline text="windowTitle" type="script">
+			<outline text="local (before)" />
+			<outline text="before = window.getTitle (@workspace.tests)" />
+			<outline text="if before == &quot;&quot;">
+				<outline text="return (&quot;no window is open on workspace.tests -- open it and run this again&quot;)" />
+			</outline>
+			<outline text="window.setTitle (@workspace.tests, &quot;Hello Frontier&quot;)" />
+			<outline text="local (after = window.getTitle (@workspace.tests))" />
+			<outline text="window.setTitle (@workspace.tests, before)" />
+			<outline text="if after == &quot;Hello Frontier&quot;">
+				<outline text="return (&quot;ok. the title was &quot; + before + &quot; and it changed and changed back&quot;)" />
+			</outline>
+			<outline text="return (&quot;the title came back as &quot; + after)" />
+		</outline>
+		<outline text="theAboutWindow" type="script">
+			<outline text="window.about ()" />
+			<outline text="return (&quot;a window should have opened saying TBD&quot;)" />
+		</outline>
+		<outline text="theClipboard" type="script">
+			<outline text="clipboard.putValue (&quot;Hello Frontier &quot; + clock.now ())" />
+			<outline text="return (&quot;ok if you can paste that into another app -- the text and the time&quot;)" />
+		</outline>
+		<outline text="httpClient" type="script">
+			<outline text="local (s = tcp.httpClient (server:&quot;scripting.com&quot;, path:&quot;/&quot;))" />
+			<outline text="if sizeof (s) &gt; 0">
+				<outline text="return (&quot;ok. &quot; + sizeof (s) + &quot; bytes came back from scripting.com&quot;)" />
+			</outline>
+			<outline text="return (&quot;nothing came back&quot;)" />
+		</outline>
+		<outline text="httpReadUrl" type="script">
+			<outline text="local (s = tcp.httpReadUrl (&quot;http://scripting.com/&quot;))" />
+			<outline text="if sizeof (s) &gt; 0">
+				<outline text="return (&quot;ok. &quot; + sizeof (s) + &quot; bytes&quot;)" />
+			</outline>
+			<outline text="return (&quot;nothing came back&quot;)" />
+		</outline>
+		<outline text="dns" type="script">
+			<outline text="local (a = tcp.nameToAddress (&quot;scripting.com&quot;))" />
+			<outline text="local (s = tcp.addressDecode (a))" />
+			<outline text="local (back = tcp.addressToName (tcp.addressEncode (&quot;8.8.8.8&quot;)))" />
+			<outline text="return (&quot;ok. scripting.com is &quot; + s + &quot;, and 8.8.8.8 is &quot; + back)" />
+		</outline>
+		<outline text="base64" type="script">
+			<outline text="local (encoded = base64.encode (&quot;Hello Frontier&quot;, 0))" />
+			<outline text="local (decoded = base64.decode (encoded))" />
+			<outline text="if decoded == &quot;Hello Frontier&quot;">
+				<outline text="return (&quot;ok. &quot; + encoded + &quot; decodes back&quot;)" />
+			</outline>
+			<outline text="return (&quot;it came back as &quot; + decoded)" />
+		</outline>
+		<outline text="theDateVerbs" type="script">
+			<outline text="local (tz = date.getCurrentTimeZone ())" />
+			<outline text="local (s = date.shortString (clock.now ()))" />
+			<outline text="return (&quot;ok. today is &quot; + s + &quot; and the zone is &quot; + (tz / 3600) + &quot; hours from GMT&quot;)" />
+		</outline>
+		<outline text="writingAFile" type="script">
+			<outline text="local (f = file.getSpecialFolderPath (&quot;desktop&quot;) + &quot;frontierWriteTest.txt&quot;)" />
+			<outline text="file.writeWholeFile (f, &quot;Hello Frontier &quot; + clock.now ())" />
+			<outline text="if file.exists (f)">
+				<outline text="return (&quot;ok. wrote &quot; + f + &quot; -- delete it when you have seen it&quot;)" />
+			</outline>
+			<outline text="return (&quot;nothing was written at &quot; + f)" />
+		</outline>
+		<outline text="theFileVerbsThatCannotWork" type="script">
+			<outline text="local (s = &quot;&quot;)" />
+			<outline text="s = s + &quot;file.type: [&quot; + file.type (&quot;whatever&quot;) + &quot;] &quot;" />
+			<outline text="s = s + &quot;file.getVersion: [&quot; + file.getVersion (&quot;whatever&quot;) + &quot;] &quot;" />
+			<outline text="s = s + &quot;file.getSystemDisk: &quot; + file.getSystemDisk ()" />
+			<outline text="return (&quot;ok if the first two are empty. &quot; + s)" />
+		</outline>
+		</body>
+	</opml>

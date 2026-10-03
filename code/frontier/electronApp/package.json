@@ -1,0 +1,16 @@
+{
+  "name": "electricfrontier",
+  "productName": "Electric Frontier",
+  "version": "0.4.99",
+  "description": "Electric Frontier -- a whole Frontier on the desktop: database, interpreter and windows, all on this machine. Launches the Frontier it carries, restores the windows the way they were.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "Dave Winer <dave@scripting.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^22.3.27",
+    "electron-packager": "^17.1.2"
+  }
+}

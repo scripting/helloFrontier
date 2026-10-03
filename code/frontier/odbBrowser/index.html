@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>frontier.root</title>
+		<script src="concord/libraries/jquery-1.9.1.min.js"></script>
+		<link href="concord/libraries/bootstrap.css" rel="stylesheet">
+		<script src="concord/libraries/bootstrap.min.js"></script>
+		<link rel="stylesheet" href="concord/libraries/fontAwesome/css/all.css">
+		<script src="concord/concordutils.js"></script>
+		<link rel="stylesheet" href="concord/concordstyles.css">
+		<script src="concord/concord.js"></script>
+		<link rel="stylesheet" href="odbbrowser.css">
+		<style id="styleColumns"></style>
+		<script src="beep.js"></script>
+		<script src="common.js"></script>
+		<script src="odbbrowser.js"></script>
+		</head>
+	<body spellcheck="false"><!--8/15/26 by CC -- DW: every dotted address gets flagged as a misspelling. The attribute is inherited by everything in the page, so Concord itself is untouched.-->
+		<div class="divWindow browseColumns">
+			<div class="divWindowTitle">nodeEditor.root</div>
+			<div class="divColumnHeads">
+				<span class="spanHeadName">Name</span><span class="spanHeadValue">Value</span><span class="spanHeadKind">Kind</span>
+				</div>
+			<div class="divOutlinerContainer">
+				<div id="divOutliner">
+					</div>
+				</div>
+			<div class="divTableFooter"><!--8/28/26 by CC -- the kernel's bottom band, the way tablelayout.c places it: the Kind popup flush left, the Sort popup beside it-->
+				<select class="selectKindPopup" title="Kind"></select>
+				<select class="selectSortPopup" title="Sort"></select>
+				</div>
+			</div>
+		</body>
+	</html>

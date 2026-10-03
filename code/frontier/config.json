@@ -1,0 +1,17 @@
+{
+	"port": 5339,
+	"password": "",
+	"pathUsertalk": "../usertalk",
+	"pathDatabase": "data/sandbox0.db",
+	"maxVerbCalls": 1000000,
+	"flLogRequests": true,
+	"pathConcord": "../concord",
+	"webeditPassword": "",
+	"pathMap": {
+		"helpers": {},
+		"prefs": {},
+		"prefixes": {
+			"": "/Users/davewiner/Claude/trigger/files/renders"
+		}
+	}
+}

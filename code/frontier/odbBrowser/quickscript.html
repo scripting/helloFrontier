@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Quick Script</title>
+		<script src="concord/libraries/jquery-1.9.1.min.js"></script>
+		<link href="concord/libraries/bootstrap.css" rel="stylesheet">
+		<script src="concord/libraries/bootstrap.min.js"></script>
+		<link rel="stylesheet" href="concord/libraries/fontAwesome/css/all.css">
+		<link href="//fonts.googleapis.com/css?family=Ubuntu:400,500i,700" rel="stylesheet">
+
+		<script src="concord/concordutils.js"></script>
+		<link rel="stylesheet" href="concord/concordstyles.css">
+		<script src="concord/concord.js"></script>
+		<link rel="stylesheet" href="odbbrowser.css">
+		<script src="beep.js"></script>
+		<script src="common.js"></script>
+		<script src="quickscript.js"></script>
+		<!--  9/16/26 by CC -- THE QUICK SCRIPT WINDOW, the kernel's command.c: a text box, a Run button beside it, and a line under the box where the value lands. DW's ask 9/16 with his Berkeley screen shot: random (0, 1000) in the box, 713 on the line; "this is useful at times." The text is kept with the database, the way the root record carried hscriptstring (odbSql.js settings, /getsetting and /setsetting). window.quickScript opens it, window.setQuickScript sets its text, the Main menu's Quick Script command (cmd-;) calls the first.  -->
+		</head>
+	<body spellcheck="false">
+		<div class="divWindow">
+			<div class="divWindowTitle">Quick Script</div>
+			<div class="divQuickScript">
+				<div class="divQuickScriptLeft">
+					<textarea id="textareaScript" class="textareaQuickScript" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+					<div id="spanStatus" class="divQuickScriptResult"></div>
+					</div>
+				<div class="divQuickScriptRight">
+					<button id="buttonRun" class="buttonQuickScriptRun" title="Run the script (Return)">&#x25B6;</button> <!--black right-pointing triangle-->
+					<div class="divQuickScriptRunLabel">Run</div>
+					</div>
+				</div>
+			</div>
+		</body>
+	</html>

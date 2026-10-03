@@ -1,0 +1,20 @@
+{
+	"name": "frontierodb",
+	"version": "0.4.6",
+	"description": "Read a Frontier object database (.root file) into a JavaScript structure.",
+	"main": "frontierodb.js",
+	"author": "Dave Winer <dave.winer@gmail.com>",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/scripting/frontierOdb.git"
+	},
+	"keywords": [
+		"frontier",
+		"userland",
+		"odb",
+		"root",
+		"outliner",
+		"usertalk"
+	]
+}

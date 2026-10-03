@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<opml version="2.0">
+	<head>
+		<title>readme.md</title>
+		<dateModified>&lt;%dateModified%></dateModified>
+		<expansionState></expansionState>
+		<vertScrollState>1</vertScrollState>
+		<windowTop>300</windowTop>
+		<windowLeft>700</windowLeft>
+		<windowBottom>900</windowBottom>
+		<windowRight>1500</windowRight>
+		</head>
+	<body text="readme.md">
+		<outline text="# Concord">
+			<outline text="Concord is a JavaScript outliner written by Kyle Shank in 2013, maintained by Dave Winer since, GPL-licensed.  "></outline>
+			<outline text="The user interface is keystroke and mouse-compatible with the Living Videotext outliners, ThinkTank, Ready and MORE, and the outliner built into UserLand Frontier and Radio UserLand. "></outline>
+			<outline text="There's a new release in February 2020, the first since 2013. "></outline>
+			<outline text="Concord is the core component of &lt;a href=&quot;http://littleoutliner.com/&quot;&gt;Little Outliner&lt;/a&gt; and numerous other of Dave's projects. "></outline>
+			<outline text="Concord's native file format is &lt;a href=&quot;http://dev.opml.org/&quot;&gt;OPML&lt;/a&gt;."></outline>
+			</outline>
+		<outline text="### What's new?">
+			<outline text="You can see the work notes &lt;a href=&quot;https://github.com/scripting/concord/blob/master/worknotes.md&quot;&gt;here&lt;/a&gt;. "></outline>
+			<outline text="I've been adding features carefully and slowly over the years. "></outline>
+			<outline text="The biggest change is that Concord is now managed using the same tools I use for all my other &lt;a href=&quot;https://github.com/scripting?tab=repositories&quot;&gt;projects&lt;/a&gt;, so it will be easier to publicly release new versions. "></outline>
+			<outline text="The examples and writing on this site are from 2013, this update is a restoration of the original site, not a rewrite. "></outline>
+			</outline>
+		<outline created="Sat, 14 Sep 2013 15:31:18 GMT" pgfnum="30273" text="### Concord is an outliner">
+			<outline created="Sat, 14 Sep 2013 15:31:22 GMT" pgfnum="30274" text="&lt;a href=&quot;http://outlinerhowto.opml.org/&quot;&gt;An outliner&lt;/a&gt; is a text editor that organizes information in a hierarchy, allowing users to control the level of detail and to reorganize according to structure. Your notes can have full detail, yet be organized so a casual reader can get a quick overview. Outlining is a great way for teams to organize work. "></outline>
+			</outline>
+		<outline created="Sat, 14 Sep 2013 15:31:46 GMT" pgfnum="30275" text="### Written in JavaScript">
+			<outline created="Wed, 11 Sep 2013 23:43:14 GMT" pgfnum="30137" text="It's a jQuery plug-in that implements a full-featured outliner that you can drop into other applications with a minimum of work. "></outline>
+			</outline>
+		<outline created="Sat, 14 Sep 2013 15:37:42 GMT" pgfnum="30283" text="### GPL-licensed">
+			<outline created="Wed, 11 Sep 2013 23:44:29 GMT" pgfnum="30139" text="&lt;a href=&quot;https://github.com/scripting/concord&quot;&gt;Concord&lt;/a&gt; is licensed under the GPL because outliners are an incredibly useful way to edit structured information. We want Concord to be able to fill every conceivable need for outlining technology. "></outline>
+			<outline created="Sat, 14 Sep 2013 15:38:43 GMT" pgfnum="30286" text="Ideas include file systems, mailboxes, chatrooms, databases, documents, presentations, product plans, code, libraries, laws, systems of laws, contracts, rules, guidelines, principles, docs, manifestos, journals, blogs, etc. "></outline>
+			<outline text="Here's an important 11-minute &lt;a href=&quot;http://scripting.com/2013/09/17/importantPodcastAboutConcordGpl&quot;&gt;podcast&lt;/a&gt; about Concord and the GPL.  "></outline>
+			</outline>
+		<outline text="### Tour of the repository">
+			<outline text="&lt;a href=&quot;https://github.com/scripting/concord/blob/master/concord.js&quot;&gt;concord.js&lt;/a&gt; -- the JavaScript code for the outliner."></outline>
+			<outline text="&lt;a href=&quot;https://github.com/scripting/concord/blob/master/concordstyles.css&quot;&gt;concordstyles.css&lt;/a&gt; -- styles for Concord outlines."></outline>
+			<outline text="&lt;a href=&quot;https://github.com/scripting/concord/blob/master/concordutils.js&quot;&gt;concordutils.js&lt;/a&gt; -- utility routines for apps that include Concord. Everything here is optional, think of it as sample code, but the kind of stuff that likely will be in every app that uses Concord. concord.js does not include this file, but the example apps do. "></outline>
+			<outline text="&lt;a href=&quot;https://github.com/scripting/concord/tree/master/libraries&quot;&gt;libraries&lt;/a&gt; -- Concord uses jQuery, bootstrap and Font Awesome. There are copies of each in the libraries folder. concord.js does not include these files, but the example apps do. "></outline>
+			<outline text="&lt;a href=&quot;https://github.com/scripting/concord/tree/master/opml&quot;&gt;opml&lt;/a&gt; -- contains OPML source code for concord.js and the other files. OPML is the native file format for Concord, so you can open these files in the example apps. They are menu items in example1. "></outline>
+			<outline text="&lt;a href=&quot;https://github.com/scripting/concord/tree/master/archive&quot;&gt;archive&lt;/a&gt; -- contains the readme file from the previous version. We may archive other things there in the future."></outline>
+			</outline>
+		<outline created="Mon, 16 Sep 2013 13:32:57 GMT" pgfnum="30317" text="### Example 0: The bare minimum">
+			<outline text="This &lt;a href=&quot;https://github.com/scripting/concord/blob/master/example0/index.html&quot;&gt;example&lt;/a&gt; has the bare minimum to add an outliner to an existing app."></outline>
+			<outline created="Tue, 17 Sep 2013 12:49:40 GMT" pgfnum="30324" text="This saves developers the trouble of having to factor it out of Example 1, below."></outline>
+			<outline created="Mon, 16 Sep 2013 13:35:45 GMT" pgfnum="30320" text="You can try it out &lt;a href=&quot;http://scripting.com/code/concord/repo/example0/&quot;&gt;here&lt;/a&gt;. "></outline>
+			</outline>
+		<outline created="Wed, 11 Sep 2013 23:45:31 GMT" pgfnum="30140" text="### Example 1: Hello Outliner">
+			<outline created="Mon, 16 Sep 2013 13:34:27 GMT" pgfnum="30319" text="This &lt;a href=&quot;https://github.com/scripting/concord/tree/master/example1/index.html&quot;&gt;example&lt;/a&gt; is a functional outliner, with most of the capabilities of the Little Outliner app and the same basic approach. You edit a single outline, saved in local storage, so it's there when you come back to it, but only on that machine."></outline>
+			<outline created="Mon, 16 Sep 2013 13:44:05 GMT" pgfnum="30321" text="It has a simple menubar, with menus containing Outliner commands, links to OPML documents you can view and edit, and links to docs."></outline>
+			<outline created="Mon, 16 Sep 2013 13:35:45 GMT" pgfnum="30320" text="You can try it out &lt;a href=&quot;http://scripting.com/code/concord/repo/example1/&quot;&gt;here&lt;/a&gt;."></outline>
+			</outline>
+		<outline created="Wed, 11 Sep 2013 23:45:31 GMT" pgfnum="30140" text="### Example 2: Small Picture Reader">
+			<outline created="Wed, 18 Sep 2013 15:15:07 GMT" pgfnum="30464" text="We've released the &lt;a href=&quot;https://github.com/scripting/concord/blob/master/example2/index.html&quot;&gt;source&lt;/a&gt; for &lt;a href=&quot;http://docs.fargo.io/fargo/reader&quot;&gt;Small Picture Reader&lt;/a&gt; under the GPL as part of the Concord release."></outline>
+			<outline created="Wed, 18 Sep 2013 15:05:00 GMT" pgfnum="30461" text="This app provides a way to read any OPML file even if you aren't using an outliner."></outline>
+			<outline created="Wed, 18 Sep 2013 15:05:41 GMT" pgfnum="30462" text="There's a command in Little Outliner that creates a link between the document you're editing and a reader version."></outline>
+			<outline created="Wed, 18 Sep 2013 15:06:02 GMT" pgfnum="30463" text="If you want to run the app, &lt;a href=&quot;http://scripting.com/code/concord/repo/example2/&quot;&gt;click here&lt;/a&gt;."></outline>
+			</outline>
+		<outline text="### The previous version">
+			<outline text="Here's a &lt;a href=&quot;http://scripting.com/2020/02/13/concord-master.zip&quot;&gt;snapshot&lt;/a&gt; of this repo before integrating the new stuff. "></outline>
+			<outline text="Here's the &lt;a href=&quot;https://github.com/scripting/concord/blob/master/archive/readme2013.md&quot;&gt;previous readme&lt;/a&gt;. "></outline>
+			</outline>
+		<outline text="### Support">
+			<outline text="If you have a question, comment, or bug to report, please post an &lt;a href=&quot;https://github.com/scripting/concord/issues&quot;&gt;issue&lt;/a&gt; here. "></outline>
+			<outline text="I do not take pull requests, it's best to describe the problem or feature you want to add, as an issue, and let's talk about the best way to do it. Writing the code is never the biggest part of a change or addition. "></outline>
+			</outline>
+		</body>
+	</opml>

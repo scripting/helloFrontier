@@ -1,0 +1,400 @@
+body {
+	font-family: "Lucida Grande", "Helvetica Neue", sans-serif;
+	background-color: whitesmoke;
+	margin: 0;
+	}
+
+.divWindow { /*the page IS the window -- the desktop window frames it, so no inner box, no second title bar (DW, 8/9)*/
+	background-color: white;
+	display: flex;
+	flex-direction: column;
+	height: 100vh;
+	}
+
+.divWindowTitle { /*the title lives in the real window's title bar; this element only feeds document.title*/
+	display: none;
+	}
+
+.divTitleStrip { /*9/10/26 by CC -- in the app the page draws the title bar (main.js hiddenInset), so a Cmd-click or right-click on the title shows the path back to the root -- the kernel's title popup (tablepopup.c), DW: "i reach for the window title popup all the time"; the traffic lights stay the Mac's, at the left. 9/11/26 by CC -- DW: the title was in the wrong place and the wrong style; centered with flex so it lands dead center whatever the window width, and the Mac's own title-bar look (light ground, medium weight) instead of the heavy gray band*/
+	-webkit-app-region: drag; /*drag the window by it, the way a title bar drags*/
+	-webkit-user-select: none;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 28px;
+	font-family: -apple-system, "Helvetica Neue", sans-serif;
+	font-size: 15px; /*9/11/26 by CC -- DW: the title text should be bigger*/
+	font-weight: 500;
+	color: #4d4d4d;
+	background-color: #ececec;
+	border-bottom: 1px solid #d5d5d5;
+	padding: 0 78px; /*clear of the traffic lights on the left and the version on the right, so the centered title never rides under either*/
+	flex: none;
+	}
+
+.spanTitleText {
+	-webkit-app-region: no-drag; /*so a click on the title reaches the page*/
+	cursor: default;
+	max-width: 100%;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	}
+
+.divButtonBar { /*buttons centered with air between them, the way the OPML Editor draws its window buttons (DW, 8/9); the status keeps to the left corner*/
+	position: relative;
+	text-align: center;
+	padding: 8px 12px;
+	border-bottom: 1px solid silver;
+	background-color: #fafafa;
+	min-height: 23px; /*8/12/26 by CC -- a window with no buttons keeps the same bar; the buttons were holding it open, and without them the status text fell out of it*/
+	}
+
+.buttonBar {
+	font-size: 13px;
+	padding: 3px 14px;
+	margin: 0 8px;
+	}
+
+.spanDirty { /*clear of the version in the corner, which is fixed at the window's top right -- 8/11/26 by CC*/
+	position: absolute;
+	right: 95px;
+	top: 12px;
+	font-size: 12px;
+	color: #aa4400;
+	}
+
+.spanStatus {
+	position: absolute;
+	left: 12px;
+	top: 12px;
+	max-width: 30%;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	text-align: left;
+	font-size: 12px;
+	color: #555555;
+	}
+
+.spanStatus:not(:empty) { /*8/26/26 by CC -- DW 8/25: hovering shows a pointer, clicking clears the message*/
+	cursor: pointer;
+	}
+
+.spanVersion { /*upper right corner of every window, small type (DW, 8/10) -- what's running, without opening anything*/
+	position: fixed;
+	right: 10px;
+	top: 6px;
+	font-size: 11px;
+	color: #999999;
+	z-index: 50;
+	}
+
+.divDialogMask {
+	position: fixed;
+	left: 0;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, 0.25);
+	z-index: 100;
+	}
+
+.divDialog {
+	max-width: 440px;
+	margin: 140px auto;
+	padding: 22px 26px;
+	background-color: white;
+	border: 1px solid silver;
+	border-radius: 8px;
+	box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3);
+	max-height: calc(100vh - 60px); /*9/14/26 by CC -- DW's report: a dialog.alert with a whole script's text in it ran off the bottom of the screen, OK button and all; a tall dialog fits the window now and scrolls inside*/
+	box-sizing: border-box;
+	overflow-y: auto;
+	}
+
+.divDialogMask .divDialog { /*9/14/26 by CC -- when the dialog is tall the 140px top margin is what pushes the button off the screen; a modal dialog sits nearer the top*/
+	margin-top: 30px;
+	}
+
+.divDialogPrompt {
+	font-size: 15px;
+	margin-bottom: 14px;
+	}
+
+.inputDialogAnswer {
+	font-size: 14px;
+	padding: 4px 8px;
+	width: 100%;
+	box-sizing: border-box;
+	margin-bottom: 14px;
+	}
+
+.divDialogButtons {
+	text-align: right;
+	}
+
+.divPasswordEntry {
+	max-width: 420px;
+	margin: 120px auto;
+	padding: 24px;
+	background-color: white;
+	border: 1px solid silver;
+	border-radius: 6px;
+	text-align: center;
+	}
+
+.inputPassword {
+	font-size: 14px;
+	padding: 4px 8px;
+	width: 240px;
+	}
+
+.buttonConnect {
+	font-size: 14px;
+	padding: 4px 14px;
+	margin-left: 8px;
+	}
+
+.divColumnHeads { /*the titles sit in their own band, the rule below them, nothing overlapping -- the columns are aligned under them at runtime*/
+	position: relative;
+	font-weight: bold;
+	font-size: 14px;
+	height: 20px;
+	padding: 6px 0 6px 0;
+	border-bottom: 1px solid black;
+	user-select: none; /*8/27/26 by CC -- a column drag that misses the handle must not select the titles*/
+	}
+
+.spanHeadName { /*margin 0 on all three: a shared stylesheet gives spans a margin that would push a title off its column*/
+	position: absolute;
+	top: 6px;
+	left: 40px;
+	margin: 0;
+	text-decoration: underline;
+	}
+
+.spanHeadValue {
+	position: absolute;
+	top: 6px;
+	left: 430px;
+	margin: 0;
+	text-decoration: underline;
+	}
+
+.spanHeadKind {
+	position: absolute;
+	top: 6px;
+	left: 740px;
+	margin: 0;
+	text-decoration: underline;
+	}
+
+.divOutlinerContainer { /*fills whatever's left of the window; the outline scrolls inside it, the column heads stay put*/
+	flex: 1;
+	min-height: 0;
+	overflow: auto;
+	padding: 8px;
+	}
+
+#divOutliner {
+	position: relative;
+	}
+
+.divWindow.browseColumns #divOutliner .concord-text { /*only the browse window truncates names -- styleColumns sets the live width*/
+	max-width: 380px;
+	overflow: hidden;
+	white-space: nowrap;
+	}
+
+#divOutliner .spanValue {
+	position: absolute;
+	left: 422px;
+	width: 296px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	border-left: 1px dotted #aaaaaa;
+	padding-left: 10px;
+	font-size: 14px;
+	color: #333333;
+	}
+
+#divOutliner .spanValue.spanValueOpens { /*10/1/26 by CC -- a table, script, outline or menubar: a double-click opens it, and it can't be edited in place*/
+	cursor: pointer;
+	}
+
+#divOutliner .spanKind {
+	position: absolute;
+	left: 732px;
+	width: 200px;
+	white-space: nowrap;
+	overflow: hidden;
+	border-left: 1px dotted #aaaaaa;
+	padding-left: 10px;
+	font-size: 14px;
+	color: #333333;
+	}
+
+.inputCellEdit { /*8/28/26 by CC -- in-place, the kernel's way: the field sits exactly where the text sits, plain, no rounded box*/
+	position: absolute;
+	font-family: "Lucida Grande", "Helvetica Neue", sans-serif;
+	font-size: 14px;
+	line-height: inherit;
+	padding: 0;
+	margin: 0;
+	border: none;
+	outline: 1px solid #888888;
+	border-radius: 0;
+	background-color: white;
+	z-index: 20;
+	box-sizing: border-box;
+	}
+
+/*8/28/26 by CC -- the cursor bar goes all the way across the line, the kernel's way (DW's report, his Berkeley screenshot)*/
+
+.divWindow.browseColumns #divOutliner .concord-node > .concord-wrapper {
+	display: block; /*the wrapper spans the row, so the cursor bar can go all the way across*/
+	}
+
+.divWindow.browseColumns #divOutliner .concord-node.concord-cursor > .concord-wrapper {
+	background-color: black;
+	}
+
+.divWindow.browseColumns #divOutliner .concord-node.concord-cursor > .concord-wrapper .concord-text,
+.divWindow.browseColumns #divOutliner .concord-node.concord-cursor > .concord-wrapper .spanValue,
+.divWindow.browseColumns #divOutliner .concord-node.concord-cursor > .concord-wrapper .spanKind {
+	color: white;
+	background-color: black;
+	}
+
+.divTableFooter { /*8/28/26 by CC -- the kernel's bottom band (tablelayout.c): the Kind popup flush left below the grid*/
+	padding: 4px 10px;
+	border-top: 1px solid silver;
+	background-color: #fafafa;
+	}
+
+.selectKindPopup {
+	font-size: 12px;
+	max-width: 160px;
+	}
+
+.selectSortPopup {
+	font-size: 12px;
+	max-width: 160px;
+	margin-left: 8px; /*popupbetweenwidth -- the sort popup sits beside the kind popup, tablelayout.c*/
+	}
+
+.divColDragHandle { /*8/27/26 by CC -- the column-width handles in the head band*/
+	position: absolute;
+	top: 0;
+	width: 7px;
+	height: 32px;
+	cursor: col-resize;
+	z-index: 30;
+	}
+
+.divColDragHandle:hover {
+	border-left: 2px solid #4a90d9;
+	}
+
+.divTypeChoices { /*the wedge dialog's list -- Table, Outline, WP-Text, Script, MenuBar*/
+	margin-bottom: 14px;
+	}
+
+.labelTypeChoice {
+	display: block;
+	font-size: 14px;
+	padding: 3px 0;
+	cursor: pointer;
+	}
+
+.spanCmdkey { /*the menubar editor's command-key column -- 9/1/26 by CC*/
+	position: absolute;
+	right: 24px;
+	color: #666;
+	cursor: pointer;
+	min-width: 34px;
+	text-align: right;
+	}
+
+.inputCmdkey {
+	position: absolute;
+	right: 24px;
+	width: 34px;
+	font-size: 14px;
+	text-align: center;
+	}
+
+/*  9/16/26 by CC -- THE QUICK SCRIPT WINDOW (quickscript.html): the box, the
+	line under it, and the Run button at the right, the way the kernel's
+	dialog lays them out.  */
+
+.divQuickScript {
+	display: flex;
+	align-items: stretch;
+	padding: 12px 14px 10px 14px;
+	height: calc(100vh - 22px);
+	box-sizing: border-box;
+	}
+
+.divQuickScriptLeft {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	}
+
+.textareaQuickScript {
+	flex: 1;
+	width: 100%;
+	box-sizing: border-box;
+	resize: none;
+	font-family: Menlo, Monaco, "Courier New", monospace;
+	font-size: 14px;
+	padding: 6px 8px;
+	border: 1px solid #000;
+	border-radius: 0;
+	margin: 0;
+	outline: none;
+	}
+
+.divQuickScriptResult {
+	height: 22px;
+	line-height: 20px;
+	margin-top: 8px;
+	border: 1px solid #000;
+	padding: 0 8px;
+	font-size: 13px;
+	text-align: center;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	cursor: default;
+	}
+
+.divQuickScriptRight {
+	width: 60px;
+	margin-left: 14px;
+	margin-top: 14px; /*under the version in the corner*/
+	text-align: center;
+	}
+
+.buttonQuickScriptRun {
+	width: 48px;
+	height: 44px;
+	font-size: 14px;
+	border: 1px solid #999;
+	border-radius: 4px;
+	background: #f4f4f4;
+	cursor: pointer;
+	}
+
+.buttonQuickScriptRun:active {
+	background: #ddd;
+	}
+
+.divQuickScriptRunLabel {
+	font-size: 12px;
+	margin-top: 4px;
+	}

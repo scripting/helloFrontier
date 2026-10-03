@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>About</title>
+		<!--  9/16/26 by CC -- THE ABOUT WINDOW, Frontier's main window (about.c). DW's ask 9/16 with his Berkeley screen shot: the small form is a popup of the agents and one line of text, the message; the flag opens the big form above it -- the slogan, the copyright lines, the url, and the statistics (Scripts Running, Current Thread, Available Memory), the app name and the version. No picture in this kernel: the big form is text (about.c aboutstrings). The line is msg's: the server keeps it by the kernel's rules (trigger.js aboutMsg) and this page asks for it once a second. His words: "don't worry about getting it perfect or even good. we'll iterate over that."  -->
+		<style>
+			body {
+				font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+				font-size: 14px;
+				margin: 0;
+				background: #f3f3f3;
+				color: #000;
+				-webkit-user-select: none;
+				user-select: none;
+				overflow: hidden;
+				}
+			.divAbout { /*the big form, above the message line*/
+				display: none;
+				padding: 12px 16px 6px 16px;
+				}
+			.divAbout.showing {
+				display: block;
+				}
+			.divAppName {
+				font-size: 20px;
+				font-weight: bold;
+				margin-bottom: 2px;
+				}
+			.spanAppVersion {
+				float: right;
+				font-size: 12px;
+				font-weight: normal;
+				margin-top: 6px;
+				}
+			.divSlogan {
+				font-style: italic;
+				margin-bottom: 8px;
+				}
+			.divCopyright {
+				font-size: 12px;
+				}
+			.divUrl {
+				font-size: 12px;
+				margin-bottom: 10px;
+				}
+			.divUrl a {
+				color: #000;
+				}
+			.divStatistic {
+				display: flex;
+				justify-content: space-between;
+				max-width: 420px;
+				}
+			.spanStatLabel {
+				font-weight: bold;
+				white-space: nowrap;
+				margin-right: 12px;
+				}
+			.spanStatValue {
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				}
+			.divMisc {
+				min-height: 18px;
+				font-size: 12px;
+				margin-top: 6px;
+				}
+			.divMessageStrip { /*the small form: flag, popup, the line*/
+				display: flex;
+				align-items: center;
+				height: 56px;
+				padding: 0 12px 0 8px;
+				}
+			.buttonFlag {
+				border: none;
+				background: none;
+				font-size: 16px;
+				cursor: pointer;
+				padding: 0 6px;
+				color: #666;
+				}
+			.buttonFlag.down {
+				color: #000;
+				}
+			.divPopup {
+				position: relative;
+				margin-right: 10px;
+				}
+			.buttonPopup {
+				border: 1px solid #999;
+				border-radius: 4px;
+				background: #fff;
+				font-size: 12px;
+				line-height: 16px;
+				padding: 1px 6px;
+				cursor: pointer;
+				}
+			.divPopupMenu {
+				display: none;
+				position: absolute;
+				top: 22px;
+				left: 0;
+				background: #fff;
+				border: 1px solid #999;
+				border-radius: 4px;
+				box-shadow: 0 2px 8px rgba (0, 0, 0, 0.2);
+				padding: 4px 0;
+				min-width: 200px;
+				z-index: 10;
+				}
+			.divPopupMenu.showing {
+				display: block;
+				}
+			.divPopupItem {
+				padding: 2px 12px 2px 24px;
+				white-space: nowrap;
+				cursor: pointer;
+				position: relative;
+				}
+			.divPopupItem:hover {
+				background: #dde6f5;
+				}
+			.divPopupItem.checked::before {
+				content: "\2713"; /*checkmark*/
+				position: absolute;
+				left: 8px;
+				}
+			.divMessage {
+				flex: 1;
+				font-size: 18px;
+				font-weight: bold;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				}
+			.spanCornerVersion {
+				font-size: 11px;
+				color: #666;
+				margin-left: 12px;
+				}
+			</style>
+		</head>
+	<body>
+		<div class="divAbout" id="divAbout">
+			<div class="divAppName"><span id="spanAppName">Frontier</span><span class="spanAppVersion" id="spanAppVersion"></span></div>
+			<div class="divSlogan">Powerful cross-platform web scripting</div>
+			<div class="divCopyright">&copy; 1992-2004 UserLand Software, Inc</div>
+			<div class="divCopyright">&copy; 2004-2018 Frontier Kernel Project</div>
+			<div class="divUrl"><a href="http://frontierkernel.sourceforge.net/" target="_blank">http://frontierkernel.sourceforge.net/</a></div>
+			<div class="divStatistic"><span class="spanStatLabel">Scripts Running:</span><span class="spanStatValue" id="spanScriptsRunning"></span></div>
+			<div class="divStatistic"><span class="spanStatLabel">Current Thread:</span><span class="spanStatValue" id="spanCurrentThread" title=""></span></div>
+			<div class="divStatistic"><span class="spanStatLabel">Available Memory:</span><span class="spanStatValue" id="spanMemory"></span></div>
+			<div class="divMisc" id="divMisc"></div>
+			</div>
+		<div class="divMessageStrip" id="divMessageStrip">
+			<button class="buttonFlag" id="buttonFlag" title="The flag: the big form and the small one">&#x2691;</button> <!--black flag-->
+			<div class="divPopup">
+				<button class="buttonPopup" id="buttonPopup" title="Visible Agent">&#x25BE;</button> <!--small down-pointing triangle-->
+				<div class="divPopupMenu" id="divPopupMenu"></div>
+				</div>
+			<div class="divMessage" id="divMessage"></div>
+			<span class="spanCornerVersion" id="spanCornerVersion"></span>
+			</div>
+		<script>
+			const thePassword = ((window.odbDesktop !== undefined) && (window.odbDesktop.localPassword !== undefined)) ? window.odbDesktop.localPassword : localStorage.getItem ("odbBrowserPassword");
+			const heightSmall = 56, heightBig = 56 + 232;
+			var flBig = false, theAgents = [], theSelectedAgent;
+
+			function serverCall (thePath, theMethod, callback) {
+				fetch (thePath, {method: theMethod, headers: {"x-trigger-password": (thePassword === null) ? "" : thePassword}}).then (function (theResponse) {
+					return (theResponse.json ());
+					}).then (function (data) {
+						callback (undefined, data);
+						}).catch (function (err) {
+							callback (err);
+							});
+				}
+			function render (data) {
+				document.getElementById ("divMessage").textContent = (data.message === undefined) ? "" : data.message;
+				document.getElementById ("spanScriptsRunning").textContent = String (data.ctScriptsRunning);
+				document.getElementById ("spanCurrentThread").textContent = String (data.currentThread);
+				document.getElementById ("spanCurrentThread").title = String (data.currentThread); //the whole name, when it doesn't fit
+				document.getElementById ("spanMemory").textContent = String (data.freeMemory);
+				document.getElementById ("divMisc").textContent = String (data.misc);
+				const theAppVersion = ((window.odbDesktop === undefined) || (window.odbDesktop.appVersion === undefined)) ? "" : window.odbDesktop.appVersion;
+				document.getElementById ("spanAppVersion").textContent = (theAppVersion.length > 0) ? theAppVersion : data.version;
+				document.getElementById ("spanCornerVersion").textContent = flBig ? "" : data.version + ((theAppVersion.length > 0) ? "/" + theAppVersion : ""); //the big form has the version at the top, the way the kernel draws it once
+				theAgents = Array.isArray (data.agents) ? data.agents : [];
+				theSelectedAgent = data.selectedAgent;
+				}
+			function poll () {
+				serverCall ("/aboutstate", "GET", function (err, data) {
+					if (err !== undefined) {
+						document.getElementById ("divMessage").textContent = "Can't reach the server because " + err.message;
+						return;
+						}
+					render (data);
+					});
+				}
+			function buildPopupMenu () {
+				const divMenu = document.getElementById ("divPopupMenu");
+				divMenu.innerHTML = "";
+				if (theAgents.length === 0) {
+					const divItem = document.createElement ("div");
+					divItem.className = "divPopupItem";
+					divItem.textContent = "(no agents)";
+					divMenu.appendChild (divItem);
+					}
+				theAgents.forEach (function (theName) {
+					const divItem = document.createElement ("div");
+					divItem.className = "divPopupItem" + (((theSelectedAgent !== undefined) && (theName.toLowerCase () === String (theSelectedAgent).toLowerCase ())) ? " checked" : "");
+					divItem.textContent = theName;
+					divItem.addEventListener ("click", function (event) {
+						event.stopPropagation ();
+						divMenu.classList.remove ("showing");
+						serverCall ("/aboutselect?agent=" + encodeURIComponent (theName), "POST", function (err, data) {
+							if (err === undefined) {
+								render (data);
+								}
+							});
+						});
+					divMenu.appendChild (divItem);
+					});
+				}
+			document.getElementById ("buttonPopup").addEventListener ("click", function (event) {
+				event.stopPropagation ();
+				buildPopupMenu ();
+				document.getElementById ("divPopupMenu").classList.toggle ("showing");
+				});
+			document.getElementById ("buttonFlag").addEventListener ("click", function (event) {
+				event.stopPropagation ();
+				flBig = !flBig;
+				document.getElementById ("divAbout").classList.toggle ("showing", flBig);
+				document.getElementById ("buttonFlag").classList.toggle ("down", flBig);
+				try {
+					localStorage.setItem ("aboutWindowBig", flBig ? "true" : "false");
+					}
+				catch (err) {
+					}
+				if ((window.odbDesktop !== undefined) && (typeof window.odbDesktop.resizeSelf === "function")) {
+					window.odbDesktop.resizeSelf (0, flBig ? heightBig : heightSmall);
+					}
+				});
+			document.body.addEventListener ("click", function () { //aboutmousedown: any click re-enables background messages
+				document.getElementById ("divPopupMenu").classList.remove ("showing");
+				serverCall ("/aboutclick", "POST", function (err, data) {
+					if (err === undefined) {
+						render (data);
+						}
+					});
+				});
+			try {
+				if (localStorage.getItem ("aboutWindowBig") === "true") {
+					document.getElementById ("buttonFlag").click ();
+					}
+				}
+			catch (err) {
+				}
+			poll ();
+			setInterval (poll, 1000);
+			</script>
+		</body>
+	</html>

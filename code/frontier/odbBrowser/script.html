@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>script</title>
+		<script src="concord/libraries/jquery-1.9.1.min.js"></script>
+		<link href="concord/libraries/bootstrap.css" rel="stylesheet">
+		<script src="concord/libraries/bootstrap.min.js"></script>
+		<link rel="stylesheet" href="concord/libraries/fontAwesome/css/all.css">
+		<link href="//fonts.googleapis.com/css?family=Ubuntu:400,500i,700" rel="stylesheet"><!--8/12/26 by CC -- outline windows are formatted the way Drummer formats its outlines, and this is where Drummer gets the font-->
+
+		<script src="concord/concordutils.js"></script>
+		<link rel="stylesheet" href="concord/concordstyles.css">
+		<script src="concord/concord.js"></script>
+		<link rel="stylesheet" href="odbbrowser.css">
+		<script src="beep.js"></script>
+		<script src="common.js"></script>
+		<script src="script.js"></script>
+		</head>
+	<body spellcheck="false"><!--8/15/26 by CC -- DW: every dotted address gets flagged as a misspelling. The attribute is inherited by everything in the page, so Concord itself is untouched.-->
+		<div class="divWindow">
+			<div class="divWindowTitle">script</div>
+			<div class="divButtonBar">
+				<button id="buttonSave" class="buttonBar">Save</button>
+				<button id="buttonRun" class="buttonBar">Run</button>
+				<button id="buttonZoom" class="buttonBar">Zoom</button>
+				<span id="spanDirty" class="spanDirty"></span>
+				<span id="spanStatus" class="spanStatus"></span>
+				</div>
+			<div class="divOutlinerContainer">
+				<div id="divOutliner">
+					</div>
+				</div>
+			</div>
+		</body>
+	</html>
