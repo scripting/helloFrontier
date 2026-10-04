@@ -66,7 +66,12 @@ $(document).ready (function () {
 		callbacks: {
 			opCursorMoved: rememberWindowSoon,
 			opExpand: function (op) { //9/29/26 by CC -- the subheads show after an expand, the kernel's opvisisubheads (common.js)
-				scrollExpandedIntoView (op.getCursor ());
+				const theNode = op.getCursor ();
+				const attributes = theNode.data ("attributes");
+				if ((attributes !== undefined) && (attributes.type === "include")) { //10/3/26 by CC -- an include reads the OPML at its url every time it is expanded, Drummer's way (common.js expandInclude)
+					expandInclude (op, theNode);
+					}
+				scrollExpandedIntoView (theNode);
 				rememberWindowSoon ();
 				},
 			opCollapse: rememberWindowSoon
@@ -533,7 +538,7 @@ function buildOdbButtons (theButtonsAddress) {
 	}
 
 function currentOpml () {
-	return ($("#divOutliner").concord ().op.outlineToXml ());
+	return (opmlWithoutIncludedSubs ($("#divOutliner").concord ().op)); //10/3/26 by CC -- an include's subs belong to the file at its url, not to this object
 	}
 
 function showStatus (theText) {

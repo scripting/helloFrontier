@@ -1870,6 +1870,12 @@ function makeEvaluator (environment) {
 				if ((typeof left === "string") && (right instanceof Date)) {
 					right = dates.frontierDateToString (right);
 					}
+				if ((left !== undefined) && (left !== null) && (left.flFilespec === true)) { //10/3/26 by CC -- a filespec coerces to its path, the kernel's way; file.filteredCopy does newfolder = filespec (newfolder) and then newfolder + file.fileFromPath (f), which the 9/17 check below took for a table meeting a string, so every file.copy of a folder ended with "Can't coerce a table to a string." after the files were copied (DW's buildHelloFrontier, 10/3)
+					left = left.path;
+					}
+				if ((right !== undefined) && (right !== null) && (right.flFilespec === true)) {
+					right = right.path;
+					}
 				if (((typeof left === "string") && flTableValue (right)) || ((typeof right === "string") && flTableValue (left))) { //9/17/26 by CC -- a table meeting a string is an error in the kernel (langexternalcoercetostring: cantcoercetostringerror); ours wrote "[object Object]" into the string. Seen in betty.rpc.client's fault message, "returned error code [object Object]"
 					const message = "Can't coerce a table to a string.";
 					throw new Error (message);

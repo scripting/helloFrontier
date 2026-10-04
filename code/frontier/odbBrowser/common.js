@@ -2996,6 +2996,18 @@ function executeEditorVerb (theVerb, theParams) {
 		case "wp.settextmode":
 			theOp.setTextMode (theParams [0] === true);
 			return (true);
+		case "op.sethtmlformatting": { //10/3/26 by CC -- sethtmlformattingfunc (opverbs.c): the outline window's flhtml flag, "HTML semi-wizzy formatting"; here Concord's render mode, which an outline window already opens in. The HTML menu's cmd-` command (=html.menu.formatText ()) toggles with these two, DW's 10/3 ask: "there's no way to switch between wizzy mode in the outline and source mode... we MUST have something that does that"
+			const flWanted = (theParams [0] === true);
+			if (theOp.getRenderMode () === flWanted) {
+				return (false); //the kernel answers whether anything changed
+				}
+			setHtmlFormatting (theOp, flWanted);
+			return (true);
+			}
+		case "op.gethtmlformatting": //gethtmlformattingfunc: true when HTML formatting is on; false for anything but an outline
+			return (theOp.getRenderMode () === true);
+		case "op.attributes.edit": //10/3/26 by CC -- DW's 10/3 ask: the attribute editor, cribbed from Drummer's Edit attributes dialog (tableeditor.js); a verb he puts in a menu himself
+			return (editAttributesDialog (theOp));
 		case "wp.getselect": {
 			const theSelection = lineSelection (theOp);
 			if (theSelection === undefined) {
@@ -3809,6 +3821,168 @@ function restoreLineSelection (theSaved) {
 	const theSelection = window.getSelection ();
 	theSelection.removeAllRanges ();
 	theSelection.addRange (theSaved.range);
+	}
+
+function setHtmlFormatting (theOp, flOn) { //10/3/26 by CC -- the window's lines redraw in the new mode, the way opsethtmlformatting dirties the view and redraws
+
+	/*  Concord reads the render-mode flag when it draws a line, and its
+		setRenderMode redraws the outline (outlineToXml, xmlToOutline, the
+		cursor put back by its count), so the switch shows at once: in
+		render mode the markup shows as formatting, out of it the tags show
+		as typed. The open lines stay open; the OPML carries them.  */
+
+	theOp.setRenderMode (flOn);
+	}
+
+function editAttributesDialog (theOp) { //10/3/26 by CC -- op.attributes.edit: the cursor line's attributes in a dialog of name and value rows; + adds a row, the trash can deletes one, Save puts them on the line; answers true for Save, false for Cancel
+
+	/*  Cribbed from Drummer's Edit attributes dialog (tableeditor.js:
+		tabEdAddRow, tabEdDeleteRow, tabEdOkClick, tabEdShow) -- DW's 10/3
+		ask: "we need an attribute editor, can be cribbed from drummer. we
+		never had this dialog before, but its essential. the + button adds a
+		new blank line. garbage can deletes the line." And: "use this dialog
+		for prior art for all the other dialogs." Drummer's loads its markup
+		from a file and shows it as a Bootstrap modal; here it is built the
+		way this page's other dialogs are (showDialog), on the same mask,
+		with the same buttons. An empty name is left out on Save, the way
+		an attribute with no name can't be written into OPML.  */
+
+	return (new Promise (function (resolve) {
+		const theNode = theOp.getCursor ();
+		if (theNode.length !== 1) {
+			resolve (false);
+			return;
+			}
+		const theAtts = (theNode.data ("attributes") === undefined) ? {} : theNode.data ("attributes");
+		const divMask = $("<div class=\"divDialogMask\"></div>");
+		const divDialog = $("<div class=\"divDialog divAttsDialog\"></div>");
+		divDialog.append ($("<div class=\"divDialogPrompt\"></div>").text ("Edit attributes"));
+		const tableAtts = $("<table class=\"tableAtts\"></table>");
+		function addRow (theName, theValue, flFocus) {
+			const trRow = $("<tr></tr>");
+			const inputName = $("<input type=\"text\" class=\"inputAttName\">").val (theName);
+			const inputValue = $("<input type=\"text\" class=\"inputAttValue\">").val (theValue);
+			const aDelete = $("<a class=\"aAttDelete\" title=\"Delete this attribute\"><i class=\"far fa-trash-alt\"></i></a>").click (function () { //the trash can, Drummer's
+				trRow.remove ();
+				});
+			trRow.append ($("<td></td>").append (inputName));
+			trRow.append ($("<td></td>").append (inputValue));
+			trRow.append ($("<td></td>").append (aDelete));
+			tableAtts.append (trRow);
+			if (flFocus) {
+				inputName.focus ();
+				}
+			}
+		Object.keys (theAtts).forEach (function (theName) {
+			addRow (theName, String (theAtts [theName]), false);
+			});
+		if (tableAtts.children ().length === 0) {
+			addRow ("", "", false);
+			}
+		divDialog.append (tableAtts);
+		const divButtons = $("<div class=\"divDialogButtons divAttsButtons\"></div>");
+		const buttonAdd = $("<button class=\"buttonBar buttonAttAdd\" title=\"Add an attribute\">+</button>").click (function () {
+			addRow ("", "", true);
+			});
+		const theSelectionBefore = saveLineSelection ();
+		function finish (flSaved) {
+			divMask.remove ();
+			restoreLineSelection (theSelectionBefore);
+			resolve (flSaved);
+			}
+		const buttonCancel = $("<button class=\"buttonBar\">Cancel</button>").click (function () {
+			finish (false);
+			});
+		const buttonSave = $("<button class=\"buttonBar buttonDefault\">Save</button>").click (function () {
+			const theNewAtts = {};
+			tableAtts.find ("tr").each (function () {
+				const theName = $(this).find (".inputAttName").val ().trim ();
+				if (theName.length > 0) {
+					theNewAtts [theName] = $(this).find (".inputAttValue").val ();
+					}
+				});
+			theOp.setCursor (theNode);
+			const theLineAtts = new ConcordOpAttributes ($("#divOutliner").concord (), theNode); //Concord's own attribute setter for this line: op.attributes is built once, for the cursor of that moment
+			theLineAtts.makeEmpty ();
+			theLineAtts.addGroup (theNewAtts);
+			theOp.markChanged ();
+			finish (true);
+			});
+		divButtons.append (buttonAdd).append ($("<span class=\"spanAttsButtonGap\"></span>")).append (buttonCancel).append (buttonSave);
+		divDialog.append (divButtons);
+		divMask.append (divDialog);
+		$("body").append (divMask);
+		divDialog.keydown (function (event) {
+			if (event.which === 13) { //return key
+				buttonSave.click ();
+				}
+			if (event.which === 27) { //escape
+				buttonCancel.click ();
+				}
+			});
+		const firstInput = tableAtts.find (".inputAttName").first ();
+		if (firstInput.length === 1) {
+			firstInput.focus ();
+			}
+		}));
+	}
+
+function expandInclude (theOp, theNode) { //10/3/26 by CC -- an include: the OPML at the line's url becomes its subs, read through the server
+
+	/*  Drummer's expandInclude (home/code.js): the url attribute, read with
+		Accept: text/x-opml ("the same header the OPML Editor uses for
+		includes"), the subs it had deleted, the OPML inserted to the right,
+		the change not counted. Here the server reads the url (the page can't
+		reach another site itself), and the subs an include shows are never
+		written back to the database -- currentOpml leaves them out (see
+		opmlWithoutIncludedSubs). DW's 10/3 ask: "grab the code from drummer,
+		and hook it into atlantis. i need this now because workspace.notepad
+		is slowing down."  */
+
+	const attributes = theNode.data ("attributes");
+	const theUrl = (attributes === undefined) ? undefined : attributes.url;
+	if ((theUrl === undefined) || (String (theUrl).length === 0)) {
+		showMessage ("Can't expand the include because the line has no url attribute.");
+		return;
+		}
+	serverCall ("/readinclude", {url: String (theUrl)}, "GET", function (err, data) {
+		if (err !== undefined) {
+			showMessage ("Can't expand the include because " + err.message);
+			return;
+			}
+		try {
+			theOp.setCursor (theNode);
+			theOp.deleteSubs ();
+			theOp.insertXml (data.opmltext, "right");
+			theOp.setCursor (theNode);
+			theNode.removeClass ("collapsed");
+			theNode.addClass ("concord-include-expanded");
+			}
+		catch (errInsert) {
+			showMessage ("Can't expand the include because the file at " + theUrl + " isn't an outline.");
+			}
+		});
+	}
+
+function opmlWithoutIncludedSubs (theOp) { //10/3/26 by CC -- the outline as OPML with every include's subs left out: what an include shows is the other file's, never this one's
+
+	const theDetached = [];
+	$("#divOutliner .concord-node[opml-type='include']").each (function () {
+		const theList = $(this).children ("ol");
+		if (theList.children ().length > 0) {
+			theDetached.push ({node: $(this), children: theList.children ().detach ()});
+			}
+		});
+	var theOpml;
+	try {
+		theOpml = theOp.outlineToXml ();
+		}
+	finally {
+		theDetached.forEach (function (theEntry) {
+			theEntry.node.children ("ol").append (theEntry.children);
+			});
+		}
+	return (theOpml);
 	}
 
 function showDialog (theDialog, runId) { //the script is standing still until one of these buttons is clicked

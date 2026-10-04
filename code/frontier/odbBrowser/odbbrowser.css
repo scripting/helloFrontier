@@ -398,3 +398,61 @@ body {
 	font-size: 12px;
 	margin-top: 4px;
 	}
+
+/*  10/3/26 by CC -- A LINE WITH NO SUBS GETS THE LIGHT WEDGE, whatever its
+	class says. Concord's op.collapse puts the collapsed class on the cursor
+	line without asking whether it has subs, so Collapse Everything left
+	every blank line in DW's notepad with the dark wedge of a line that has
+	something under it (his 10/3 report: "the blank lines don't have subs so
+	their wedge should be light"). The dark wedge means subs; a line with
+	none shows silver, selected or not.  */
+
+.concord .concord-node.collapsed:not(:has(> ol > .concord-node)) > .concord-wrapper.type-icon .node-icon {
+	color: silver;
+	}
+.concord .concord-node.collapsed.selected:not(:has(> ol > .concord-node)) > .concord-wrapper.type-icon .node-icon {
+	color: silver;
+	}
+
+/*  10/3/26 by CC -- THE ATTRIBUTE EDITOR (op.attributes.edit), cribbed from
+	Drummer's Edit attributes dialog: name and value rows, a trash can at
+	the end of each, + at the lower left, Cancel and Save at the right.
+	DW, 10/3: the prior art for all the dialogs.  */
+
+.divAttsDialog {
+	max-width: 620px;
+	}
+.tableAtts {
+	width: 100%;
+	border-collapse: collapse;
+	margin-bottom: 18px;
+	}
+.tableAtts td {
+	padding: 4px 6px 4px 0;
+	vertical-align: middle;
+	}
+.tableAtts td:last-child {
+	width: 24px;
+	padding-right: 0;
+	}
+.inputAttName, .inputAttValue {
+	font-size: 14px;
+	padding: 4px 8px;
+	width: 100%;
+	box-sizing: border-box;
+	}
+.aAttDelete {
+	cursor: pointer;
+	color: #357edd;
+	}
+.divAttsButtons {
+	display: flex;
+	align-items: center;
+	}
+.buttonAttAdd {
+	font-size: 16px;
+	min-width: 44px;
+	}
+.spanAttsButtonGap {
+	flex: 1;
+	}

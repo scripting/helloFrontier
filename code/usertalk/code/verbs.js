@@ -236,7 +236,16 @@ function makeVerbs (thePathMap, theTrace) {
 			throw new Error (message);
 			}
 		if (fs.statSync (thePath).isDirectory ()) {
-			fs.rmdirSync (thePath); //throws when the folder still has things in it, which is what the kernel does
+			try {
+				fs.rmdirSync (thePath); //throws when the folder still has things in it, which is what the kernel does
+				}
+			catch (err) { //10/3/26 by CC -- the raw "ENOTEMPTY: directory not empty, rmdir '/Volumes/...'" reached DW in a dialog; Frontier's vocabulary instead
+				if (err.code === "ENOTEMPTY") {
+					const message = "Can't delete " + args [0] + " because the folder isn't empty.";
+					throw new Error (message);
+					}
+				throw err;
+				}
 			return (true);
 			}
 		fs.unlinkSync (thePath);
@@ -244,12 +253,21 @@ function makeVerbs (thePathMap, theTrace) {
 		};
 	
 	verbs ["file.filefrompath"] = function (args) {
-		var theColonPath = String (args [0]);
-		if (theColonPath.endsWith (":")) {
-			theColonPath = theColonPath.slice (0, theColonPath.length - 1);
-			}
-		const parts = theColonPath.split (":");
-		return (parts [parts.length - 1]);
+
+		/*  10/4/26 by CC -- A FOLDER'S NAME KEEPS ITS COLON. filefrompathverb
+			(fileverbs.c): "2.1b3 dmb: be sure to add colon to name of folder
+			even when filespec is being used" -- a path ending in the
+			separator answers the last name with the separator on it, "sub:"
+			for "HD:a:sub:". file.filteredCopy builds a subfolder's new path
+			as partialpath + file.fileFromPath (f) and counts on that colon;
+			without it every file in a subfolder was copied beside the
+			folder under the wrong name (DW's buildHelloFrontier, 0.4.100).  */
+
+		const theColonPath = String (args [0]);
+		const flFolder = theColonPath.endsWith (":");
+		const theTrimmed = flFolder ? theColonPath.slice (0, theColonPath.length - 1) : theColonPath;
+		const parts = theTrimmed.split (":");
+		return (parts [parts.length - 1] + (flFolder ? ":" : ""));
 		};
 	
 	verbs ["file.folderfrompath"] = function (args) {
@@ -5944,10 +5962,29 @@ function makeVerbs (thePathMap, theTrace) {
 	
 	verbs ["lang.filespec"] = function (args) {
 		/*  A filespec is a value that knows it's a file path. It coerces to
-			its path in string context, so path arithmetic just works.  */
+			its path in string context, so path arithmetic just works.
+
+			10/4/26 by CC -- A FOLDER'S FILESPEC ENDS WITH THE PATH CHARACTER,
+			the kernel's way (a directory's FSSpec written as text ends with
+			a colon). file.filteredCopy counts on it: "newfolder = filespec
+			(newfolder) -- in case caller omitted trailing pathchar", and then
+			newfolder + file.fileFromPath (f). Without the colon every file
+			in a subfolder was copied to the wrong name (code:concordLICENSE.txt
+			for code:concord:LICENSE.txt) -- DW's buildHelloFrontier on
+			0.4.100, the morning the filespec+string fix let that line run.  */
+		var thePath = String (args [0]);
+		if ((thePath.length > 0) && !thePath.endsWith (":")) {
+			try {
+				if (fs.statSync (macToReal (thePath)).isDirectory ()) {
+					thePath += ":";
+					}
+				}
+			catch (err) { //no such file yet: the path stays as given
+				}
+			}
 		return ({
 			flFilespec: true,
-			path: String (args [0]),
+			path: thePath,
 			toString: function () {
 				return (this.path);
 				}

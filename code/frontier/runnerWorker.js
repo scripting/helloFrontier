@@ -1778,6 +1778,8 @@ const theAnswerBytes = new Uint8Array (workerData.sharedData);
 			"op.deleteline", //8/14/26 by CC -- night review: the hidden-target case existed but the stub answered first; now both paths are real
 			"op.subsexpanded", //8/12/26 by CC -- clock.timeStamp asks, to know whether the stamp goes below the line or under it
 			"wp.intextmode", "wp.insert", //8/13/26 by CC -- cmd-4's real path: the stamp goes INTO the line, at the insertion point
+			"op.sethtmlformatting", "op.gethtmlformatting", //10/3/26 by CC -- sethtmlformattingfunc and gethtmlformattingfunc (opverbs.c, 7.0b28): the outline window's HTML formatting flag, Concord's render mode here; the HTML menu's cmd-` toggles with them (=html.menu.formatText ())
+			"op.attributes.edit", //10/3/26 by CC -- the attribute editor dialog on the cursor line, DW's 10/3 ask; cribbed from Drummer
 			"script.iscomment", "script.makecomment", "script.uncomment",
 			"op.promote", "op.demote", "op.reorg", "op.deletesubs", "op.level", //8/19/26 by CC -- the op family grows; each one checked against the kernel before it was written, see misc/theStringAndOpVerbs.md
 			"op.countsubs", "op.countsummits", "op.getheadnumber", "op.setmodified", "op.getsuboutline",

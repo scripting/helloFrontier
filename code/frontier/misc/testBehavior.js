@@ -1913,6 +1913,54 @@ const theFailures = [];
 		theOpen.theStore.close ();
 		}
 
+	function testFilespecAddsAsItsPath () {
+
+		/*  10/3/26 by CC -- A FILESPEC PLUS A STRING IS THE JOINED PATH, THE
+			KERNEL'S WAY. file.filteredCopy, which file.copy runs for a folder,
+			does newfolder = filespec (newfolder) and then newfolder +
+			file.fileFromPath (f); the 9/17 table-meets-string check in the
+			evaluator's add case took the filespec object for a table, so every
+			file.copy of a folder copied all the files and then ended with
+			"Can't coerce a table to a string." -- DW's buildHelloFrontier,
+			10/3, "put it on the list for tonight". And file.delete on a folder
+			with files in it showed the raw "ENOTEMPTY: directory not empty,
+			rmdir '/Volumes/...'" in a dialog ("node interference"); the
+			kernel's FSDeleteObject refuses the same way, in Frontier's words.
+			Also his 10/3 report that a line holding only "}" compiles: it
+			never did -- the parser refuses it; the check keeps it that way.  */
+
+		section ("a filespec plus a string is the path; file.copy of a folder ends clean; file.delete of a full folder says why; a lone } doesn't parse");
+
+		const pathDatabase = freshDatabase ("filespecAdds");
+		const theOpen = openTheDatabase (pathDatabase);
+		const folderFiles = pathTool.join (folderScratch, "files");
+		["copySource", "copyDest", "copyDest2"].forEach (function (theName) { //the files folder outlives a run; a wrong result from last time must not pass this time
+			fs.rmSync (pathTool.join (folderFiles, theName), {recursive: true, force: true});
+			});
+		fs.mkdirSync (pathTool.join (folderFiles, "copySource", "sub"), {recursive: true});
+		fs.writeFileSync (pathTool.join (folderFiles, "copySource", "a.txt"), "a");
+		fs.writeFileSync (pathTool.join (folderFiles, "copySource", "sub", "b.txt"), "b");
+
+		checkThat ("filespec + string", valueOf (theOpen, "filespec (\"Macintosh HD:ccTest:\") + \"x.txt\""), "Macintosh HD:ccTest:x.txt");
+		checkThat ("string + filespec", valueOf (theOpen, "\"see \" + filespec (\"Macintosh HD:ccTest:\")"), "see Macintosh HD:ccTest:");
+		checkThat ("a table meeting a string is still refused", valueOf (theOpen, "local (t); new (tableType, @t); t + \"x\""), "ERROR: Can't coerce a table to a string.");
+		checkThat ("file.copy of a folder ends without an error (false: the kernel's evaluatelist leaves false when a handler's last statement is an if that wasn't taken, and foldercopy's is)", typeof valueOf (theOpen, "file.copy (\"Macintosh HD:ccTest:copySource:\", \"Macintosh HD:ccTest:copyDest:\")"), "boolean");
+		checkThat ("and the files are there", fs.existsSync (pathTool.join (folderFiles, "copyDest", "a.txt")) && fs.existsSync (pathTool.join (folderFiles, "copyDest", "sub", "b.txt")), true);
+		checkThat ("a folder's filespec ends with the path character (10/4/26: filteredCopy's newfolder = filespec (newfolder))", valueOf (theOpen, "string (filespec (\"Macintosh HD:ccTest:copySource\"))"), "Macintosh HD:ccTest:copySource:");
+		checkThat ("a file's doesn't", valueOf (theOpen, "string (filespec (\"Macintosh HD:ccTest:copySource:a.txt\"))"), "Macintosh HD:ccTest:copySource:a.txt");
+		checkThat ("file.fileFromPath of a folder path keeps the colon (filefrompathverb, 2.1b3)", valueOf (theOpen, "file.fileFromPath (\"Macintosh HD:ccTest:copySource:sub:\")"), "sub:");
+		checkThat ("and of a file path is the file's name", valueOf (theOpen, "file.fileFromPath (\"Macintosh HD:ccTest:copySource:sub:b.txt\")"), "b.txt");
+		fs.mkdirSync (pathTool.join (folderFiles, "copyDest2", "sub"), {recursive: true}); //the destination and its subfolder already there: filteredCopy's exists branch, where 0.4.100 and the first filespec fix both went wrong
+		checkThat ("file.copy of a folder into a folder that exists ends without an error", typeof valueOf (theOpen, "file.copy (\"Macintosh HD:ccTest:copySource:\", \"Macintosh HD:ccTest:copyDest2:\")"), "boolean");
+		checkThat ("and the file in the subfolder is in the subfolder", fs.existsSync (pathTool.join (folderFiles, "copyDest2", "sub", "b.txt")), true);
+		checkThat ("not at the wrong name beside it (copyDest2:subb.txt, 0.4.100's result)", fs.existsSync (pathTool.join (folderFiles, "copyDest2", "subb.txt")), false);
+		checkThat ("file.delete of a folder with files in it", valueOf (theOpen, "file.delete (\"Macintosh HD:ccTest:copyDest:\")"), "ERROR: Can't delete Macintosh HD:ccTest:copyDest: because the folder isn't empty.");
+		checkThat ("file.deleteFolder empties and deletes it", valueOf (theOpen, "file.deleteFolder (\"Macintosh HD:ccTest:copyDest:\")"), true);
+		checkThat ("and it is gone", fs.existsSync (pathTool.join (folderFiles, "copyDest")), false);
+		checkThat ("a line of just } doesn't parse", valueOf (theOpen, "}").startsWith ("ERROR: Can't parse the line \"}\""), true);
+		theOpen.theStore.close ();
+		}
+
 	function testXmlGetValueOfAnEmptyElement () {
 
 		/*  9/21/26 by CC -- xml.getValue OF AN EMPTY ELEMENT IS THE EMPTY STRING.
@@ -3452,6 +3500,7 @@ const theFailures = [];
 		testXmlGetValueOfAnEmptyElement,
 		testXmlAttributesAsWritten, //9/29/26 by CC
 		testSizeOfABinary, //9/29/26 by CC
+		testFilespecAddsAsItsPath, //10/3/26 by CC
 		testDottedNameSkipsANonTableLocal, //9/29/26 by CC
 		testSaveNamedRoot,
 		testWriteWholeFileCharacters,

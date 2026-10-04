@@ -481,11 +481,13 @@ function runTheTests () {
 								checkExpandLevels (function () { //9/24/26 by CC
 								checkSelectionVerbs (function () { //10/1/26 by CC
 								checkLogFilesMarked (function () { //10/1/26 by CC
+								checkRootAddress (function () { //10/3/26 by CC
 								stopServer (function () {
 									console.log ("");
 									console.log (ctPassed + " passed, " + ctFailed + " failed.");
 									process.exit ((ctFailed === 0) ? 0 : 1);
 									});
+								});
 								});
 								});
 								});
@@ -506,6 +508,74 @@ function runTheTests () {
 				});
 			});
 		});
+		});
+	}
+
+function checkRootAddress (callback) {
+
+	/*  10/3/26 by CC -- THE ADDRESS "root" IS THE ROOT TABLE. The kernel's
+		langgetspecialtable translates the name root to the root table, so
+		Jump to root opens frontier.root's own window. Here the window asked
+		/listtable?address=root, the server answered "no object at that
+		address", the page alerted and asked again every 1.5 seconds -- the
+		window stuck, and every window its renderer held with it (CC's
+		10/2 test of the downloaded app; DW 10/3: "so this is really a bug
+		fix"). The server now lists the top level for root, in any case.  */
+
+	console.log ("");
+	console.log ("The address root is the root table");
+	request ("/listtable?address=root", "GET", undefined, function (theCode, theText) {
+		var theAnswer = {};
+		try {
+			theAnswer = JSON.parse (theText);
+			}
+		catch (err) {
+			}
+		checkThat ("/listtable?address=root answers 200", theCode === 200);
+		request ("/listtable", "GET", undefined, function (theCodeTop, theTextTop) { //the same answer the paramless window gets
+			var theTop = {};
+			try {
+				theTop = JSON.parse (theTextTop);
+				}
+			catch (err) {
+				}
+			checkThat ("with the top level's tables (" + theAnswer.ctEntries + ")", (theAnswer.ctEntries !== undefined) && (theAnswer.ctEntries > 0) && (theAnswer.ctEntries === theTop.ctEntries));
+			request ("/listtable?address=ROOT", "GET", undefined, function (theCode2) {
+				checkThat ("in any case", theCode2 === 200);
+				checkLineAttributesKept (callback);
+				});
+			});
+		});
+	}
+
+function checkLineAttributesKept (callback) {
+
+	/*  10/3/26 by CC -- A LINE'S ATTRIBUTES ARE KEPT IN THE DATABASE. An
+		include is a line with type="include" and a url; Frontier keeps a
+		headline's attributes with the line (op.attributes.*, oppack.c).
+		Here opmlToScript dropped every attribute but text and isComment, so
+		the url was gone the moment the window saved. Found building
+		includes, DW's 10/3 ask; what the window gets back now says what it
+		sent.  */
+
+	console.log ("");
+	console.log ("A line's attributes are kept");
+	const theOpml = "<?xml version=\"1.0\"?><opml version=\"2.0\"><head><title>t</title></head><body><outline text=\"one\" created=\"Sat, 03 Oct 2026 20:00:00 GMT\"><outline text=\"the include\" type=\"include\" url=\"http://example.com/a.opml?x=1&amp;y=2\" /></outline><outline text=\"two &amp; more\" /></body></opml>";
+	request ("/uploadobject?address=scratchpad.ccAttsKept&type=outline", "POST", theOpml, function (theCode) {
+		checkThat ("an outline with attributes uploads", theCode === 200);
+		request ("/downloadobject?address=scratchpad.ccAttsKept", "GET", undefined, function (theCode2, theText) {
+			var theAnswer = {opmltext: ""};
+			try {
+				theAnswer = JSON.parse (theText);
+				}
+			catch (err) {
+				}
+			checkThat ("and downloads", theCode2 === 200);
+			checkThat ("with created kept on the first line", theAnswer.opmltext.indexOf ("created=\"Sat, 03 Oct 2026 20:00:00 GMT\"") !== -1);
+			checkThat ("with type and url kept on the include, the ampersand encoded", theAnswer.opmltext.indexOf ("type=\"include\" url=\"http://example.com/a.opml?x=1&amp;y=2\"") !== -1);
+			checkThat ("and a line with none has none", /<outline text="two &amp; more">/.test (theAnswer.opmltext));
+			callback ();
+			});
 		});
 	}
 

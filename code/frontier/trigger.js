@@ -1,4 +1,4 @@
-const myProductName = "trigger", myVersion = "0.5.124"; //7/29/26 by CC -- ship a UserTalk script to a server, run it there, get the value back; named by DW
+const myProductName = "trigger", myVersion = "0.5.126"; //7/29/26 by CC -- ship a UserTalk script to a server, run it there, get the value back; named by DW
 
 const http = require ("http");
 
@@ -818,7 +818,15 @@ var selectPathNamedTopLevel; //9/7/26 by CC -- the guests that live at the top u
 				while ((openLevels.length > 0) && (openLevels [openLevels.length - 1] >= theLevel)) {
 					closeOne ();
 					}
-				theText += indent (openLevels.length + 2) + "<outline text=\"" + encode (line.text) + "\"" + ((line.flComment) ? " isComment=\"true\"" : "") + ">\n";
+				var theAttsText = ""; //10/3/26 by CC -- the line's own attributes ride along: type, url, created, whatever the outliner put there (see opmlToScript)
+				if ((line.atts !== undefined) && (line.atts !== null) && (typeof line.atts === "object")) {
+					Object.keys (line.atts).forEach (function (theName) {
+						if (/^[A-Za-z_][\w:.-]*$/.test (theName) && (theName !== "text") && (theName.toLowerCase () !== "iscomment")) {
+							theAttsText += " " + theName + "=\"" + encode (line.atts [theName]) + "\"";
+							}
+						});
+					}
+				theText += indent (openLevels.length + 2) + "<outline text=\"" + encode (line.text) + "\"" + ((line.flComment) ? " isComment=\"true\"" : "") + theAttsText + ">\n";
 				openLevels.push (theLevel);
 				}
 			});
@@ -846,7 +854,34 @@ var selectPathNamedTopLevel; //9/7/26 by CC -- the guests that live at the top u
 				if (textMatch !== null) {
 					text = unescapeXml (textMatch [1]).replace (/[\r\n]+/g, " "); //an outline line can't contain a line break; one embedded in a text attribute (legal XML) is invisible in every window and kills the tokenizer -- 8/14/26 by CC
 					}
-				theLines.push ({level: depth, text, flExpanded: true, flComment, flBreakpoint: false});
+				const theLine = {level: depth, text, flExpanded: true, flComment, flBreakpoint: false};
+
+				/*  10/3/26 by CC -- THE LINE'S ATTRIBUTES ARE KEPT. An outline's
+					headline carries attributes in Frontier (op.attributes.*,
+					packed with the line in oppack.c), and in OPML they are the
+					element's other attributes: type and url on an include,
+					created, anything a script or the editor puts there. Here they
+					were dropped on the way in, so an include's url was gone the
+					moment the window saved -- found 10/3 building includes, DW's
+					ask. text, isComment and isBreakpoint are the line's own
+					flags and stay out of the list.  */
+
+				const attPattern = /([A-Za-z_][\w:.-]*)\s*=\s*"([^"]*)"/g;
+				var attMatch;
+				const theAtts = {};
+				var ctAtts = 0;
+				while ((attMatch = attPattern.exec (attributes)) !== null) {
+					const theName = attMatch [1];
+					const theLower = theName.toLowerCase ();
+					if ((theLower !== "text") && (theLower !== "iscomment") && (theLower !== "isbreakpoint")) {
+						theAtts [theName] = unescapeXml (attMatch [2]);
+						ctAtts++;
+						}
+					}
+				if (ctAtts > 0) {
+					theLine.atts = theAtts;
+					}
+				theLines.push (theLine);
 				if (!flSelfClosing) {
 					depth++;
 					}
@@ -2707,6 +2742,35 @@ var selectPathNamedTopLevel; //9/7/26 by CC -- the guests that live at the top u
 			});
 		}
 
+	function handleReadInclude (theResponse, theIncludeUrl) { //10/3/26 by CC -- see /readinclude
+		if ((theIncludeUrl === undefined) || (theIncludeUrl === "undefined") || (theIncludeUrl.length === 0)) {
+			returnError (theResponse, 400, "Can't read the include because no url was given.");
+			return;
+			}
+		fetchForScript ({url: theIncludeUrl, method: "GET", headers: {"Accept": "text/x-opml", "User-Agent": "UserTalk"}, data: "", milliseconds: 30000, ctFollowRedirects: 5, flJustHeaders: false}, function (theAnswer) { //the shape a script's tcp.httpReadUrl sends (runnerWorker.js)
+			if (theAnswer.message !== undefined) {
+				returnError (theResponse, 502, theAnswer.message); //already "Can't read <url> because <reason>.
+				return;
+				}
+			var theText = "";
+			try {
+				theText = fs.readFileSync (theAnswer.pathResponse, "utf8");
+				fs.unlinkSync (theAnswer.pathResponse);
+				}
+			catch (err) {
+				returnError (theResponse, 500, "Can't read the include at " + theIncludeUrl + " because " + err.message);
+				return;
+				}
+			if ((theAnswer.statusCode === undefined) || (theAnswer.statusCode < 200) || (theAnswer.statusCode >= 300)) {
+				returnError (theResponse, 502, "Can't read the include at " + theIncludeUrl + " because the server there answered " + theAnswer.statusCode + ".");
+				return;
+				}
+			const ixBody = theText.indexOf ("\r\n\r\n"); //the headers come first in the response file, then a blank line, then the body
+			const theBody = (ixBody === -1) ? theText : theText.substring (ixBody + 4);
+			returnJson (theResponse, 200, {url: theIncludeUrl, opmltext: theBody});
+			});
+		}
+
 	function fetchForScript (theRequest, callback) { //callback (theAnswer) -- {pathResponse, statusCode, theUrl} or {message}
 
 		var ctRedirectsLeft = theRequest.ctFollowRedirects;
@@ -2872,7 +2936,7 @@ var selectPathNamedTopLevel; //9/7/26 by CC -- the guests that live at the top u
 					}
 				}
 			else {
-				if ((theAddressString === undefined) || (theAddressString.length === 0)) { //no address means the top level of the database
+				if ((theAddressString === undefined) || (theAddressString.length === 0) || (theAddressString.toLowerCase () === "root")) { //no address means the top level of the database; 10/3/26 by CC -- and so does the name root, the kernel's special table (langgetspecialtable in langvalue.c)
 					addressForErrors = "the top level";
 					theId = theStore.odb.odbId;
 					}
@@ -3798,6 +3862,14 @@ var selectPathNamedTopLevel; //9/7/26 by CC -- the guests that live at the top u
 				else {
 					const theValue = theStore.getSetting (String (urlParam (theUrl, "name")));
 					returnJson (theResponse, 200, {name: String (urlParam (theUrl, "name")), value: (theValue === undefined) ? "" : theValue, flDefined: (theValue !== undefined)});
+					}
+				break;
+			case "/readinclude": //10/3/26 by CC -- an outline window expanding an include asks for the OPML at its url; the server reads it the way a script's tcp.httpReadUrl does (fetchForScript), with Accept: text/x-opml, the OPML Editor's header for includes
+				if (!requestIsAuthorized (theRequest, theUrl, false)) {
+					returnError (theResponse, 401, "Can't read the include because the password is missing or wrong.");
+					}
+				else {
+					handleReadInclude (theResponse, String (urlParam (theUrl, "url")));
 					}
 				break;
 			case "/setsetting": //9/16/26 by CC -- the body is the value

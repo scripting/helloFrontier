@@ -534,6 +534,28 @@ function borrowPassword (callback) { //the page asks the person once and saves i
 	poll ();
 	}
 
+function landCursorFromUrl (theWindow, theUrl) {
+
+	/*  10/3/26 by CC -- THE CURSOR LANDS EVEN WHEN THE WINDOW WAS ALREADY
+		OPEN. A double-click on user.prefs.initials asks for the user.prefs
+		window with cursor=initials; when that window is open already the
+		one-window contract brings it forward and the cursor parameter was
+		dropped on the floor -- DW's 10/3 report: "it opened user.prefs but
+		the cursor was not on initials." The page's putCursorOnRow is what a
+		fresh window does with the parameter; the open window does the same.  */
+
+	try {
+		const theCursorName = new URL (theUrl).searchParams.get ("cursor");
+		if ((theCursorName === null) || (theCursorName.length === 0)) {
+			return;
+			}
+		theWindow.webContents.executeJavaScript ("(typeof putCursorOnRow === \"function\") ? putCursorOnRow (" + JSON.stringify (theCursorName) + ") : undefined", true).catch (function (err) {
+			});
+		}
+	catch (err) {
+		}
+	}
+
 function bringWindowForward (theWindow) { //8/16/26 by CC -- focus () alone doesn't front a background window on the Mac; DW: re-creating an open project left its window where it was. Same treatment as choosing it in the Window menu.
 	noteWindowInFront (theWindow); //9/8/26 by CC
 	if (theWindow.isMinimized ()) {
@@ -1426,6 +1448,7 @@ function trackWindow (theWindow) {
 		const theExisting = findWindowShowing (details.url);
 		if (theExisting !== undefined) {
 			bringWindowForward (theExisting);
+			landCursorFromUrl (theExisting, details.url); //10/3/26 by CC
 			return ({action: "deny"});
 			}
 

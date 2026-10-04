@@ -42,7 +42,7 @@ function resolveScope (callback) {
 			});
 		return;
 		}
-	if ((theAddress !== null) && (theAddress.length > 0)) {
+	if ((theAddress !== null) && (theAddress.length > 0) && (theAddress.toLowerCase () !== "root")) { //10/3/26 by CC -- the address "root" is the root table itself (langgetspecialtable), so Jump to root is frontier.root's own window below; before, the window asked the server to list "root", got "no object at that address", alerted, and asked again every 1.5 seconds -- stuck, with every window its renderer held
 		const theCursorName = theParams.get ("cursor"); //8/12/26 by CC -- a window opened on a value lands on its line
 		callback (undefined, {
 			title: ((theTitle !== null) && (theTitle.length > 0)) ? theTitle : theAddress,
