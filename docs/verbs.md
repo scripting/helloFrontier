@@ -1,6 +1,6 @@
 # Full current list of verbs in Atlantis
 
-This is a list prepared by Claude of all the verbs in the Atlantis version of Frontier, in development, as of <!--date-->9/22/26<!--/date-->. I asked Claude to make this list, and we will try to keep it current. It's in two parts, the verbs that <a href="#implemented">are implemented</a> as of the last release, and those that are <a href="#notImplemented">not implemented</a>. I may add notes here as things change. 9/22/26 by DW
+This is a list prepared by Claude of all the verbs in the Atlantis version of Frontier, in development, as of <!--date-->10/4/26<!--/date-->. I asked Claude to make this list, and we will try to keep it current. It's in two parts, the verbs that <a href="#implemented">are implemented</a> as of the last release, and those that are <a href="#notImplemented">not implemented</a>. I may add notes here as things change. 9/22/26 by DW
 
 <a name="implemented"></a>
 ## Implemented verbs
@@ -743,6 +743,7 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * <a name="html.loadImageFile"></a>html.loadImageFile
 * <a name="html.loadTextFile"></a>html.loadTextFile
 * <a name="html.menu.addHtmlTag"></a>html.menu.addHtmlTag
+* <a name="html.menu.formatText"></a>html.menu.formatText
 * <a name="html.menu.htmlMenuEnabled"></a>html.menu.htmlMenuEnabled
 * <a name="html.menu.init"></a>html.menu.init
 * <a name="html.menu.insertComment"></a>html.menu.insertComment
@@ -783,6 +784,7 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * <a name="html.table.render"></a>html.table.render
 * <a name="html.tenderRender"></a>html.tenderRender
 * <a name="html.translateToEntities"></a>html.translateToEntities
+* <a name="html.traversalSkip"></a>html.traversalSkip
 * <a name="html.ucmds.testoutlinecmd"></a>html.ucmds.testoutlinecmd
 * <a name="html.untaint"></a>html.untaint
 * <a name="html.utilities.backup"></a>html.utilities.backup
@@ -1999,6 +2001,7 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * <a name="tcp.ftp.daemon"></a>tcp.ftp.daemon
 * <a name="tcp.ftp.delete"></a>tcp.ftp.delete
 * <a name="tcp.ftp.openConnection"></a>tcp.ftp.openConnection
+* <a name="tcp.ftp.read"></a>tcp.ftp.read
 * <a name="tcp.ftp.readResponse"></a>tcp.ftp.readResponse
 * <a name="tcp.ftp.removeDirectory"></a>tcp.ftp.removeDirectory
 * <a name="tcp.ftp.sendCommand"></a>tcp.ftp.sendCommand
@@ -2731,9 +2734,7 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * <a name="html.directory.viewDirectory"></a>html.directory.viewDirectory
 * <a name="html.directory.walk"></a>html.directory.walk
 * <a name="html.expandURLs"></a>html.expandURLs
-* <a name="html.menu.formatText"></a>html.menu.formatText
 * <a name="html.shutdown"></a>html.shutdown
-* <a name="html.traversalSkip"></a>html.traversalSkip
 * <a name="html.ucmds.getOutlineHtml"></a>html.ucmds.getOutlineHtml
 * <a name="html.ucmds.getRefconHtml"></a>html.ucmds.getRefconHtml
 * <a name="html.utilities.convertclaysite"></a>html.utilities.convertclaysite
@@ -2977,7 +2978,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 <a name="tcp.notImplemented"></a>
 ### tcp verbs
 
-* <a name="tcp.ftp.read"></a>tcp.ftp.read
 * <a name="tcp.getMail"></a>tcp.getMail
 * <a name="tcp.im.builtinDrivers.jabber.code.everyMinute"></a>tcp.im.builtinDrivers.jabber.code.everyMinute
 * <a name="tcp.im.builtinDrivers.jabber.code.examples.directWeblogPoster"></a>tcp.im.builtinDrivers.jabber.code.examples.directWeblogPoster
