@@ -1,4 +1,4 @@
-const myProductName = "trigger", myVersion = "0.5.126"; //7/29/26 by CC -- ship a UserTalk script to a server, run it there, get the value back; named by DW
+const myProductName = "trigger", myVersion = "0.5.128"; //7/29/26 by CC -- ship a UserTalk script to a server, run it there, get the value back; named by DW
 
 const http = require ("http");
 
@@ -1670,6 +1670,28 @@ var selectPathNamedTopLevel; //9/7/26 by CC -- the guests that live at the top u
 	function flPathNamed (theName) { //9/5/26 by CC -- a top-level name that is a file path: a colon (Mac) or a backslash (Windows) in it
 		return ((String (theName).indexOf (":") !== -1) || (String (theName).indexOf ("\\") !== -1));
 		}
+	var theRootFilePathForScripts; //assigned by rootFilePathForScripts
+
+	function rootFilePathForScripts () { //10/4/26 by CC -- the path Frontier.getFilePath () answers for the root, computed once with the same path map a run gets; "" if the verbs can't say
+		if (theRootFilePathForScripts === undefined) {
+			try {
+				const thePathMap = {helpers: {}, prefs: {}, prefixes: {}, flCorralPaths: true, flAllowDiskWrites: false, flAllowNetwork: false, pathDatabase};
+				if (config.pathMap !== undefined) {
+					Object.keys (thePathMap).forEach (function (name) {
+						if (config.pathMap [name] !== undefined) {
+							thePathMap [name] = config.pathMap [name];
+							}
+						});
+					}
+				theRootFilePathForScripts = String (verbsMaker.makeVerbs (thePathMap, []).verbs ["frontier.getfilepath"] ([]));
+				}
+			catch (err) {
+				theRootFilePathForScripts = "";
+				}
+			}
+		return (theRootFilePathForScripts);
+		}
+
 	function handleGetDatabases (theResponse) { //8/8/26 by CC -- the logical databases, so windows can follow them
 
 		/*  Reads system.compiler.files, written at build time: each entry is
@@ -1694,8 +1716,8 @@ var selectPathNamedTopLevel; //9/7/26 by CC -- the guests that live at the top u
 				machine -- was invisible from every window in the app while it
 				broke every op verb in the language.  */
 			
-			databases.push ({name: "frontier.root", address: ""});
-			
+			databases.push ({name: "frontier.root", address: "", filePath: rootFilePathForScripts ()}); //10/4/26 by CC -- filePath: what Frontier.getFilePath () answers; the root's window answers window.frontmost with it in brackets, so Add Bookmark there bookmarks the row under the cursor (misc/addBookmarkFix.md)
+
 			var filesTable;
 			try {
 				filesTable = theStore.odb.system.compiler.files;
@@ -2244,7 +2266,8 @@ var selectPathNamedTopLevel; //9/7/26 by CC -- the guests that live at the top u
 			theStreamOwner = tcpstreams.makeStreamOwner ({
 				flAllowNetwork: ((config.pathMap !== undefined) && (config.pathMap.flAllowNetwork === true)),
 				folderTemp: folderScriptTemp,
-				onConnection: runListenCallback
+				onConnection: runListenCallback,
+				onWebsocketMessage: runWebsocketCallback //10/4/26 by CC -- a message on a websocket runs the script the connection named, as a process of its own
 				});
 			}
 		return (theStreamOwner);
@@ -2528,6 +2551,80 @@ var selectPathNamedTopLevel; //9/7/26 by CC -- the guests that live at the top u
 			});
 		theWorker.on ("error", function (err) {
 			letGo (err.message);
+			});
+		}
+
+	function userTalkStringLiteral (theText) { //10/4/26 by CC -- the text as a UserTalk string literal, the escapes the scanner reads (parse.js): backslash, quote, return, newline, tab
+		var theLiteral = "\"";
+		String (theText).split ("").forEach (function (theChar) {
+			switch (theChar) {
+				case "\\": theLiteral += "\\\\"; break;
+				case "\"": theLiteral += "\\\""; break;
+				case "\r": theLiteral += "\\r"; break;
+				case "\n": theLiteral += "\\n"; break;
+				case "\t": theLiteral += "\\t"; break;
+				default: theLiteral += theChar;
+				}
+			});
+		return (theLiteral + "\"");
+		}
+
+	function runWebsocketCallback (theRecord, theText) { //10/4/26 by CC -- a message came in on a websocket: callback (socket, message) as its own process, the shape of runListenCallback above
+
+		/*  The connection stays open when the callback is done -- it belongs
+			to the script that opened it, or to the listener, and goes when they
+			close it. Only the one-shot worker ends.  */
+
+		const sharedControl = new SharedArrayBuffer (8);
+		const sharedData = new SharedArrayBuffer (65536);
+		const thePathMap = {helpers: {}, prefs: {}, prefixes: {}, flCorralPaths: true, flAllowDiskWrites: true, flAllowNetwork: false, pathDatabase};
+		if (config.pathMap !== undefined) {
+			Object.keys (thePathMap).forEach (function (name) {
+				if (config.pathMap [name] !== undefined) {
+					thePathMap [name] = config.pathMap [name];
+					}
+				});
+			}
+		const theLine = theRecord.callback + " (" + theRecord.id + ", " + userTalkStringLiteral (theText) + ")";
+		const theLogName = theRecord.callback + " (" + theRecord.id + ", ...)";
+		const theWorker = new Worker (pathTool.join (__dirname, "runnerWorker.js"), {
+			workerData: {
+				sessionId: theSessionId,
+				flAgent: true,
+				flOneShot: true,
+				agentLines: [{level: 0, text: theLine, flComment: false}],
+				threadId: nextThreadId++,
+				scriptText: "",
+				folderUsertalk,
+				pathDatabase,
+				pathMap: thePathMap,
+				folderRenders,
+				sharedControl,
+				sharedData,
+				hiddenTargetCursors: {}
+				}
+			});
+		const theRun = {theName: theLogName, sharedControl, sharedData};
+		theWorker.on ("message", function (theMessage) {
+			if (answerWorkerAsk (theRun, theMessage)) {
+				return;
+				}
+			switch (theMessage.type) {
+				case "agentdone":
+					if (theStore !== undefined) {
+						theStore.checkForOutsideChanges ();
+						}
+					break;
+				case "agentfailed":
+					console.log (nowText () + " websocket: " + theLogName + " stopped -- " + theMessage.message);
+					if (theStore !== undefined) {
+						theStore.checkForOutsideChanges ();
+						}
+					break;
+				}
+			});
+		theWorker.on ("error", function (err) {
+			console.log (nowText () + " websocket: " + theLogName + " stopped -- " + err.message);
 			});
 		}
 
@@ -4144,7 +4241,8 @@ var selectPathNamedTopLevel; //9/7/26 by CC -- the guests that live at the top u
 
 		emptyTheTempTable ();
 
-		langstartup.initEnvironment (theStore); //8/27/26 by CC -- system.environment is a system table: rebuilt truthfully every launch, DW's 8/26 ruling (isMac true on a Mac, isCarbon false)
+		requireFrontierOdb (); //10/4/26 by CC -- for its version number, below
+		langstartup.initEnvironment (theStore, {triggerVersion: myVersion, usertalkVersion: versionUsertalk, odbVersion: String (frontierodb.myVersion)}); //8/27/26 by CC -- system.environment is a system table: rebuilt truthfully every launch, DW's 8/26 ruling (isMac true on a Mac, isCarbon false); 10/4/26 -- the parts' version numbers ride in, DW's ruling that users see one number
 
 		/*  9/4/26 by CC -- THE PORT IS BOUND BEFORE THE TOOLS INSTALL. On the
 			first launch of a fresh install the scanner reads nodeEditor.root
@@ -4157,6 +4255,7 @@ var selectPathNamedTopLevel; //9/7/26 by CC -- the guests that live at the top u
 			nothing is served from a half-installed database.  */
 
 		const theHttpServer = http.createServer (handleHttpRequest);
+		sureStreamOwner ().attachHttpServer (theHttpServer); //10/4/26 by CC -- websocket connections come in on this port, at the paths scripts listen at (tcp.websocket.listen)
 		theHttpServer.on ("error", function (err) { //9/4/26 by CC -- a port already in use used to be an unhandled event and a stack trace; it's a sentence and a clean exit
 			console.log ("Can't start because " + ((err.code === "EADDRINUSE") ? ("port " + config.port + " is already in use.") : err.message));
 			process.exit (1);

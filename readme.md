@@ -42,3 +42,31 @@ We're all building with these tools now, and they're fantastic, but this is a pl
 
 When we want to know what Frontier does, we refer to the Frontier source code [archived](https://github.com/tedchoward/Frontier) by Ted C. Howard, archived in November 2011. 
 
+### The role that AI plays
+
+Claude Code wrote most of what's in the code folder. The exception is Concord, which was written by Kyle Shank. 
+
+The code in Frontier.root came from two sources.
+
+1. The main root file for the OPML Editor distribution of Frontier.  
+
+2. Additions by me in 2026. Some things have changed, and others added for network features that didn't exist last time we worked on Frontier. 
+
+### No pull requests
+
+We can't deal with pull requests because we have a process for making changes. There's a lot of review. This is far from a new product, and breakage is of prime concern.  
+
+If you see a problem, write a bug report. Include:
+
+1. What you did.
+
+2. What you expected.
+
+3. What actually happened.
+
+Screen shots can help. 
+
+### Are you working with AI?
+
+If so, in addition to downloading the <a href="https://github.com/scripting/helloFrontier/tree/master/code">code</a>, please also give <a href="https://github.com/scripting/helloFrontier/blob/master/docs/whatIsFrontier.md">whatIsFrontier.md</a> to your system, and it will know a lot more about Frontier and how it works than it can by reading the source, although the source is well commented, and explains a lot too. 
+

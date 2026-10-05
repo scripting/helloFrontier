@@ -456,3 +456,13 @@ body {
 .spanAttsButtonGap {
 	flex: 1;
 	}
+
+/*  10/4/26 by CC -- THE INCLUDE MARK. A line of type include shows Concord's
+	share icon in place of its wedge (concordutils.js appTypeIcons, 5/19/13 by
+	DW, handed to Concord as the typeIcons pref in script.js). Concord asks
+	for it in Font Awesome's regular weight, and the free set draws share-alt
+	only in solid, so the glyph is bolded here; the same for the other icons
+	in that table that the free set has only in solid.  */
+.concord .node-icon.fa-share-alt, .concord .node-icon.fa-camera, .concord .node-icon.fa-th, .concord .node-icon.fa-user, .concord .node-icon.fa-laptop {
+	font-weight: 900;
+	}

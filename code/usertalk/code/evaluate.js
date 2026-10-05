@@ -353,9 +353,39 @@ function makeEvaluator (environment) {
 
 	function referenceForId (theName, flNeedTable) {
 		
+		function referenceInWithTable (withTable) { //the name in one of a with's tables, or undefined
+			if ((withTable === undefined) || (withTable === null) || (typeof withTable !== "object")) {
+				return (undefined); //a with over a missing table scopes nothing
+				}
+			const key = findKey (withTable, theName);
+			if ((key !== undefined) && ((flNeedTable !== true) || flPlainTableValue (withTable [key]))) { //9/29/26 by CC -- the same rule inside a with
+				return ({
+					container: withTable,
+					key: key,
+					get: function () {
+						return (withTable [key]);
+						},
+					set: function (theValue) {
+						withTable [key] = theValue;
+						}
+					});
+				}
+			return (undefined);
+			}
+
+		/*  10/4/26 by CC -- THE CHAIN IS WALKED ONE LEVEL AT A TIME, the kernel's
+			langfindsymbol (langops.c): a level's own symbols, then the with
+			values that level carries, then the next level out. A with is a
+			level of its own here (the "with" case below pushes a frame holding
+			its tables), so a name inside a with finds the with's table before
+			a local declared outside the with. Until tonight every frame came
+			before every with table, which is half of colinf's report on
+			helloFrontier issue 5 -- see testLocalsLiveInTheirBlock.  */
+
 		var ixFrame;
 		for (ixFrame = environment.frames.length - 1; ixFrame >= 0; ixFrame--) {
-			const vars = environment.frames [ixFrame].vars;
+			const theFrame = environment.frames [ixFrame];
+			const vars = theFrame.vars;
 			const key = findKey (vars, theName);
 			if ((key !== undefined) && ((flNeedTable !== true) || flPlainTableValue (vars [key]))) { //9/29/26 by CC -- the first name of a dotted address must be a TABLE here too: langgetdotparams resolves it with langexternalgettable, which is langgetsymbolval then tablevaltotable, so a local of that name holding anything else is passed over and the paths are searched. Add Link's script declares local (source = "", html, start, end) and then calls html.menu.setTagCase -- DW's 9/28 report
 				return ({
@@ -372,26 +402,22 @@ function makeEvaluator (environment) {
 						}
 					});
 				}
-			}
-		
-		var ixWith;
-		for (ixWith = environment.withPaths.length - 1; ixWith >= 0; ixWith--) {
-			const withTable = environment.withPaths [ixWith];
-			if ((withTable === undefined) || (withTable === null) || (typeof withTable !== "object")) {
-				continue; //a with over a missing table scopes nothing
-				}
-			const key = findKey (withTable, theName);
-			if ((key !== undefined) && ((flNeedTable !== true) || flPlainTableValue (withTable [key]))) { //9/29/26 by CC -- the same rule inside a with
-				return ({
-					container: withTable,
-					key: key,
-					get: function () {
-						return (withTable [key]);
-						},
-					set: function (theValue) {
-						withTable [key] = theValue;
+			if (theFrame.withTables !== undefined) {
+				var ixTable, theWithReference;
+				for (ixTable = 0; ixTable < theFrame.withTables.length; ixTable++) { //in the order written: "with a, b" searches a and then b
+					theWithReference = referenceInWithTable (theFrame.withTables [ixTable]);
+					if (theWithReference !== undefined) {
+						return (theWithReference);
 						}
-					});
+					}
+				}
+			}
+
+		var ixWith; //the tables pushed from outside the language -- the macro processor's scopes, callScript's table, a responder's -- come after every frame, as before
+		for (ixWith = environment.withPaths.length - 1; ixWith >= 0; ixWith--) {
+			const theOuterReference = referenceInWithTable (environment.withPaths [ixWith]);
+			if (theOuterReference !== undefined) {
+				return (theOuterReference);
 				}
 			}
 		
@@ -484,7 +510,39 @@ function makeEvaluator (environment) {
 					}
 				});
 			}
-		
+
+		/*  10/4/26 by CC -- THE ROOT'S OWN FILE NAMES THE ROOT TABLE. The
+			kernel files every open database in filewindowtable under its
+			path, the main root too (cancoonwindow.c and cancoon.c call
+			langexternalregisterwindow on the root variable), so
+			["Macintosh HD:...:frontier.root"] is the root table and
+			["...:frontier.root"].workspace is workspace. window.frontmost
+			answers exactly that for the root's window (setwinvalue), and
+			table.getCursorAddress asks typeOf of what it points to -- the
+			first thing Add Bookmark does (misc/addBookmarkFix.md).  */
+
+		if ((typeof theName === "string") && theName.toLowerCase ().endsWith (".root") && (theName.indexOf (":") !== -1)) {
+			var theRootFilePath;
+			try {
+				theRootFilePath = String (environment.verbs ["frontier.getfilepath"] ([], environment));
+				}
+			catch (err) {
+				}
+			if ((theRootFilePath !== undefined) && (theRootFilePath.toLowerCase () === theName.toLowerCase ())) {
+				return ({
+					container: undefined,
+					key: theName,
+					get: function () {
+						return (environment.odb);
+						},
+					set: function (theValue) {
+						const message = "Can't set the value of " + theName + " because it names an open database.";
+						throw new Error (message);
+						}
+					});
+				}
+			}
+
 		/*  8/8/26 by CC -- temp means system.temp, the way the paths table
 			says so in Frontier. Resolving it here instead of copying it into
 			the root (which is what the old boot-time write did) keeps the two
@@ -2781,7 +2839,14 @@ function makeEvaluator (environment) {
 			const kernelName = dottedNameForNode (theNode.args [0]);
 			if (kernelName !== undefined) {
 				const kernelVerb = environment.verbs [kernelName.toLowerCase ()];
-				const kernelArgs = (currentFrame ().callArgs === undefined) ? [] : currentFrame ().callArgs;
+				var kernelArgs = [];
+				var ixArgFrame; //10/4/26 by CC -- the enclosing HANDLER's arguments: a bundle that declares a local, or a with, is a frame of its own now (runBody), so the walk goes outward to the frame that carries them
+				for (ixArgFrame = environment.frames.length - 1; ixArgFrame >= 0; ixArgFrame--) {
+					if (environment.frames [ixArgFrame].callArgs !== undefined) {
+						kernelArgs = environment.frames [ixArgFrame].callArgs;
+						break;
+						}
+					}
 				if (kernelVerb === undefined) {
 					/*  Screen verbs are no-ops here -- there is no screen. An
 						is-question answers false, everything else claims
@@ -2911,7 +2976,24 @@ function makeEvaluator (environment) {
 		const frame = {vars: {}, callArgs: theArgs}; //callArgs feed a kernel (x.y) thunk in the body
 		
 		const savedFrames = environment.frames;
-		environment.frames = theHandler.closureFrames.concat ([frame]);
+		/*  10/4/26 by CC -- THE HANDLER'S FRAME GOES ON THE CALLER'S CHAIN, the
+			kernel's way. langpushlocalchain chains a called handler's symbol
+			table onto the chain as it stands at the call, and langfindsymbol
+			(langops.c, 2/12/92 dmb) searches a local table only when its
+			lexicalrefcon matches -- the refcon is the script OBJECT being run
+			(langgetlexicalrefcon, the error stack's top), so a handler sees
+			every local table in the chain that belongs to the same script, and
+			none from another script object. Here a script object's frames are
+			always the whole chain (callOdbScript starts a called script on its
+			own chain), so the caller's frames ARE the same-script tables.
+
+			Found tonight by rootUpdates.update: its nested handler rssUpdate
+			assigns maxpubdate, a local declared in a bundle's try in the
+			handler that calls it. With bundles getting frames of their own
+			(runBody), a lexical chain taken at the handler's definition no
+			longer held that local, and the update stopped after one part.  */
+
+		environment.frames = environment.frames.concat ([frame]);
 		
 		/*  7/27/26 by CC -- split the arguments: named ones bind to the
 			param with that name, the rest bind in order.  */
@@ -3318,9 +3400,53 @@ function makeEvaluator (environment) {
 			dropped those values, so date () of a string answered nothing,
 			quietly, since the beginning.  */
 
+		/*  10/4/26 by CC -- A STATEMENT LIST THAT DECLARES A LOCAL GETS A FRAME OF
+			ITS OWN. evaluatelist (langevaluate.c, 7/10/90 DW: "allocate a
+			local table for every level") pre-scans the list for localop and
+			moduleop and pushes a symbol table when it finds one; the table is
+			chained inside the enclosing one and released when the list ends.
+			So a bundle's local lives in the bundle, a loop body's local is new
+			every time around, and an undeclared name assigned there is the
+			enclosing level's when the list declares nothing. Until tonight a
+			bundle's local landed in the handler's one frame and stayed: the
+			startupScript's local (f = ...frontierStartupCommands.txt) was the f
+			that "with user.databases [i]" read later -- colinf, helloFrontier
+			issue 5, 10/4. A list with no local or handler of its own runs in
+			the enclosing frame, as the kernel does.  */
+
+		if (flBodyDeclaresLocals (theBody)) {
+			environment.frames.push ({vars: {}});
+			try {
+				return (evaluate (theBody, environment));
+				}
+			finally {
+				environment.frames.pop ();
+				}
+			}
 		return (evaluate (theBody, environment));
 		}
-	
+
+	function flBodyDeclaresLocals (theBody) { //the kernel's pre-scan: a local or a handler at the list's own level; a line of statements joined by semicolons is the same level
+		if (theBody.flDeclaresLocals === undefined) {
+			var flFound = false;
+			function look (theStatements) {
+				theStatements.forEach (function (statement) {
+					if ((statement.op === "local") || (statement.op === "handler")) {
+						flFound = true;
+						}
+					else {
+						if (statement.op === "sequence") {
+							look (statement.statements);
+							}
+						}
+					});
+				}
+			look (theBody);
+			theBody.flDeclaresLocals = flFound; //kept on the parsed body, the way the kernel keeps its code
+			}
+		return (theBody.flDeclaresLocals);
+		}
+
 	//statements
 	
 	return (function evaluateStatements (theStatements) {
@@ -3593,31 +3719,38 @@ function makeEvaluator (environment) {
 			case "with": {
 				
 				/*  8/9/26 by CC -- with takes a LIST of tables: "with a, b"
-					searches a first, then b. The lookup scans withPaths from
-					the end, so the listed-first table is pushed LAST. Found
-					by worldOutlineSuite.processMacros, which scopes over the
-					builtin macros and the user macros in one statement.  */
-				
+					searches a first, then b. Found by
+					worldOutlineSuite.processMacros, which scopes over the
+					builtin macros and the user macros in one statement.
+
+					10/4/26 by CC -- A WITH IS A LEVEL OF THE CHAIN. evaluatewith
+					(langevaluate.c) makes a local table, puts the with's tables
+					in it as with values and hands it to evaluatelist as the
+					body's symbol table; langfindsymbol searches a level's own
+					names, then its with values, then steps outward. Here the
+					with pushes a frame carrying its tables (referenceForId walks
+					it the same way) instead of pushing onto withPaths, which came
+					after every frame -- so a local declared OUTSIDE the with no
+					longer hides a name in the with's table. The frame is also
+					where an undeclared name assigned inside the with lands, the
+					kernel's "undeclared variables assumed to be local".  */
+
 				const statementPaths = (statement.paths === undefined) ? [statement.path] : statement.paths;
-				var ctPushed = 0;
-				try {
-					var ixPath;
-					for (ixPath = statementPaths.length - 1; ixPath >= 0; ixPath--) {
-						const table = evalExpr (statementPaths [ixPath]);
-						var withTable = table;
-						if ((table !== undefined) && (table !== null) && (table.flAddress === true)) {
-							withTable = table.reference.get ();
-							}
-						environment.withPaths.push (withTable);
-						ctPushed++;
+				const theWithTables = []; //in the order written
+				statementPaths.forEach (function (thePath) {
+					const table = evalExpr (thePath);
+					var withTable = table;
+					if ((table !== undefined) && (table !== null) && (table.flAddress === true)) {
+						withTable = table.reference.get ();
 						}
+					theWithTables.push (withTable);
+					});
+				environment.frames.push ({vars: {}, withTables: theWithTables});
+				try {
 					lastValue = runBody (statement.body);
 					}
 				finally {
-					while (ctPushed > 0) {
-						environment.withPaths.pop ();
-						ctPushed--;
-						}
+					environment.frames.pop ();
 					}
 				break;
 				}

@@ -1892,6 +1892,81 @@ const theFailures = [];
 		theOpen.theStore.close ();
 		}
 
+	function testLocalsLiveInTheirBlock () {
+
+		/*  10/4/26 by CC -- A LOCAL DECLARED IN A BUNDLE LIVES IN THAT BUNDLE,
+			and a with's tables are searched before the locals outside it.
+			evaluatelist (langevaluate.c): "allocate a local table for every
+			level" -- a statement list that declares a local gets a symbol
+			table of its own, chained inside the enclosing one, and it goes
+			away with the list. evaluatewith makes a local table holding the
+			with's tables and hands it to evaluatelist as hmagictable, so
+			langfindsymbol (langops.c) looks in each table's own symbols and
+			then its with values before stepping outward. Here every local went
+			into the handler's one frame, and every with table came after
+			every local: the startupScript's "run the external startup script"
+			bundle declares local (f = ...frontierStartupCommands.txt), and the
+			later bundle's "with user.databases [i]" found that f instead of
+			the table's -- colinf's report on helloFrontier issue 5, 10/4: no
+			guest database opened at startup. Never worked in Atlantis.  */
+
+		section ("a local declared in a bundle lives in that bundle, and a with's tables come before the locals outside it (evaluatelist, evaluatewith, langfindsymbol)");
+
+		const pathDatabase = freshDatabase ("localsLiveInTheirBlock");
+		const theOpen = openTheDatabase (pathDatabase);
+		checkThat ("Colin's shape: a bundle's local f, then with user.databases [i] reads the table's f", valueOf (theOpen, "bundle\n\tlocal (f = \"stale\")\nlocal (t)\nnew (tableType, @t)\nnew (tableType, @t.db1)\nt.db1.f = \"fresh\"\nwith t.db1\n\tf"), "fresh");
+		checkThat ("a local declared in a bundle is gone after the bundle", valueOf (theOpen, "bundle\n\tlocal (x = 1)\ntry\n\tx\nelse\n\t\"gone\""), "gone");
+		checkThat ("a with's table is searched before a local declared outside the with", valueOf (theOpen, "local (f = \"outer\")\nlocal (t)\nnew (tableType, @t)\nt.f = \"inner\"\nwith t\n\tf"), "inner");
+		checkThat ("a local declared inside the with still comes first", valueOf (theOpen, "local (t)\nnew (tableType, @t)\nt.f = \"table\"\nwith t\n\tlocal (f = \"mine\")\n\tf"), "mine");
+		checkThat ("an assignment inside a bundle to a local declared outside it changes that local", valueOf (theOpen, "local (a = 1)\nbundle\n\ta = a + 1\na"), 2);
+		checkThat ("an undeclared name assigned in a bundle with no locals of its own is the handler's", valueOf (theOpen, "bundle\n\tx = 5\nx"), 5);
+		checkThat ("an undeclared name assigned inside a with is a local of the with, not an entry in its table", valueOf (theOpen, "local (t)\nnew (tableType, @t)\nwith t\n\tzork = 7\ndefined (t.zork)"), false);
+		checkThat ("a local declared in a loop's body is fresh every time around", valueOf (theOpen, "local (s = \"\")\nfor i = 1 to 3\n\tlocal (x = i)\n\ts = s + x\ns"), "123");
+		checkThat ("a nested handler sees a local declared in the caller's bundle, the kernel's dynamic chain within one script (langfindsymbol's refcon rule) -- rootUpdates.update's rssUpdate and maxpubdate", valueOf (theOpen, "on test ()\n\ton inner ()\n\t\tx = x + 1\n\tbundle\n\t\tlocal (x = 1)\n\t\tinner ()\n\t\treturn (x)\ntest ()"), 2);
+		checkThat ("the startupScript's own two bundles, in short: the stale f is not seen by the with", valueOf (theOpen, "on test ()\n\tbundle\n\t\tlocal (fname = \"startup.txt\")\n\t\tlocal (f = \"HD:\" + fname)\n\tbundle\n\t\tlocal (dbs)\n\t\tnew (tableType, @dbs)\n\t\tnew (tableType, @dbs.one)\n\t\tdbs.one.f = \"HD:one.root\"\n\t\tlocal (i)\n\t\tfor i = 1 to sizeof (dbs)\n\t\t\twith dbs [i]\n\t\t\t\treturn (f)\ntest ()"), "HD:one.root");
+		theOpen.theStore.close ();
+		}
+
+	function testADatabasesFilePathNamesItsRoot () {
+
+		/*  10/4/26 by CC -- A DATABASE'S FILE PATH, ALONE, NAMES ITS ROOT TABLE --
+			THE ROOT'S OWN FILE TOO. The kernel files every open database in
+			filewindowtable under its path (langexternalregisterwindow;
+			cancoon.c and cancoonwindow.c register the main root's variable as
+			well), and window.frontmost answers that bracketed path for a
+			window that shows a database (setwinvalue). table.getCursorAddress,
+			the first thing Add Bookmark calls, says address (window.frontmost
+			()) and asks whether typeOf of what it points to is a table before
+			it takes the cursor's row. Here the path of an installed Tool,
+			alone, pointed to nothing, and the root's own path was not known
+			at all, so Add Bookmark from a database's own window bookmarked the
+			database's file instead of the row: DW's 9/30 report on
+			nodeEditorSuite.background, and the workspace bookmark that fails
+			with "Can't open the database ...frontier.root" (10/1). Proven on a
+			copy 10/1, applied 10/4 on his ok (misc/addBookmarkFix.md).  */
+
+		section ("a database's file path, alone, names its root table -- the root's own file too");
+
+		const pathDatabase = freshDatabase ("filePathNamesRoot");
+		const theOpen = openTheDatabase (pathDatabase);
+		const getRootPath = "\"[\\\"\" + Frontier.getFilePath () + \"\\\"]\"";
+		checkThat ("address of the root file's own path points to the root table", valueOf (theOpen, "typeOf (address (" + getRootPath + ")^) == tableType"), true);
+		checkThat ("table.getCursorAddress's question about it is answered yes", valueOf (theOpen, "local (adrobject = address (" + getRootPath + ")); (adrobject != nil) and (typeOf (adrobject^) == tabletype)"), true);
+		checkThat ("a name under the root file's path is the root's own", valueOf (theOpen, "local (f = Frontier.getFilePath ()); defined ([f].system.verbs)"), true);
+		checkThat ("and a value written under it lands in the root", valueOf (theOpen, "local (f = Frontier.getFilePath ()); [f].scratchpad.ccViaRootPath = 5; scratchpad.ccViaRootPath"), 5);
+		valueOf (theOpen, "new (tableType, @system.compiler.files.[\"ccTool.root\"]); system.compiler.files.[\"ccTool.root\"].path = \"/tmp/ccTool.root\"; new (tableType, @root.ccToolSuite); root.ccToolSuite.x = 1; true");
+		checkThat ("address of an installed Tool's file path, alone, points to a table too", valueOf (theOpen, "typeOf (address (\"[\\\"Macintosh HD:tmp:ccTool.root\\\"]\")^) == tableType"), true);
+		checkThat ("and what the Tool brought in is under it, as before", valueOf (theOpen, "defined ([\"Macintosh HD:tmp:ccTool.root\"].ccToolSuite.x)"), true);
+		var flStray = false;
+		Object.keys (theOpen.theStore.odb).forEach (function (theName) {
+			if (theName.indexOf (":") !== -1) {
+				flStray = true;
+				}
+			});
+		checkThat ("and none of it made a top-level table named by a path", flStray, false);
+		theOpen.theStore.close ();
+		}
+
 	function testSizeOfABinary () {
 
 		/*  9/29/26 by CC -- sizeOf OF A BINARY IS ITS NUMBER OF BYTES.
@@ -3502,6 +3577,8 @@ const theFailures = [];
 		testSizeOfABinary, //9/29/26 by CC
 		testFilespecAddsAsItsPath, //10/3/26 by CC
 		testDottedNameSkipsANonTableLocal, //9/29/26 by CC
+		testLocalsLiveInTheirBlock, //10/4/26 by CC
+		testADatabasesFilePathNamesItsRoot, //10/4/26 by CC
 		testSaveNamedRoot,
 		testWriteWholeFileCharacters,
 			testParseAddress,

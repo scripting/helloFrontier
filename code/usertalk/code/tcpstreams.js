@@ -421,6 +421,130 @@ function makeStreamOwner (options) {
 					return;
 					}
 
+				/*  10/4/26 by CC -- WEBSOCKETS, DW's 10/4 ask: "we need a client and
+					server -- i need to be able to connect to feedland, and get back
+					a stream of new and updated rss items." Not daveappserver (his
+					word); the ws package, inside the server. The connections live
+					with the owner like the streams above: a script opens one and
+					goes on, and every message that comes in runs the script it
+					named, as its own process, the way a listener's connection runs
+					its callback -- callback (socket, message). The message is a
+					string both ways, his ruling: "it has to be a string that's sent
+					as the message because who knows what kinds of apps people will
+					write. all my apps will be json as the payload." The client side
+					keeps the connection up the way his feedlandSocket package does:
+					a connection that drops is tried again every ten seconds. The
+					server side accepts connections on a path of this server's own
+					port (attachHttpServer below), one callback script per path.  */
+
+				case "wsOpen": { //(url, callback) -> the socket's id, once the connection is open
+					if (options.flAllowNetwork === false) {
+						callback ({message: "Can't open a websocket to " + theRequest.url + " because this Frontier's config doesn't allow network access."});
+						return;
+						}
+					const theRecord = newRecord ("websocket");
+					theRecord.url = String (theRequest.url);
+					theRecord.callback = ((theRequest.callback === undefined) || (theRequest.callback === null) || (String (theRequest.callback).length === 0)) ? undefined : String (theRequest.callback);
+					theRecord.ctRetries = 0;
+					var flAnswered = false;
+					connectWebsocket (theRecord, function (err) {
+						if (flAnswered) {
+							return;
+							}
+						flAnswered = true;
+						if (err !== undefined) {
+							delete theStreams [theRecord.id];
+							callback ({message: "Can't open a websocket to " + theRecord.url + " because " + err.message + "."});
+							return;
+							}
+						callback ({value: theRecord.id});
+						});
+					return;
+					}
+
+				case "wsSend": { //(id, text) -> true
+					const theRecord = findStream (theRequest, callback);
+					if (theRecord === undefined) {
+						return;
+						}
+					if ((theRecord.websocket === undefined) || (theRecord.websocket.readyState !== sureWs ().OPEN)) {
+						callback ({message: "Can't send on websocket " + theRequest.id + " because it isn't open."});
+						return;
+						}
+					theRecord.websocket.send (String (theRequest.text), function (err) {
+						if (err) {
+							callback ({message: "Can't send on websocket " + theRequest.id + " because " + err.message + "."});
+							}
+						else {
+							callback ({value: true});
+							}
+						});
+					return;
+					}
+
+				case "wsClose": { //(id) -> true; the script asked, so there is no reconnect
+					const theRecord = findStream (theRequest, callback);
+					if (theRecord === undefined) {
+						return;
+						}
+					theRecord.flClosedByScript = true;
+					if (theRecord.reconnectTimer !== undefined) {
+						clearTimeout (theRecord.reconnectTimer);
+						}
+					try {
+						if (theRecord.websocket !== undefined) {
+							theRecord.websocket.close ();
+							}
+						}
+					catch (err) {
+						}
+					theRecord.status = "CLOSED";
+					delete theStreams [theRecord.id];
+					callback ({value: true});
+					return;
+					}
+
+				case "wsIsOpen": { //(id) -> whether the socket is open right now; an id nobody has is simply not open
+					const theRecord = theStreams [Number (theRequest.id)];
+					callback ({value: ((theRecord !== undefined) && (theRecord.websocket !== undefined) && (theRecord.websocket.readyState === sureWs ().OPEN))});
+					return;
+					}
+
+				case "wsListen": { //(path, callback) -> true: connections to this path on the server's own port run the callback for every message
+					if (typeof options.onWebsocketMessage !== "function") {
+						callback ({message: "Can't listen for websockets at " + theRequest.path + " because nothing here can run the callback script -- a listener needs the server."});
+						return;
+						}
+					if (theHttpServer === undefined) {
+						callback ({message: "Can't listen for websockets at " + theRequest.path + " because this server has no web server to accept them on."});
+						return;
+						}
+					const thePath = normalizeWsPath (theRequest.path);
+					theWsListens [thePath] = {path: thePath, callback: String (theRequest.callback)};
+					callback ({value: true});
+					return;
+					}
+
+				case "wsBroadcast": { //(text, path) -> how many connections got it: every connection a client made to this server, or only the ones on the path when one is named
+					const thePath = ((theRequest.path === undefined) || (theRequest.path === null) || (String (theRequest.path).length === 0)) ? undefined : normalizeWsPath (theRequest.path);
+					var ct = 0;
+					Object.keys (theStreams).forEach (function (theId) {
+						const theRecord = theStreams [theId];
+						if ((theRecord.kind === "websocketClient") && ((thePath === undefined) || (theRecord.path === thePath))) {
+							try {
+								if (theRecord.websocket.readyState === sureWs ().OPEN) {
+									theRecord.websocket.send (String (theRequest.text));
+									ct++;
+									}
+								}
+							catch (err) {
+								}
+							}
+						});
+					callback ({value: ct});
+					return;
+					}
+
 				default:
 					callback ({message: "Can't do " + theRequest.op + " because it isn't a stream operation."});
 				}
@@ -430,10 +554,141 @@ function makeStreamOwner (options) {
 			}
 		}
 
+	//websockets -- 10/4/26 by CC
+
+	const ctSecsBetweenWsRetries = 10; //feedlandsocket.js: ctSecsBetwRetries
+	const maxWsRetries = 100; //feedlandsocket.js: maxRetries
+	var theWsModule; //assigned by sureWs
+	var theHttpServer; //assigned by attachHttpServer: the server whose upgrade requests this owner answers
+	var theWsServer; //assigned by attachHttpServer
+	const theWsListens = {}; //path -> {path, callback}
+
+	function sureWs () {
+		if (theWsModule === undefined) {
+			theWsModule = require ("ws");
+			}
+		return (theWsModule);
+		}
+
+	function normalizeWsPath (thePath) {
+		var s = String (thePath);
+		if (s.charAt (0) !== "/") {
+			s = "/" + s;
+			}
+		return (s.toLowerCase ());
+		}
+
+	function hearWebsocketMessages (theRecord) { //a message runs the record's callback script, when it has one
+		theRecord.websocket.on ("message", function (theData) {
+			if ((theRecord.callback !== undefined) && (typeof options.onWebsocketMessage === "function")) {
+				options.onWebsocketMessage (theRecord, theData.toString ("utf8"));
+				}
+			});
+		}
+
+	function connectWebsocket (theRecord, callback) { //callback (err) once, for the first attempt; later attempts are the reconnect's
+		const WebSocket = sureWs ();
+		var theSocket;
+		try {
+			theSocket = new WebSocket (theRecord.url);
+			}
+		catch (err) {
+			callback (err);
+			return;
+			}
+		theRecord.websocket = theSocket;
+		theRecord.status = "CONNECTING";
+		var flOpened = false;
+		theSocket.on ("open", function () {
+			flOpened = true;
+			theRecord.ctRetries = 0;
+			theRecord.status = "OPEN";
+			callback (undefined);
+			});
+		theSocket.on ("error", function (err) {
+			theRecord.theError = err;
+			if (!flOpened) {
+				callback (err);
+				}
+			});
+		theSocket.on ("close", function () {
+			if (theRecord.flClosedByScript || (theStreams [theRecord.id] === undefined)) {
+				return;
+				}
+			theRecord.status = "INACTIVE";
+			if (theRecord.ctRetries >= maxWsRetries) { //feedlandsocket.js gives up at this count too
+				delete theStreams [theRecord.id];
+				return;
+				}
+			theRecord.ctRetries++;
+			theRecord.reconnectTimer = setTimeout (function () { //the connection is kept up: tried again, the way feedlandSocket does it
+				theRecord.reconnectTimer = undefined;
+				if (theRecord.flClosedByScript || (theStreams [theRecord.id] === undefined)) {
+					return;
+					}
+				connectWebsocket (theRecord, function () {});
+				}, ctSecsBetweenWsRetries * 1000);
+			if (theRecord.reconnectTimer.unref !== undefined) {
+				theRecord.reconnectTimer.unref ();
+				}
+			});
+		hearWebsocketMessages (theRecord);
+		}
+
+	function attachHttpServer (theServer) { //the server's own port answers websocket connections on the paths scripts listen at
+
+		/*  An upgrade request for a path a script listens at becomes a
+			connection record of its own (kind websocketClient), with the
+			listen's callback; any other path is refused the way a web server
+			refuses an upgrade it doesn't do.  */
+
+		theHttpServer = theServer;
+		theServer.on ("upgrade", function (theRequest, theSocket, theHead) {
+			var thePath = "/";
+			try {
+				thePath = normalizeWsPath (new URL (theRequest.url, "http://localhost/").pathname);
+				}
+			catch (err) {
+				}
+			const theListen = theWsListens [thePath];
+			if (theListen === undefined) {
+				theSocket.write ("HTTP/1.1 404 Not Found\r\nConnection: close\r\n\r\n");
+				theSocket.destroy ();
+				return;
+				}
+			if (theWsServer === undefined) {
+				const WebSocket = sureWs ();
+				theWsServer = new WebSocket.Server ({noServer: true});
+				}
+			theWsServer.handleUpgrade (theRequest, theSocket, theHead, function (theWebsocket) {
+				const theRecord = newRecord ("websocketClient");
+				theRecord.websocket = theWebsocket;
+				theRecord.path = thePath;
+				theRecord.callback = theListen.callback;
+				theRecord.status = "OPEN";
+				theWebsocket.on ("close", function () {
+					theRecord.status = "CLOSED";
+					delete theStreams [theRecord.id];
+					});
+				theWebsocket.on ("error", function (err) {
+					theRecord.theError = err;
+					});
+				hearWebsocketMessages (theRecord);
+				});
+			});
+		}
+
 	function closeEverything () {
 		Object.keys (theStreams).forEach (function (theId) {
 			const theRecord = theStreams [theId];
 			try {
+				theRecord.flClosedByScript = true; //10/4/26 by CC -- no reconnect for a websocket on the way out
+				if (theRecord.reconnectTimer !== undefined) {
+					clearTimeout (theRecord.reconnectTimer);
+					}
+				if (theRecord.websocket !== undefined) {
+					theRecord.websocket.close ();
+					}
 				if (theRecord.server !== undefined) {
 					theRecord.server.close ();
 					}
@@ -446,7 +701,7 @@ function makeStreamOwner (options) {
 			});
 		}
 
-	return ({handle, closeEverything, theStreams});
+	return ({handle, closeEverything, theStreams, attachHttpServer});
 	}
 
 /*  the verbs -- each one stops and waits on askOwner (theRequest), which
@@ -608,6 +863,49 @@ function installStreamVerbs (verbs, askOwner) {
 
 	verbs ["tcp.getstats"] = function (args) {
 		return ("");
+		};
+
+	/*  10/4/26 by CC -- tcp.websocket, DW's 10/4 design (the chat of 10/4):
+		open (url, adrCallback) keeps the connection up and runs the script for
+		every message; send, close, isOpen; the server side listens on a path
+		of this server's own port, with a callback of its own, and broadcast
+		reaches every connection a client made. The callback is called as
+		callback (socket, message): the socket's id, so the script can send
+		back on it, and the message as a string. Its address rides as text,
+		the way tcp.listenStream's does.  */
+
+	function callbackText (theCallback) {
+		if ((theCallback === undefined) || (theCallback === null)) {
+			return ("");
+			}
+		if (theCallback.flAddress === true) {
+			return (String (theCallback.pathText));
+			}
+		return (String (theCallback));
+		}
+
+	verbs ["tcp.websocket.open"] = function (args) { //(url, adrCallback=nil) -> the socket's id
+		return (ask ({op: "wsOpen", url: String (args [0]), callback: callbackText (args [1])}).value);
+		};
+
+	verbs ["tcp.websocket.send"] = function (args) { //(socket, text) -> true
+		return (ask ({op: "wsSend", id: toLong (args [0]), text: String (args [1])}).value);
+		};
+
+	verbs ["tcp.websocket.close"] = function (args) { //(socket) -> true
+		return (ask ({op: "wsClose", id: toLong (args [0])}).value);
+		};
+
+	verbs ["tcp.websocket.isopen"] = function (args) { //(socket) -> boolean
+		return (ask ({op: "wsIsOpen", id: toLong (args [0])}).value);
+		};
+
+	verbs ["tcp.websocket.listen"] = function (args) { //(path, adrCallback) -> true
+		return (ask ({op: "wsListen", path: String (args [0]), callback: callbackText (args [1])}).value);
+		};
+
+	verbs ["tcp.websocket.broadcast"] = function (args) { //(text, path="") -> how many connections got it
+		return (ask ({op: "wsBroadcast", text: String (args [0]), path: ((args [1] === undefined) || (args [1] === null)) ? "" : String (args [1])}).value);
 		};
 	}
 

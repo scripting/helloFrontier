@@ -4026,6 +4026,12 @@ function makeVerbs (thePathMap, theTrace) {
 			pathText: quotedParts.join ("."),
 			reference: {
 				get: function () {
+					if ((parts.length === 1) && (environment.guestRootForFilePath !== undefined) && (findKeyHere (environment.odb, parts [0]) === undefined)) { //10/4/26 by CC -- the address IS a database's file path, alone: its root table, the kernel's filewindowtable entry. address (window.frontmost ())^ in a Tool's window, table.getCursorAddress's first question (misc/addBookmarkFix.md)
+						const theGuestRoot = environment.guestRootForFilePath (parts [0]);
+						if (theGuestRoot !== undefined) {
+							return (theGuestRoot);
+							}
+						}
 					const parent = walkToParent (false);
 					if ((parent === undefined) || (parent === null) || (typeof parent !== "object")) {
 						return (undefined);

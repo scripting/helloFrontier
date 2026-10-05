@@ -61,10 +61,14 @@ $(document).ready (function () {
 			outlineFontSize: 17,
 			outlineLineHeight: 27,
 			renderMode: false,
-			readonly: flReadonly
+			readonly: flReadonly,
+			typeIcons: appTypeIcons //10/4/26 by CC -- DW's 10/4 ask, "include node -- note they must have a special char indicating they are an include, check drummer for the answer": Concord's own table of icons by type (concordutils.js, 5/19/13 by DW) draws a line of type include with the share icon in place of its wedge, and a link, an rss, a photo line each with theirs
 			},
 		callbacks: {
-			opCursorMoved: rememberWindowSoon,
+			opCursorMoved: function (op) {
+				stampCreated (op); //10/4/26 by CC
+				rememberWindowSoon ();
+				},
 			opExpand: function (op) { //9/29/26 by CC -- the subheads show after an expand, the kernel's opvisisubheads (common.js)
 				const theNode = op.getCursor ();
 				const attributes = theNode.data ("attributes");
@@ -78,6 +82,38 @@ $(document).ready (function () {
 			}
 		});
 	applyOutlinerPrefs (); //8/12/26 by CC
+
+	function stampCreated (op) {
+
+		/*  10/4/26 by CC -- EVERY LINE GETS A created ATTRIBUTE, Drummer's way.
+			DW's 10/4 ask, after op.attributes.edit on a line with no
+			attributes showed him an empty dialog: "every line needs to have at
+			least a created att." Drummer does it in its opCursorMoved callback
+			(code.js, 1/22/17 by DW): no created attribute on the cursor line,
+			add one, the date in the form Drummer writes. The same here, in an
+			editable window only; the autosave takes it to the database with
+			the line's other attributes.  */
+
+		if (flReadonly === true) {
+			return;
+			}
+		try {
+			const theNode = op.getCursor ();
+			if ((theNode === undefined) || (theNode === null) || (theNode.length === 0)) {
+				return;
+				}
+			const attributes = theNode.data ("attributes");
+			if ((attributes !== undefined) && (attributes.created !== undefined)) {
+				return;
+				}
+			const theLineAtts = new ConcordOpAttributes ($("#divOutliner").concord (), theNode);
+			theLineAtts.setOne ("created", new Date ().toUTCString ());
+			}
+		catch (err) {
+			console.log ("stampCreated: " + err.message);
+			}
+		}
+
 	if (flReadonly !== true) {
 		captureMenubarKeystrokes (); //8/12/26 by CC -- cmd-/ and cmd-\ belong to the menubar, not to Concord
 		}

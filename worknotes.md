@@ -1,10 +1,30 @@
+### 10/5/26; 12:10:50 PM by DW
+
+New release of Atlantis and worknotes.
+
+### 10/4/26; 10:51:33 AM by DW
+
+What is Frontier? 
+
+Claude has been taking notes, and we're now pretty well in sync on the big picture. 
+
+I've taught Claude what Frontier is, and it's been a rough process, but we got there. I asked Claude to write a document for another AI app just getting started with Frontier. This will get better over time, there's more info here, but I don't fully get what it is.
+
+New worknotes folder is a reverse chronologic list of changes in each release, written entirely by Claude. 
+
+* They are the notes I get when a new release is created. 
+
+* We plan to fill in the archive of these notes going back to late July.
+
+### 10/3/26; 8:10:16 AM by DW
+
+The download page is live and recorded voicemail about where we are.
+
+New top level <a href="https://github.com/scripting/helloFrontier/tree/master/code">code folder</a>, contains source for concord, odb, usertalk and frontier. 
+
 ### 10/1/26; 11:44:40 AM by DW
 
-Started the download page. 
-
-Where the download lives.
-
-* https://download.hellofrontier.com/electricFrontier.zip
+Started the <a href="https://github.com/scripting/helloFrontier/blob/master/download.md">download page</a>. 
 
 ### 9/28/26; 4:35:59 PM by DW
 

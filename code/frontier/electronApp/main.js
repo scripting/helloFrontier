@@ -1466,22 +1466,22 @@ function trackWindow (theWindow) {
 			right (shellwindow.c, doctitlebarheight); so do we now, from the
 			window that did the opening.  */
 
-		const theOptions = {webPreferences: {preload: pathTool.join (__dirname, "preload.js")}};
-		if (details.url.indexOf ("about.html") === -1) { //9/10/26 by CC -- the same window as a launch-time one: the green button zooms, the page draws the title bar. Without these a window opened from a page kept the Mac's title bar under the page's strip -- DW's 9/10 report, two title bars on most windows
-			theOptions.fullscreenable = false;
-			theOptions.titleBarStyle = "hiddenInset";
-			}
-		if (!theWindow.isDestroyed ()) {
-			const theOpenerBounds = theWindow.getBounds ();
-			theOptions.x = theOpenerBounds.x + 30; //8/26/26 by CC -- DW's ruling 8/25: more than the kernel's 18, "you could move them a bit more"
-			theOptions.y = theOpenerBounds.y + 30;
-			theOptions.width = theOpenerBounds.width;
-			theOptions.height = theOpenerBounds.height;
-			}
-		return ({action: "allow", overrideBrowserWindowOptions: theOptions});
-		});
-	theWindow.webContents.on ("did-create-window", function (childWindow) {
-		trackWindow (childWindow);
+		/*  10/4/26 by CC -- THE NEW WINDOW IS THE APP'S OWN, NOT THE OPENER'S
+			CHILD. Letting the page's window.open through ("allow") made
+			Electron create the window as a child of the page that opened it,
+			and a child goes when its opener goes: DW's 10/4 report, "open a
+			table. open an item in the table. close the table. the item closes
+			too" -- reproduced here in the app, both windows gone. His ruling:
+			"if I close the table that contains a script, it should not have
+			any effect on the script being open or closed." So the open is
+			refused and the window is made the way a launch-time window is
+			(createWindow): the same bridge to the app, the same title bar,
+			staggered from the front window, tracked, in front. The page gets
+			null back from window.open, which it already treats as "it didn't
+			open HERE".  */
+
+		createWindow (details.url);
+		return ({action: "deny"});
 		});
 
 	/*  8/10/26 by CC -- DW: "it would be really nice to have an Inspect
@@ -2023,7 +2023,7 @@ function installAboutBox () {
 			applicationName: "Electric Frontier",
 			applicationVersion: versionApp,
 			version: "",
-			credits: "trigger " + versionServer + ", usertalk " + versionUsertalk + "\n" + urlServer + theNote
+			credits: urlServer + theNote //10/4/26 by CC -- the server's and the language's numbers came out, DW's 10/4 ruling: "only display one version number for users to see"; they are in system.environment now (triggerVersion, usertalkVersion, odbVersion)
 			});
 		}
 

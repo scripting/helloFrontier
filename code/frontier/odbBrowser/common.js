@@ -83,14 +83,21 @@ function showVersion () {
 			theAppVersion = theAppMatch [1];
 			}
 		}
-	const theAppText = ((theAppVersion === undefined) ? "" : "/" + theAppVersion); //8/10/26 by CC -- no word, no blanks, DW's call
+	/*  10/4/26 by CC -- ONE NUMBER. DW's 10/4 ruling: "only display one version
+		number for users to see" -- the app's. The server's and the language's
+		numbers are in system.environment now (langstartup.js), for debugging.
+		A window in a plain browser has no app, so it shows the server's.  */
 
+	if (theAppVersion !== undefined) {
+		spanVersion.text (theAppVersion);
+		return;
+		}
 	serverCall ("/version", {}, "GET", function (err, data) {
 		if (err !== undefined) {
-			spanVersion.text ("?" + theAppText);
+			spanVersion.text ("?");
 			return;
 			}
-		spanVersion.text (data.version + theAppText);
+		spanVersion.text (data.version);
 		});
 	}
 
@@ -1498,9 +1505,26 @@ function myFrontmostAnswer () { //9/8/26 by CC -- what this window answers windo
 		return (theAddress);
 		}
 	if ((typeof theScope !== "undefined") && (theScope !== undefined)) { //a browse window is rooted somewhere
+		if ((theScope.address === "") && (theScope.rootFileAddress !== undefined)) { //10/4/26 by CC -- the root's own window answers the root file's path in brackets, the kernel's setwinvalue for a window that shows a database (windowgetpath, langexternalbracketname): what table.getCursorAddress asks address () of, so Add Bookmark from this window bookmarks the row under the cursor (misc/addBookmarkFix.md)
+			return (theScope.rootFileAddress);
+			}
 		return (theScope.address);
 		}
 	return ("");
+	}
+
+function flMessageNamesThisWindow (theMessageAddress) { //10/4/26 by CC -- a window verb aimed at what window.frontmost answered finds the root's window by its bracketed path too; every other window has the one name
+	if (theMessageAddress === undefined) {
+		return (false);
+		}
+	const theLowered = String (theMessageAddress).toLowerCase ();
+	if (theLowered === myChannelAddress ()) {
+		return (true);
+		}
+	if ((typeof theScope !== "undefined") && (theScope !== undefined) && (theScope.address === "") && (theScope.rootFileAddress !== undefined)) {
+		return (theLowered === String (theScope.rootFileAddress).toLowerCase ());
+		}
+	return (false);
 	}
 
 function myChannelAddress () { //the address this window is showing, lowercased; same logic as window.frontmost
@@ -1523,7 +1547,7 @@ function joinWindowChannel () {
 		if ((theMessage === undefined) || (theMessage === null)) {
 			return;
 			}
-		const flAddressMatch = (theMessage.address !== undefined) && (String (theMessage.address).toLowerCase () === myChannelAddress ());
+		const flAddressMatch = flMessageNamesThisWindow (theMessage.address); //10/4/26 by CC -- the root's window answers to its bracketed file path as well
 		const flMine = flAnswerForTarget && flAddressMatch;
 		switch (theMessage.kind) {
 			case "windowPing":
@@ -1634,6 +1658,7 @@ function joinWindowChannel () {
 					try {
 						const theValue = executeEditorVerb (theMessage.verb, theMessage.params);
 						if ((theValue !== undefined) && (theValue !== null) && (typeof theValue.then === "function")) { //8/26/26 by CC -- the app answers the geometry verbs with a promise; see the note on the /dialoganswer path
+							theWindowChannel.postMessage ({kind: "editorverbWorking", callId: theMessage.callId}); //10/4/26 by CC -- the answer is coming when the person is done: a dialog (op.attributes.edit) takes as long as it takes, and the asker's 3-second wait for an answer gave DW "the window showing workspace.notepad didn't answer" when he ran the verb from the glue script's own window
 							theValue.then (function (theResolved) {
 								theWindowChannel.postMessage ({value: theResolved, kind: "editorverbAnswer", callId: theMessage.callId});
 								}, function (promiseErr) {
@@ -1676,7 +1701,14 @@ function askOnWindowChannel (theMessage, answerKind, ctMillisecondsToWait, makeT
 	var theTimeout;
 	function listener (theEvent) {
 		const theAnswer = theEvent.data;
-		if ((theAnswer !== undefined) && (theAnswer !== null) && (theAnswer.kind === answerKind) && (theAnswer.callId === theCallId)) {
+		if ((theAnswer === undefined) || (theAnswer === null) || (theAnswer.callId !== theCallId)) {
+			return;
+			}
+		if (theAnswer.kind === "editorverbWorking") { //10/4/26 by CC -- the window has the verb and is waiting on the person (a dialog): the wait is over, the answer comes when it comes. The script's own dialog channel keeps the ten-minute limit.
+			clearTimeout (theTimeout);
+			return;
+			}
+		if (theAnswer.kind === answerKind) {
 			clearTimeout (theTimeout);
 			theWindowChannel.removeEventListener ("message", listener);
 			callback (theAnswer);

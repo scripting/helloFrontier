@@ -69,7 +69,16 @@ function buildEnvironmentValues () {
 	return (theValues);
 	}
 
-function initEnvironment (theStore) {
+function initEnvironment (theStore, theExtraValues) {
+
+	/*  10/4/26 by CC -- theExtraValues: what only the caller knows, written
+		into the table with the rest. The server passes the version numbers of
+		its parts -- trigger, usertalk, frontierodb -- as triggerVersion,
+		usertalkVersion and odbVersion: DW's 10/4 ruling, only one version
+		number is shown to users (the app's, in the corner of every window),
+		"the other numbers belong in system.environment at startup, for
+		debugging."  */
+
 	if (theStore.odb.system === undefined) {
 		theStore.odb.system = {};
 		}
@@ -78,6 +87,11 @@ function initEnvironment (theStore) {
 		}
 	const theTable = theStore.odb.system.environment;
 	const theValues = buildEnvironmentValues ();
+	if (theExtraValues !== undefined) {
+		Object.keys (theExtraValues).forEach (function (theName) {
+			theValues [theName] = theExtraValues [theName];
+			});
+		}
 	Object.keys (theValues).forEach (function (theName) {
 		if (theTable [theName] !== theValues [theName]) { //only real changes get written -- an up-to-date database costs no writes at launch
 			theTable [theName] = theValues [theName];

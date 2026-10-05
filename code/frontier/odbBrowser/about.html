@@ -186,7 +186,7 @@
 				document.getElementById ("divMisc").textContent = String (data.misc);
 				const theAppVersion = ((window.odbDesktop === undefined) || (window.odbDesktop.appVersion === undefined)) ? "" : window.odbDesktop.appVersion;
 				document.getElementById ("spanAppVersion").textContent = (theAppVersion.length > 0) ? theAppVersion : data.version;
-				document.getElementById ("spanCornerVersion").textContent = flBig ? "" : data.version + ((theAppVersion.length > 0) ? "/" + theAppVersion : ""); //the big form has the version at the top, the way the kernel draws it once
+				document.getElementById ("spanCornerVersion").textContent = flBig ? "" : ((theAppVersion.length > 0) ? theAppVersion : data.version); //the big form has the version at the top, the way the kernel draws it once; 10/4/26 by CC -- one number, the app's (DW's 10/4 ruling), the server's only in a plain browser
 				theAgents = Array.isArray (data.agents) ? data.agents : [];
 				theSelectedAgent = data.selectedAgent;
 				}

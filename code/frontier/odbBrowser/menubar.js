@@ -376,6 +376,25 @@ function autosaveCheck () {
 	}
 
 function saveIfDirty (callback) {
+
+	/*  10/5/26 by CC -- ONE SAVE AT A TIME, HERE TOO. Every save carries each
+		line's number as the window loaded it, the server attaches the
+		scripts by those numbers, and the window relearns the numbers when
+		the save answers. A second save sent while the first was in flight
+		still carried the old numbers against a database the first save had
+		already changed: after a deleted line, every line below it got the
+		script of the line below. DW's 10/5 report, "the wrong command
+		attached to its menu item... it's all of the sub-menus"; his whole
+		custom menubar from the DW menu down, 10/4. The autosave already
+		waited; this path (the double-click that opens a command's script)
+		didn't. Now it waits for the save in flight, then looks again.  */
+
+	if (flSaveInFlight) {
+		setTimeout (function () {
+			saveIfDirty (callback);
+			}, 100);
+		return;
+		}
 	if ((theSavedLines === undefined) || (JSON.stringify (collectTheLines ()) === theSavedLines)) {
 		callback (undefined);
 		return;

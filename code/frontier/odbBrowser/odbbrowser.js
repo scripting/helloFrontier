@@ -62,8 +62,12 @@ function resolveScope (callback) {
 		window for frontier.root." The list of databases says whose names
 		they are; this window leaves those names out.  */
 
-	fetchGuestNames (function (hiddenNames) {
-		callback (undefined, {title: "frontier.root", address: "", hiddenNames: (hiddenNames === undefined) ? {} : hiddenNames}); //the root, frontier.root itself -- DW's 8/22 ruling: the paramless view IS frontier.root; it said "the odb" until 9/4, a name of ours that meant nothing to him
+	fetchGuestNames (function (hiddenNames, theRootFilePath) {
+		const theRootScope = {title: "frontier.root", address: "", hiddenNames: (hiddenNames === undefined) ? {} : hiddenNames}; //the root, frontier.root itself -- DW's 8/22 ruling: the paramless view IS frontier.root; it said "the odb" until 9/4, a name of ours that meant nothing to him
+		if (theRootFilePath !== undefined) { //10/4/26 by CC -- what this window answers window.frontmost with: the root file's path in brackets, the kernel's name for the window of a database (misc/addBookmarkFix.md)
+			theRootScope.rootFileAddress = "[\"" + theRootFilePath + "\"]";
+			}
+		callback (undefined, theRootScope);
 		});
 	}
 
@@ -85,8 +89,12 @@ function fetchGuestNames (callback) { //the top-level names that belong to open 
 			return;
 			}
 		const hiddenNames = {};
+		var theRootFilePath; //10/4/26 by CC -- the root's own file path, as the server lists it with the frontier.root record; the window answers window.frontmost with it in brackets (common.js myFrontmostAnswer)
 		data.databases.forEach (function (theRecord) {
 			if (theRecord.name === "frontier.root") {
+				if ((typeof theRecord.filePath === "string") && (theRecord.filePath.length > 0)) {
+					theRootFilePath = theRecord.filePath;
+					}
 				return;
 				}
 			if (Array.isArray (theRecord.names) && (theRecord.names.length > 0)) {
@@ -103,7 +111,7 @@ function fetchGuestNames (callback) { //the top-level names that belong to open 
 				hiddenNames [theRecord.address.split (".") [0].toLowerCase ()] = true;
 				}
 			});
-		callback (hiddenNames);
+		callback (hiddenNames, theRootFilePath);
 		});
 	}
 
