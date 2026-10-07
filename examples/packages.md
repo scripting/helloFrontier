@@ -12,7 +12,7 @@ exports.bumpcount = bumpcount
 ```
 
 
-### Example code that calls it
+#### Example code that calls it
 
 ```javascript
 
@@ -30,7 +30,7 @@ scratchpad.a.bumpcount ()
 
 ```
 
-### What it does
+#### What it does
 
 Creates two counters, scratchpad.a and scratchpad.b.
 
@@ -38,7 +38,7 @@ Then we do some bumping.
 
 And the values of each counter reflects the number of bumps it's been called on to do.
 
-### More complex example
+#### More complex example
 
 An <a href="https://github.com/scripting/helloFrontier/blob/master/examples/socketClient.md">working example</a> of a websocket client in 16 lines. ;-)
 
