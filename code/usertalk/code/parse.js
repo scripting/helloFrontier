@@ -296,6 +296,22 @@ function parseLineGuts (theText) {
 			case "boolean":
 				return ({op: "const", value: token.value});
 			case "id":
+
+				/*  10/5/26 by CC -- new userlandSamples.socketClient (): an instance
+					of a package, DW's 10/5 design ("local (socketClient = new
+					userlandSamples.socketClient ())"). The word new followed by a
+					name, not a parenthesis, is the form; new (tableType, @adr),
+					the verb, is untouched. What follows is parsed as a call --
+					the dotted name and its arguments -- and becomes a new node
+					holding the script's address and the arguments.  */
+
+				if ((token.name.toLowerCase () === "new") && (peek ().type === "id")) {
+					const theCall = parsePostfix ();
+					if (theCall.op !== "call") {
+						throw new Error ("Can't parse the line because new must be followed by a package name and its parentheses, as in new userlandSamples.socketClient ().");
+						}
+					return ({op: "new", target: theCall.fn, args: theCall.args});
+					}
 				return ({op: "id", name: token.name});
 			case "lparen": {
 				const inner = parseExpr ();

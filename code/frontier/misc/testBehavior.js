@@ -1967,6 +1967,89 @@ const theFailures = [];
 		theOpen.theStore.close ();
 		}
 
+	function testPackagesAndInstances () {
+
+		/*  10/5/26 by CC -- PACKAGES, DW's 10/5 design: one script is a
+			package; it exports handlers the node way, exports.init = init;
+			socketClient.init (url) runs the exported handler; a handler not
+			exported can't be called from outside. new userlandSamples
+			.socketClient () makes an instance, a table carrying the package's
+			address; a call on the instance runs the package's handler with
+			this set to the instance, so the package keeps its data there,
+			in the odb when the instance is. "only the functions that are
+			explicitly named can be called from outside. everything else is
+			internal and private." An addition to the language: the kernel's
+			langgetentrypoint runs only the handler named for the script.  */
+
+		section ("packages: exported handlers called by dotted name, new makes an instance with its own data");
+
+		const pathDatabase = freshDatabase ("packagesAndInstances");
+		const theOpen = openTheDatabase (pathDatabase);
+		valueOf (theOpen, "new (scriptType, @scratchpad.socketClient)");
+		theOpen.theStore.odb.scratchpad.socketClient = {flOdbScript: true, scriptType: "script", lines: [
+			{level: 0, text: "on init (url)", flExpanded: true, flComment: false, flBreakpoint: false},
+			{level: 1, text: "this^.url = url", flExpanded: true, flComment: false, flBreakpoint: false},
+			{level: 1, text: "this^.ct = 0", flExpanded: true, flComment: false, flBreakpoint: false},
+			{level: 1, text: "return (\"init \" + url)", flExpanded: true, flComment: false, flBreakpoint: false},
+			{level: 0, text: "on send (s)", flExpanded: true, flComment: false, flBreakpoint: false},
+			{level: 1, text: "this^.ct = this^.ct + 1", flExpanded: true, flComment: false, flBreakpoint: false},
+			{level: 1, text: "return (secret () + \" \" + s + \" \" + this^.ct)", flExpanded: true, flComment: false, flBreakpoint: false},
+			{level: 0, text: "on secret ()", flExpanded: true, flComment: false, flBreakpoint: false},
+			{level: 1, text: "return (\"sent\")", flExpanded: true, flComment: false, flBreakpoint: false},
+			{level: 0, text: "exports.init = init", flExpanded: true, flComment: false, flBreakpoint: false},
+			{level: 0, text: "exports.send = send", flExpanded: true, flComment: false, flBreakpoint: false},
+			{level: 0, text: "bundle //test code", flExpanded: true, flComment: false, flBreakpoint: false},
+			{level: 1, text: "init (\"x\")", flExpanded: true, flComment: false, flBreakpoint: false}
+			]};
+		checkThat ("the package's exported handler runs by dotted name: scratchpad.socketClient.init (url)", valueOf (theOpen, "scratchpad.socketClient.init (\"ws://a\")"), "init ws://a");
+		checkThat ("a handler the package didn't export can't be called from outside, and the error says so", String (valueOf (theOpen, "scratchpad.socketClient.secret ()")).indexOf ("doesn't export secret") !== -1, true);
+		checkThat ("an exported handler calls the private one from inside", valueOf (theOpen, "local (c = new scratchpad.socketClient ())\nc.init (\"ws://b\")\nc.send (\"hi\")"), "sent hi 1");
+		checkThat ("new makes an instance in a local, and the package keeps its data in it: this^.url, this^.ct", valueOf (theOpen, "local (c = new scratchpad.socketClient ())\nc.init (\"ws://b\")\nc.send (\"hi\")\nc.send (\"again\") + \" | \" + c.url + \" \" + c.ct"), "sent again 2 | ws://b 2");
+		checkThat ("an instance stored in the odb keeps its data there", valueOf (theOpen, "scratchpad.c = new scratchpad.socketClient ()\nscratchpad.c.init (\"ws://c\")\nscratchpad.c.send (\"one\")\nscratchpad.c.ct"), 1);
+		checkThat ("and the stored instance still carries the package's address after a reopen", (function () {
+			theOpen.theStore.close ();
+			const theReopen = openTheDatabase (pathDatabase);
+			const theAnswer = valueOf (theReopen, "scratchpad.c.send (\"two\")\nscratchpad.c.ct");
+			theReopen.theStore.close ();
+			return (theAnswer);
+			}) (), 2);
+		const theOpenAgain = openTheDatabase (pathDatabase);
+		checkThat ("two instances keep two tables", valueOf (theOpenAgain, "local (a = new scratchpad.socketClient (), b = new scratchpad.socketClient ())\na.init (\"A\")\nb.init (\"B\")\na.send (\"x\")\na.url + b.url + string (a.ct) + string (b.ct)"), "AB10");
+		checkThat ("new of something that isn't a package script says so", String (valueOf (theOpenAgain, "local (c = new scratchpad.nothingHere ())")).indexOf ("no package script") !== -1, true);
+		checkThat ("the verb new (tableType, @adr) is untouched", valueOf (theOpenAgain, "new (tableType, @scratchpad.ccNewTable)\ntypeOf (scratchpad.ccNewTable) == tableType"), true);
+		checkThat ("a plain script keeps the kernel's rule: the handler named for the script runs", valueOf (theOpenAgain, "string.lower (\"ABC\")"), "abc");
+
+		/*  10/6/26 by CC -- his rulings after trying 0.4.104: new X (args) calls
+			the package's exported init with the arguments, this set to the
+			new instance ("scratchpad.feedland = new userlandSamples.socketClient
+			(url)" -- "that's the way to do it"); exports exists whenever a
+			script runs; a package called by its own name says it's a package
+			and names its exports (his find: helloWorld ("Dave") answered "Can't
+			get the value of exports").  */
+
+		theOpenAgain.theStore.odb.scratchpad.counter = {flOdbScript: true, scriptType: "script", lines: [
+			{level: 0, text: "on init (start)", flExpanded: true, flComment: false, flBreakpoint: false},
+			{level: 1, text: "this^.ct = start", flExpanded: true, flComment: false, flBreakpoint: false},
+			{level: 0, text: "on bumpcount ()", flExpanded: true, flComment: false, flBreakpoint: false},
+			{level: 1, text: "this^.ct++", flExpanded: true, flComment: false, flBreakpoint: false},
+			{level: 1, text: "return (this^.ct)", flExpanded: true, flComment: false, flBreakpoint: false},
+			{level: 0, text: "exports.init = init", flExpanded: true, flComment: false, flBreakpoint: false},
+			{level: 0, text: "exports.bumpcount = bumpcount", flExpanded: true, flComment: false, flBreakpoint: false}
+			]};
+		checkThat ("new with arguments calls the package's init, this the new instance in the odb: scratchpad.a = new counter (10), then bumpcount", valueOf (theOpenAgain, "scratchpad.a = new scratchpad.counter (10)\nscratchpad.a.bumpcount ()"), 11);
+		checkThat ("and in a local: local (c = new counter (100))", valueOf (theOpenAgain, "local (c = new scratchpad.counter (100))\nc.bumpcount ()\nc.bumpcount ()"), 102);
+		theOpenAgain.theStore.odb.scratchpad.greeter = {flOdbScript: true, scriptType: "script", lines: [ //a package with no init
+			{level: 0, text: "on greet (name)", flExpanded: true, flComment: false, flBreakpoint: false},
+			{level: 1, text: "return (\"Hello \" + name)", flExpanded: true, flComment: false, flBreakpoint: false},
+			{level: 0, text: "exports.greet = greet", flExpanded: true, flComment: false, flBreakpoint: false}
+			]};
+		checkThat ("new with arguments on a package that exports no init says so", String (valueOf (theOpenAgain, "scratchpad.h = new scratchpad.greeter (\"x\")")).indexOf ("doesn't export init") !== -1, true);
+		checkThat ("new with no arguments and no init is fine: the instance, with its package entry", valueOf (theOpenAgain, "scratchpad.h2 = new scratchpad.greeter ()\ndefined (scratchpad.h2.package)"), true);
+		checkThat ("a package called by its own name says it's a package and names its exports", String (valueOf (theOpenAgain, "scratchpad.counter ()")).indexOf ("it's a package; call one of its exports: init, bumpcount") !== -1, true);
+		checkThat ("exports is there at the top level of any run, node's empty exports object", valueOf (theOpenAgain, "exports.x = 5\nexports.x"), 5);
+		theOpenAgain.theStore.close ();
+		}
+
 	function testSizeOfABinary () {
 
 		/*  9/29/26 by CC -- sizeOf OF A BINARY IS ITS NUMBER OF BYTES.
@@ -3579,6 +3662,7 @@ const theFailures = [];
 		testDottedNameSkipsANonTableLocal, //9/29/26 by CC
 		testLocalsLiveInTheirBlock, //10/4/26 by CC
 		testADatabasesFilePathNamesItsRoot, //10/4/26 by CC
+		testPackagesAndInstances, //10/5/26 by CC
 		testSaveNamedRoot,
 		testWriteWholeFileCharacters,
 			testParseAddress,

@@ -525,6 +525,18 @@ function makeStreamOwner (options) {
 					return;
 					}
 
+				case "wsList": { //10/5/26 by CC -- () -> the ids of every websocket this owner holds, the ones scripts opened and the ones clients made; DW's 10/5 ask, "a verb that lets you loop through all the open sockets"
+					const theIds = [];
+					Object.keys (theStreams).forEach (function (theId) {
+						const theRecord = theStreams [theId];
+						if ((theRecord.kind === "websocket") || (theRecord.kind === "websocketClient")) {
+							theIds.push (theRecord.id);
+							}
+						});
+					callback ({value: theIds});
+					return;
+					}
+
 				case "wsBroadcast": { //(text, path) -> how many connections got it: every connection a client made to this server, or only the ones on the path when one is named
 					const thePath = ((theRequest.path === undefined) || (theRequest.path === null) || (String (theRequest.path).length === 0)) ? undefined : normalizeWsPath (theRequest.path);
 					var ct = 0;
@@ -884,8 +896,30 @@ function installStreamVerbs (verbs, askOwner) {
 		return (String (theCallback));
 		}
 
-	verbs ["tcp.websocket.open"] = function (args) { //(url, adrCallback=nil) -> the socket's id
-		return (ask ({op: "wsOpen", url: String (args [0]), callback: callbackText (args [1])}).value);
+	function callbackTextForSocket (theCallback, environment) { //10/6/26 by CC -- the callback may be an INSTANCE: tcp.websocket.open (url, this) inside a package's init. Every message then runs the instance's exported handleMessage, this set to the instance. DW, 10/6: "why wouldn't you do it that way." The instance has to live in the database -- the message arrives in a process of its own and finds it by its address.
+		const theText = callbackText (theCallback);
+		if ((theCallback === undefined) || (theCallback === null) || (theCallback.flAddress !== true)) {
+			return (theText);
+			}
+		var theValue;
+		try {
+			theValue = theCallback.reference.get ();
+			}
+		catch (err) {
+			return (theText);
+			}
+		if ((theValue === undefined) || (theValue === null) || (typeof theValue !== "object") || (theValue.flOdbScript === true) || (theValue.package === undefined)) {
+			return (theText); //a script, or something else: the callback as written
+			}
+		if ((theText.indexOf (".") === -1) && (environment !== undefined) && (environment.odb !== undefined) && (environment.odb [theText] === undefined)) {
+			const message = "Can't open the websocket with " + theText + " as its callback because the instance is a local; the messages arrive in a process of their own, so the instance has to be in the database.";
+			throw new Error (message);
+			}
+		return (theText + ".handleMessage");
+		}
+
+	verbs ["tcp.websocket.open"] = function (args, environment) { //(url, adrCallback=nil) -> the socket's id; the callback a script's address, or an instance (see callbackTextForSocket)
+		return (ask ({op: "wsOpen", url: String (args [0]), callback: callbackTextForSocket (args [1], environment)}).value);
 		};
 
 	verbs ["tcp.websocket.send"] = function (args) { //(socket, text) -> true
@@ -902,6 +936,10 @@ function installStreamVerbs (verbs, askOwner) {
 
 	verbs ["tcp.websocket.listen"] = function (args) { //(path, adrCallback) -> true
 		return (ask ({op: "wsListen", path: String (args [0]), callback: callbackText (args [1])}).value);
+		};
+
+	verbs ["tcp.websocket.getopensockets"] = function (args) { //10/5/26 by CC -- () -> a list of the ids of every open websocket, to loop over: for socket in tcp.websocket.getOpenSockets ()
+		return (ask ({op: "wsList"}).value);
 		};
 
 	verbs ["tcp.websocket.broadcast"] = function (args) { //(text, path="") -> how many connections got it

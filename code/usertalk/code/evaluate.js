@@ -421,6 +421,31 @@ function makeEvaluator (environment) {
 				}
 			}
 		
+		/*  10/6/26 by CC -- exports IS ALWAYS THERE, the way node hands every
+			module an empty exports object. A script that says exports.greet =
+			greet finds the table in its outermost frame -- the module's, the
+			window's run, the one-liner's -- made on first use. DW's find on
+			0.4.104: calling a package by its own name ran the module and
+			"Can't get the value of exports because there is no object with
+			that name."  */
+
+		if ((theName.toLowerCase () === "exports") && (environment.frames.length > 0)) {
+			const theModuleFrame = environment.frames [0];
+			if (theModuleFrame.vars.exports === undefined) {
+				theModuleFrame.vars.exports = {};
+				}
+			return ({
+				container: theModuleFrame.vars,
+				key: "exports",
+				get: function () {
+					return (theModuleFrame.vars.exports);
+					},
+				set: function (theValue) {
+					theModuleFrame.vars.exports = theValue;
+					}
+				});
+			}
+
 		const odbKey = findKey (environment.odb, theName);
 		var guestOwnedReference; //9/26/26 by CC -- a Tool's name at the top of the database: found only after the paths, see below
 		if (odbKey !== undefined) {
@@ -1824,7 +1849,10 @@ function makeEvaluator (environment) {
 			
 			case "call":
 				return (evalCall (theNode));
-			
+
+			case "new": //10/5/26 by CC -- new userlandSamples.socketClient (): an instance of a package
+				return (evalNew (theNode));
+
 			case "not":
 				return (!flTrue (evalExpr (theNode.expr)));
 			
@@ -2950,6 +2978,10 @@ function makeEvaluator (environment) {
 					return (callOdbScript (external, args, dottedName, argNames));
 					}
 				}
+			const throughPackage = callThroughPackage (theNode, args, argNames, dottedName); //10/5/26 by CC -- socketClient.init (): an exported handler of a package, or of the package an instance was made from
+			if (throughPackage !== undefined) {
+				return (throughPackage.value);
+				}
 			const message = "Can’t call the script because the name “" + dottedName + "” hasn’t been defined."; //the kernel's own words -- Lang Errors [9] in lang.r; DW ruling 8/24: just say script
 			throw new Error (message);
 			}
@@ -2971,8 +3003,137 @@ function makeEvaluator (environment) {
 		throw new Error (message);
 		}
 	
+	/*  10/5/26 by CC -- PACKAGES, DW's 10/5 design, in his words: "a whole
+		package of functionality... very much like a package in node.js. and
+		it'll export names... it has an address, so it might be called
+		socketClient, and inside of socketClient I have a verb called init, and
+		I export it." And: "it would work the same way a node package works.
+		only the functions that are explicitly named can be called from
+		outside. everything else is internal and private."
+
+		A package is one script. Its top level says what it exports the node
+		way, exports.init = init, one line per handler; exports is a table
+		the module gets when it runs. A call socketClient.init (url) runs the
+		exported handler init inside the script socketClient; a handler the
+		script didn't export can't be called from outside, and the error says
+		so. The kernel has no such call -- langgetentrypoint runs the handler
+		named for the script itself -- so this is an addition to the
+		language, not a change to anything that worked.
+
+		An instance: local (socketClient = new userlandSamples.socketClient ())
+		makes a table holding the package's address under the name package;
+		socketClient.init (url) on that table runs the package's exported
+		init with this set to the instance, so the package keeps its data in
+		the instance, this^.items, where he can watch it in the odb: "if you
+		want to debug, you can walk through the data in the odb." Two
+		instances keep two tables. Frontier can't hide a table entry, so
+		private here means not exported and not advertised, the same as his
+		JavaScript.  */
+
+	function scriptFromAddressValue (theValue) { //the script an address value points at, or undefined; the value may be a live address or the stored form
+		try {
+			if ((theValue === undefined) || (theValue === null)) {
+				return (undefined);
+				}
+			var theScript;
+			if (theValue.flAddress === true) {
+				theScript = theValue.reference.get ();
+				}
+			else {
+				if (theValue.flOdbAddressText === true) {
+					theScript = environment.verbs ["lang.address"] ([String (theValue.path)], environment).reference.get ();
+					}
+				}
+			if ((theScript !== undefined) && (theScript !== null) && (theScript.flOdbScript === true)) {
+				return (theScript);
+				}
+			}
+		catch (err) {
+			}
+		return (undefined);
+		}
+
+	function callThroughPackage (theNode, args, argNames, dottedName) { //{value} when the call was a package's exported handler, else undefined
+		const fnNode = theNode.fn;
+		if ((fnNode === undefined) || (fnNode.op !== "dot")) {
+			return (undefined);
+			}
+		var theOwner;
+		try {
+			theOwner = referenceForNode (fnNode.left).get ();
+			}
+		catch (err) {
+			return (undefined);
+			}
+		if ((theOwner === undefined) || (theOwner === null) || (typeof theOwner !== "object")) {
+			return (undefined);
+			}
+		const theExportName = String (fnNode.name);
+		if (theOwner.flOdbScript === true) { //the package itself: socketClient.init ()
+			environment.trace.push ({verb: dottedName, args, flOdbScript: true});
+			return ({value: callOdbScript (theOwner, args, dottedName, argNames, addressForCallNode (fnNode.left), theExportName)});
+			}
+		if (flTableValue (theOwner)) { //an instance: a table carrying the package's address
+			const packageKey = findKey (theOwner, "package");
+			if (packageKey !== undefined) {
+				const theScript = scriptFromAddressValue (theOwner [packageKey]);
+				if (theScript !== undefined) {
+					environment.trace.push ({verb: dottedName, args, flOdbScript: true});
+					return ({value: callOdbScript (theScript, args, dottedName, argNames, addressForCallNode (fnNode.left), theExportName)});
+					}
+				}
+			}
+		return (undefined);
+		}
+
+	function evalNew (theNode) { //new userlandSamples.socketClient () -> a table holding the package's address, the instance
+		const theName = pathTextForNode (theNode.target);
+		var theScript;
+		try {
+			theScript = referenceForNode (theNode.target).get ();
+			}
+		catch (err) {
+			theScript = undefined;
+			}
+		if ((theScript === undefined) || (theScript === null) || (theScript.flOdbScript !== true)) {
+			const message = "Can't make a new " + theName + " because there is no package script at that address.";
+			throw new Error (message);
+			}
+		const theAddress = addressForCallNode (theNode.target);
+		if (theAddress === undefined) {
+			const message = "Can't make a new " + theName + " because the package has no address in the database.";
+			throw new Error (message);
+			}
+		const theInstance = {};
+		theInstance.package = theAddress;
+		return (theInstance);
+		}
+
+	function callPackageInit (theNewNode, theInstanceAddress) { //10/6/26 by CC -- the arguments of new go to the package's exported init, this set to the new instance: scratchpad.feedland = new userlandSamples.socketClient (url). DW, 10/6: "that's the way to do it."
+
+		/*  The instance has to be somewhere first -- the assignment or the
+			local declaration puts it there, then calls this with the place's
+			address, so this inside init is the instance. A package with no
+			exported init and no arguments is left alone; arguments with no
+			init to take them is an error.  */
+
+		const args = [];
+		const argNames = [];
+		theNewNode.args.forEach (function (argNode) { //the same gathering a call does: a named argument binds by name
+			args.push (evalExpr (argNode));
+			argNames.push ((argNode.op === "namedarg") ? argNode.name : undefined);
+			});
+		const theScript = referenceForNode (theNewNode.target).get ();
+		const theName = pathTextForNode (theNewNode.target);
+		const theAnswer = callOdbScript (theScript, args, theInstanceAddress.pathText + ".init", argNames, theInstanceAddress, "init", true); //true: no init exported is not an error here
+		if ((theAnswer !== undefined) && (theAnswer !== null) && (theAnswer.flNoSuchExport === true) && (args.length > 0)) {
+			const message = "Can't make a new " + theName + " with arguments because the package doesn't export init.";
+			throw new Error (message);
+			}
+		}
+
 	function callHandler (theHandler, theArgs, theArgNames) {
-		
+
 		const frame = {vars: {}, callArgs: theArgs}; //callArgs feed a kernel (x.y) thunk in the body
 		
 		const savedFrames = environment.frames;
@@ -3089,7 +3250,7 @@ function makeEvaluator (environment) {
 			}
 		}
 	
-	function callOdbScript (theScript, theArgs, theName, theArgNames, theAddress) {
+	function callOdbScript (theScript, theArgs, theName, theArgNames, theAddress, theExportName, flExportOptional) { //10/5/26 by CC -- theExportName: the call is to one of the package's exported handlers; see callThroughPackage. 10/6/26 -- flExportOptional: a missing export answers {flNoSuchExport: true} instead of throwing (new's call to init)
 		
 		/*  A script value from the odb, called like a verb: parse it once,
 			evaluate its module (skipping test-code bundles), then call the
@@ -3178,6 +3339,65 @@ function makeEvaluator (environment) {
 			const parts = theName.split (".");
 			const shortName = parts [parts.length - 1];
 
+			function moduleStatementsOf (theParsed) { //the module minus its trailing test bundles -- the 7/27 and 9/4 rules below
+
+				/*  7/27/26 by CC -- only TRAILING bundles are the test-code
+					convention; a bundle in the body of the script is working
+					code and runs. manilaSuite.init is built entirely of them.  */
+				/*  9/4/26 by CC -- AND A STRAIGHT-CODE SCRIPT RUNS WHOLE, its
+					trailing bundles included. The trailing-bundle skip is the
+					test-code convention for scripts that HAVE handlers; a script
+					with no handler at all is the kernel's foundbody path and every
+					statement is the body. scheduler.init in the 2012 opml.root
+					ends in three bundles -- "initialize user.scheduler.tasks" among
+					them -- and skipping them left the startupScript reading
+					user.scheduler.tasks that was never made: "Can't get the value
+					of tasks because there is no object with that name," found on
+					the virgin root, DW's 9/4 baseline.  */
+
+				var flHasHandler = false;
+				theParsed.forEach (function (statement) {
+					if (statement.op === "handler") {
+						flHasHandler = true;
+						}
+					});
+				var ixLastReal = -1;
+				theParsed.forEach (function (statement, ixStatement) {
+					if ((statement.op !== "bundle") || !flHasHandler) {
+						ixLastReal = ixStatement;
+						}
+					});
+				const statements = [];
+				theParsed.forEach (function (statement, ixStatement) {
+					if (ixStatement <= ixLastReal) {
+						statements.push (statement);
+						}
+					});
+				return (statements);
+				}
+
+			/*  10/5/26 by CC -- A PACKAGE'S EXPORTED HANDLER. The module runs with
+				an exports table in its frame; its exports.init = init lines fill
+				it; the handler named by the call runs if it is there. Not there:
+				the package doesn't export it, and the error says so -- DW's
+				rule, "only the functions that are explicitly named can be called
+				from outside." See callThroughPackage.  */
+
+			if (theExportName !== undefined) {
+				moduleFrame.vars.exports = {};
+				evaluate (moduleStatementsOf (theScript.parsedStatements), environment);
+				const theExports = moduleFrame.vars.exports;
+				const exportKey = ((theExports !== undefined) && (theExports !== null) && (typeof theExports === "object")) ? findKey (theExports, theExportName) : undefined;
+				if ((exportKey === undefined) || (theExports [exportKey] === undefined) || (theExports [exportKey] === null) || (theExports [exportKey].flHandler !== true)) {
+					if (flExportOptional === true) {
+						return ({flNoSuchExport: true});
+						}
+					const message = "Can't call " + theName + " because the package " + parts.slice (0, -1).join (".") + " doesn't export " + theExportName + ".";
+					throw new Error (message);
+					}
+				return (callHandler (theExports [exportKey], theArgs, theArgNames));
+				}
+
 			/*  8/24/26 by CC -- THE KERNEL'S ENTRY-POINT RULE, from
 				langgetentrypoint in langvalue.c: when a top-level handler
 				matches the name the script was called by, ONLY that handler
@@ -3202,37 +3422,7 @@ function makeEvaluator (environment) {
 				return (callHandler (moduleFrame.vars [findKey (moduleFrame.vars, shortName)], theArgs, theArgNames));
 				}
 
-			/*  7/27/26 by CC -- only TRAILING bundles are the test-code
-				convention; a bundle in the body of the script is working
-				code and runs. manilaSuite.init is built entirely of them.  */
-			/*  9/4/26 by CC -- AND A STRAIGHT-CODE SCRIPT RUNS WHOLE, its
-				trailing bundles included. The trailing-bundle skip is the
-				test-code convention for scripts that HAVE handlers; a script
-				with no handler at all is the kernel's foundbody path and every
-				statement is the body. scheduler.init in the 2012 opml.root
-				ends in three bundles -- "initialize user.scheduler.tasks" among
-				them -- and skipping them left the startupScript reading
-				user.scheduler.tasks that was never made: "Can't get the value
-				of tasks because there is no object with that name," found on
-				the virgin root, DW's 9/4 baseline.  */
-			var flHasHandler = false;
-			theScript.parsedStatements.forEach (function (statement) {
-				if (statement.op === "handler") {
-					flHasHandler = true;
-					}
-				});
-			var ixLastReal = -1;
-			theScript.parsedStatements.forEach (function (statement, ixStatement) {
-				if ((statement.op !== "bundle") || !flHasHandler) {
-					ixLastReal = ixStatement;
-					}
-				});
-			const statements = [];
-			theScript.parsedStatements.forEach (function (statement, ixStatement) {
-				if (ixStatement <= ixLastReal) {
-					statements.push (statement);
-					}
-				});
+			const statements = moduleStatementsOf (theScript.parsedStatements); //the 7/27 and 9/4 rules, kept in moduleStatementsOf above
 			const moduleValue = evaluate (statements, environment);
 
 			var handlerKey = findKey (moduleFrame.vars, shortName);
@@ -3245,6 +3435,19 @@ function makeEvaluator (environment) {
 						handlerNames.push (key);
 						}
 					});
+				const theExports = moduleFrame.vars.exports; //10/6/26 by CC -- a package called by its own name: say so, and name what it exports. DW's find on 0.4.104, helloWorld ("Dave") instead of helloWorld.greet ("Dave")
+				if ((theExports !== undefined) && (theExports !== null) && (typeof theExports === "object")) {
+					const exportNames = [];
+					Object.keys (theExports).forEach (function (key) {
+						if ((theExports [key] !== undefined) && (theExports [key] !== null) && (theExports [key].flHandler === true)) {
+							exportNames.push (key);
+							}
+						});
+					if (exportNames.length > 0) {
+						const message = "Can't call " + theName + " because it's a package; call one of its exports: " + exportNames.join (", ") + ".";
+						throw new Error (message);
+						}
+					}
 				if (handlerNames.length === 1) {
 					handlerKey = handlerNames [0];
 					}
@@ -3483,7 +3686,18 @@ function makeEvaluator (environment) {
 						value = evalExpr (init.value);
 						}
 					if (statement.op === "local") {
-						currentFrame ().vars [init.name] = tableValueForALocal (value); //9/21/26 by CC -- a table is a value: the local gets its own copy
+						const theFrame = currentFrame ();
+						theFrame.vars [init.name] = tableValueForALocal (value); //9/21/26 by CC -- a table is a value: the local gets its own copy
+						if ((init.value !== undefined) && (init.value.op === "new")) { //10/6/26 by CC -- local (c = new X (args)): the instance is in the local now, so init runs with this = @c
+							callPackageInit (init.value, {flAddress: true, pathText: init.name, reference: {
+								get: function () {
+									return (theFrame.vars [init.name]);
+									},
+								set: function (theValue) {
+									theFrame.vars [init.name] = theValue;
+									}
+								}});
+							}
 						}
 					else {
 						if (findKey (environment.odb, init.name) === undefined) {
@@ -3530,6 +3744,9 @@ function makeEvaluator (environment) {
 				
 				theReference.set (flDatabaseReference (theReference) ? theValue : tableValueForALocal (theValue)); //9/21/26 by CC -- a table is a value; see tableValueForALocal. Into the database the store copies on its own (and knows a table written onto itself, 8/17)
 				lastValue = theValue; //8/14/26 by CC -- an assignment answers the value, DW: "it's reaffirming that something happened"
+				if (statement.value.op === "new") { //10/6/26 by CC -- scratchpad.feedland = new X (args): the instance is at the address now, so init runs with this = @scratchpad.feedland
+					callPackageInit (statement.value, {flAddress: true, pathText: pathTextForNode (statement.target), reference: theReference});
+					}
 				break;
 				}
 			

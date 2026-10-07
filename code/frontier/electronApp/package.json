@@ -1,7 +1,7 @@
 {
   "name": "electricfrontier",
   "productName": "Electric Frontier",
-  "version": "0.4.103",
+  "version": "0.4.105",
   "description": "Electric Frontier -- a whole Frontier on the desktop: database, interpreter and windows, all on this machine. Launches the Frontier it carries, restores the windows the way they were.",
   "main": "main.js",
   "scripts": {

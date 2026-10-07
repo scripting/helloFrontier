@@ -3879,6 +3879,23 @@ function editAttributesDialog (theOp) { //10/3/26 by CC -- op.attributes.edit: t
 		with the same buttons. An empty name is left out on Save, the way
 		an attribute with no name can't be written into OPML.  */
 
+	/*  10/5/26 by CC -- REBUILT TO HIS NEWEST TABLE EDITOR: tableEditor in
+		dialogs.js, 5/12/25 by DW, at the bottom of his libraries export
+		(dwExports/projects.libraries.DW226.fttb), with its dialogs.css.
+		His 10/5 words: "the source code for the attribute editor is in the
+		libraries file... the source for all the dialogs. i recently rewrote
+		many of them, scroll to the bottom of the big file for the newest
+		versions. this could help nail all the dialogs without human
+		review." And: "i've already designed what i want." So the shape is
+		his: the header with the close × and the prompt in big bold type, a
+		table with the column headers Name and Value, a row of two inputs
+		and a trash can, the inputs 400 and 150 pixels wide and 32 high at
+		14 pixels, the footer with Cancel and OK at the right and + at the
+		left, the body scrolling when the table is tall. The mask and the
+		dialog box are this page's (no Bootstrap modal here); everything
+		inside them follows his CSS, rule for rule, in odbbrowser.css. The
+		attributes themselves are read and written the way they were.  */
+
 	return (new Promise (function (resolve) {
 		const theNode = theOp.getCursor ();
 		if (theNode.length !== 1) {
@@ -3887,50 +3904,69 @@ function editAttributesDialog (theOp) { //10/3/26 by CC -- op.attributes.edit: t
 			}
 		const theAtts = (theNode.data ("attributes") === undefined) ? {} : theNode.data ("attributes");
 		const divMask = $("<div class=\"divDialogMask\"></div>");
+		const divTableEditor = $("<div class=\"divTableEditor\"></div>");
 		const divDialog = $("<div class=\"divDialog divAttsDialog\"></div>");
-		divDialog.append ($("<div class=\"divDialogPrompt\"></div>").text ("Edit attributes"));
-		const tableAtts = $("<table class=\"tableAtts\"></table>");
-		function addRow (theName, theValue, flFocus) {
-			const trRow = $("<tr></tr>");
-			const inputName = $("<input type=\"text\" class=\"inputAttName\">").val (theName);
-			const inputValue = $("<input type=\"text\" class=\"inputAttValue\">").val (theValue);
-			const aDelete = $("<a class=\"aAttDelete\" title=\"Delete this attribute\"><i class=\"far fa-trash-alt\"></i></a>").click (function () { //the trash can, Drummer's
-				trRow.remove ();
-				});
-			trRow.append ($("<td></td>").append (inputName));
-			trRow.append ($("<td></td>").append (inputValue));
-			trRow.append ($("<td></td>").append (aDelete));
-			tableAtts.append (trRow);
-			if (flFocus) {
-				inputName.focus ();
-				}
-			}
-		Object.keys (theAtts).forEach (function (theName) {
-			addRow (theName, String (theAtts [theName]), false);
-			});
-		if (tableAtts.children ().length === 0) {
-			addRow ("", "", false);
-			}
-		divDialog.append (tableAtts);
-		const divButtons = $("<div class=\"divDialogButtons divAttsButtons\"></div>");
-		const buttonAdd = $("<button class=\"buttonBar buttonAttAdd\" title=\"Add an attribute\">+</button>").click (function () {
-			addRow ("", "", true);
-			});
 		const theSelectionBefore = saveLineSelection ();
 		function finish (flSaved) {
 			divMask.remove ();
 			restoreLineSelection (theSelectionBefore);
 			resolve (flSaved);
 			}
-		const buttonCancel = $("<button class=\"buttonBar\">Cancel</button>").click (function () {
+		function cancelDialog () {
 			finish (false);
+			}
+
+		//the header: the close × and the prompt, his getHeader
+		const divHeader = $("<div class=\"divTableEditorHeader\"></div>");
+		const aClose = $("<a href=\"#\" class=\"aTableEditorClose\">&times;</a>").click (function (event) {
+			event.preventDefault ();
+			cancelDialog ();
 			});
-		const buttonSave = $("<button class=\"buttonBar buttonDefault\">Save</button>").click (function () {
+		const divPrompt = $("<div class=\"divPrompt\"></div>").text ("Edit attributes");
+		divHeader.append (aClose).append (divPrompt);
+		divDialog.append (divHeader);
+
+		//the body: the table, his getTable, getColumnHeaders and addRow
+		const divBody = $("<div class=\"divTableEditorBody\"></div>");
+		const theTable = $("<table></table>");
+		const trHeaders = $("<tr class=\"trHeaderRow\"></tr>");
+		trHeaders.append ($("<th></th>").text ("Name")).append ($("<th></th>").text ("Value"));
+		theTable.append (trHeaders);
+		function addRow (theName, theValue, flSetFocus) {
+			const theRow = $("<tr></tr>");
+			const theInputForName = $("<input class=\"inputForName\" type=\"text\">").val (theName);
+			const theInputForValue = $("<input class=\"inputForValue\" type=\"text\">").val (theValue);
+			const theTrashIcon = $("<i class=\"far fa-trash-alt\"></i>").click (function () {
+				theRow.empty (); //his: the row's cells go, the row stays empty
+				});
+			theRow.append ($("<td></td>").append (theInputForName));
+			theRow.append ($("<td></td>").append (theInputForValue));
+			theRow.append ($("<td></td>").append (theTrashIcon));
+			theTable.append (theRow);
+			if (flSetFocus) {
+				theInputForName.focus ();
+				}
+			}
+		Object.keys (theAtts).forEach (function (theName) {
+			addRow (theName, String (theAtts [theName]), false);
+			});
+		divBody.append (theTable);
+		divDialog.append (divBody);
+
+		//the footer: Cancel and OK at the right, + at the left, his getCancelButton, getOkButton, getPlusButton
+		const divFooter = $("<div class=\"divTableEditorFooter\"></div>");
+		const buttonCancel = $("<a href=\"#\" class=\"btn\">Cancel</a>").click (function (event) {
+			event.preventDefault ();
+			cancelDialog ();
+			});
+		const buttonOk = $("<a href=\"#\" class=\"btn btn-primary\">OK</a>").click (function (event) {
+			event.preventDefault ();
 			const theNewAtts = {};
-			tableAtts.find ("tr").each (function () {
-				const theName = $(this).find (".inputAttName").val ().trim ();
-				if (theName.length > 0) {
-					theNewAtts [theName] = $(this).find (".inputAttValue").val ();
+			theTable.find ("tr").each (function () { //his okDialog: the name trimmed, an empty name left out
+				const theName = $(this).find (".inputForName").val ();
+				const theValue = $(this).find (".inputForValue").val ();
+				if ((theName !== undefined) && (theValue !== undefined) && (theName.trim ().length > 0)) {
+					theNewAtts [theName.trim ()] = theValue;
 					}
 				});
 			theOp.setCursor (theNode);
@@ -3940,19 +3976,25 @@ function editAttributesDialog (theOp) { //10/3/26 by CC -- op.attributes.edit: t
 			theOp.markChanged ();
 			finish (true);
 			});
-		divButtons.append (buttonAdd).append ($("<span class=\"spanAttsButtonGap\"></span>")).append (buttonCancel).append (buttonSave);
-		divDialog.append (divButtons);
-		divMask.append (divDialog);
+		const buttonPlus = $("<a href=\"#\" class=\"btn btnPlus\">+</a>").click (function (event) {
+			event.preventDefault ();
+			addRow ("", "", true);
+			});
+		divFooter.append (buttonPlus).append (buttonCancel).append (buttonOk);
+		divDialog.append (divFooter);
+
+		divTableEditor.append (divDialog);
+		divMask.append (divTableEditor);
 		$("body").append (divMask);
 		divDialog.keydown (function (event) {
 			if (event.which === 13) { //return key
-				buttonSave.click ();
+				buttonOk.click ();
 				}
 			if (event.which === 27) { //escape
 				buttonCancel.click ();
 				}
 			});
-		const firstInput = tableAtts.find (".inputAttName").first ();
+		const firstInput = theTable.find (".inputForName").first ();
 		if (firstInput.length === 1) {
 			firstInput.focus ();
 			}

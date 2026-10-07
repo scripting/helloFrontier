@@ -1,6 +1,7 @@
 var theAddress, theScriptType; //assigned at startup, from the url and the download
 var theSavedBody; //the outline body as saved in the database, in this page's own rendering; undefined means unknown
 var theLastSeenBody; //the body at the last autosave check
+var flOutlineMayHaveChanged = true; //10/5/26 by CC -- a key, a paste, a drop or a created stamp since the autosave last looked; true at the start so the first tick looks
 var flAutosave; //assigned at startup -- odb data saves itself, the way Frontier does; only a window with odb buttons waits for Save
 var flSaveInFlight = false; //one save at a time -- two in-flight uploads could land out of order
 var theMenubarAddress, theMenubarLineIx, theMenubarLineText; //assigned at startup when the window edits a MENU COMMAND's script -- 9/1/26 by CC, the menubar editor; theMenubarLineText rides every save so a script can't land on the wrong command after the menubar was rearranged
@@ -62,7 +63,7 @@ $(document).ready (function () {
 			outlineLineHeight: 27,
 			renderMode: false,
 			readonly: flReadonly,
-			typeIcons: appTypeIcons //10/4/26 by CC -- DW's 10/4 ask, "include node -- note they must have a special char indicating they are an include, check drummer for the answer": Concord's own table of icons by type (concordutils.js, 5/19/13 by DW) draws a line of type include with the share icon in place of its wedge, and a link, an rss, a photo line each with theirs
+			typeIcons: Object.assign ({}, appTypeIcons, {include: "angle-right"}) //10/4/26 by CC -- DW's 10/4 ask, "include node -- note they must have a special char indicating they are an include": Concord's own table of icons by type (concordutils.js, 5/19/13 by DW) draws a line of type include with an icon in place of its wedge, and a link, an rss, a photo line each with theirs. 10/5/26 -- the include icon is angle-right, his answer when asked, and what his outliner.js opTypeIcons says (11/9/20 by DW)
 			},
 		callbacks: {
 			opCursorMoved: function (op) {
@@ -82,6 +83,12 @@ $(document).ready (function () {
 			}
 		});
 	applyOutlinerPrefs (); //8/12/26 by CC
+
+	["keydown", "input", "paste", "drop", "cut"].forEach (function (theEvent) { //10/5/26 by CC -- the autosave tick looks at the outline only after one of these, or when Concord says it changed; see autosaveCheck
+		document.getElementById ("divOutliner").addEventListener (theEvent, function () {
+			flOutlineMayHaveChanged = true;
+			}, true);
+		});
 
 	function stampCreated (op) {
 
@@ -108,6 +115,7 @@ $(document).ready (function () {
 				}
 			const theLineAtts = new ConcordOpAttributes ($("#divOutliner").concord (), theNode);
 			theLineAtts.setOne ("created", new Date ().toUTCString ());
+			flOutlineMayHaveChanged = true; //10/5/26 by CC -- the stamp reaches the database on the next tick
 			}
 		catch (err) {
 			console.log ("stampCreated: " + err.message);
@@ -615,25 +623,42 @@ function autosaveCheck () {
 		One save at a time: a tick that lands while a save is in flight
 		waits for the next tick, so uploads can't pass each other.  */
 
-	updateCompileButton (); //8/15/26 by CC -- the Compile button wakes and sleeps on the same beat
+	/*  10/5/26 by CC -- THE TICK LOOKS ONLY WHEN SOMETHING MAY HAVE CHANGED.
+		Every 1.5 seconds this rebuilt the whole outline's OPML twice -- once
+		for the Compile button, once to compare with what was saved -- on
+		12,132 lines of DW's pageParkWebsites project that was 130
+		milliseconds of stall every tick, for as long as the window was open,
+		whether or not anything had changed: the "lot of refreshing" of his
+		10/5 report. Now the OPML is built once, and only when Concord says
+		the outline changed (op.changed, set by every edit and structure
+		change) or the outliner heard a key, a paste or a drop since the last
+		look. A save that fails leaves the flag up, so the next tick tries
+		again.  */
 
 	if (!flTypingPaused ()) { //9/2/26 by CC -- DW's rule: nothing happens in the background while the person is typing; half a second of quiet first
 		return;
 		}
+	const theOp = $("#divOutliner").concord ().op;
+	if (!flOutlineMayHaveChanged && !theOp.changed ()) {
+		return;
+		}
+	if (flAutosave && flSaveInFlight) {
+		return;
+		}
+	flOutlineMayHaveChanged = false;
+	theOp.clearChanged ();
+	const theOpml = currentOpml ();
+	const theBody = opmlBody (theOpml);
+	updateCompileButton (theBody); //8/15/26 by CC -- the Compile button wakes and sleeps on the same beat
 
 	if (flAutosave) {
-		if (flSaveInFlight) {
-			return;
-			}
-		const theBody = opmlBody (currentOpml ());
 		if (theBody !== theSavedBody) { //a failed save keeps not-matching, so the next tick tries again
+			flOutlineMayHaveChanged = true; //the next tick looks once more: a save that failed is tried again, one that worked compares equal and the flag comes down
 			saveToDatabase ();
 			}
 		return;
 		}
 
-	const theOpml = currentOpml ();
-	const theBody = opmlBody (theOpml);
 	if (theBody !== theLastSeenBody) {
 		theLastSeenBody = theBody;
 		if (theBody === theSavedBody) { //edited back to what the database has
@@ -783,25 +808,52 @@ function compileScript () { //8/14/26 by CC -- parse only, never run; a failure 
 
 var theLastCompiledBody; //what the last compile saw; undefined means never compiled
 
-function updateCompileButton () {
+function updateCompileButton (theBody) { //10/5/26 by CC -- theBody: the outline's body when the caller has it already, so the tick builds the OPML once, not twice
 	const buttonCompile = $("#buttonCompile");
 	if (buttonCompile.length === 0) {
 		return;
 		}
-	const flEdited = (theLastCompiledBody === undefined) || (opmlBody (currentOpml ()) !== theLastCompiledBody);
+	if (theBody === undefined) {
+		theBody = opmlBody (currentOpml ());
+		}
+	const flEdited = (theLastCompiledBody === undefined) || (theBody !== theLastCompiledBody);
 	buttonCompile.prop ("disabled", !flEdited);
 	}
 
 function zoomOutline () { //collapse everything, cursor to the first summit, top level showing
+
+	/*  10/5/26 by CC -- ONE PASS, NO JQUERY PER LINE. DW's 10/5 report on his
+		pageParkWebsites project (12,132 lines): "the zoom button... is too
+		slow... the thing that appears to take the time is the collapseAll
+		part. it should happen in an instant... zoom should be fast, it's a
+		reset." Concord's fullCollapse wrapped every line in jQuery to ask
+		whether it has subs; this walks the elements themselves, closes every
+		line with subs, opens the summits, and sets the cursor once. The
+		other half of what he felt is the autosave tick (autosaveCheck),
+		which rebuilt the whole outline's OPML every 1.5 seconds whether or
+		not anything changed.  */
+
 	const theOp = $("#divOutliner").concord ().op;
-	theOp.fullCollapse ();
-	const summits = $("#divOutliner .concord-node").filter (function () {
-		return ($(this).parents (".concord-node").length === 0);
+	const theNodes = document.querySelectorAll ("#divOutliner .concord-node");
+	var firstSummit;
+	theNodes.forEach (function (theNode) {
+		const theList = theNode.querySelector (":scope > ol");
+		const flHasSubs = (theList !== null) && (theList.children.length > 0);
+		const flSummit = (theNode.parentElement.closest (".concord-node") === null);
+		if (flHasSubs && !flSummit) {
+			theNode.classList.add ("collapsed");
+			}
+		if (flSummit) {
+			theNode.classList.remove ("collapsed");
+			if (firstSummit === undefined) {
+				firstSummit = theNode;
+				}
+			}
 		});
-	summits.removeClass ("collapsed");
-	if (summits.length > 0) {
-		theOp.setCursor (summits.first ());
+	if (firstSummit !== undefined) {
+		theOp.setCursor ($(firstSummit));
 		}
+	theOp.markChanged (); //the expansion is part of what the window saves
 	}
 
 function landOnFindLine (ixLine) { //9/11/26 by CC -- a Find hit lands the cursor on this line, expanding whatever hides it, the way compileScript's jump does
