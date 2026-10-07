@@ -12,17 +12,33 @@ exports.bumpcount = bumpcount
 ```
 
 
-This example has one function, bumpCount. When it starts, the count is set to zero and is incremented on each successive call. 
+### Example code that calls it
 
-Here's how you call it. 
+```javascript
 
-scratchpad.a = new workspace.userlandSamples.packages.counter ()
+scratchpad.a = new workspace.userlandSamples.packages.counter () //start a new counter
 
-And how you bump the counter.
+scratchpad.b = new workspace.userlandSamples.packages.counter () //start another
 
 scratchpad.a.bumpcount ()
 
-If you look in scratchpad.a this is <a href="https://imgs.scripting.com/2026/10/07/scratchpad.a.png">what you see</a>. 
+scratchpad.a.bumpcount ()
 
+scratchpad.b.bumpcount ()
 
+scratchpad.a.bumpcount ()
+
+```
+
+### What it does
+
+Creates two counters, scratchpad.a and scratchpad.b.
+
+Then we do some bumping.
+
+And the values of each counter reflects the number of bumps it's been called on to do.
+
+### More complex example
+
+An <a href="https://github.com/scripting/helloFrontier/blob/master/examples/socketClient.md">working example</a> of a websocket client in 16 lines. ;-)
 
