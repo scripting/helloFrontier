@@ -6,7 +6,7 @@ It defines three local functions -- init, handleMessage and stop.
 
 This is how you start a new socket.
 
-``scratchpad.mySocket = new workspace.userlandSamples.packages.socketClient ("wss://feedland.social/")``
+scratchpad.mySocket = new workspace.userlandSamples.packages.socketClient ("wss://feedland.social/")
 
 You can open <a href="https://imgs.scripting.com/2026/10/07/socketscreen.png">scratchpad.mySocket</a> while the socket is running, and watch the new and updated posts accumulate in the items table. We only do that because it's a demo, you might do other things with it. The important thing is we've hooked Frontier up to FeedLand, and it took about twenty lines to set that up. And the new packages feature makes it easy to see how it works, easier than it was when each script had to be in its own odb part. 
 
