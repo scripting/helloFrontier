@@ -1,3 +1,11 @@
+### 10/7/26; 4:33:05 PM by DW
+
+New example scripts for packages. 
+
+* <a href="https://github.com/scripting/helloFrontier/blob/master/examples/socketClient.md">examples/socketClient.md</a>
+
+* <a href="https://github.com/scripting/helloFrontier/blob/master/examples/packages.md">examples/packages.md</a>
+
 ### 10/5/26; 12:10:50 PM by DW
 
 New release of Atlantis and worknotes.

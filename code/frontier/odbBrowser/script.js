@@ -246,8 +246,23 @@ $(document).ready (function () {
 				showStatus (data.ctLines + ((data.ctLines === 1) ? " line." : " lines."));
 				}
 			theLastSeenBody = opmlBody (currentOpml ());
-			if (restoreWindowState () !== true) { //8/12/26 by CC -- a window it has never seen before opens on line one
-				bundleSetFirstCursor (); //8/11/26 by CC -- the way the OPML Editor does; without a cursor, every op verb (and cmd-/) has nothing to work on
+			if (restoreWindowState () !== true) {
+
+				/*  10/7/26 by CC -- AN OUTLINE NEVER OPENED HERE OPENS COLLAPSED, the
+					way the View button leaves it: every line with subs closed, the
+					summits showing, the cursor on the first. DW's 10/6 ruling on
+					0.4.104: "everything seems to open up fully expanded by default.
+					much better to start off with everything collapsed, and that's
+					only when i've never opened it myself. basically every outline
+					should have its expand state and cursor location saved and it
+					should always be respected." His database holds 4,294 of its
+					7,729 scripts and outlines with every line open, so the first
+					look at most of them was the whole thing. From the second open
+					on, the window comes back the way he left it (restoreWindowState).
+					Until now a first open put the cursor on line one and showed the
+					folding the database had (8/12/26).  */
+
+				zoomOutline (true); //true: the folding is this window's, not an edit of the object
 				}
 			landOnFindHitFromUrl (); //9/11/26 by CC -- a Find hit opened this window at a line; land on it, over any restored cursor
 			markWindowReadyForTarget (flReadonly); //8/15/26 by CC -- the outline is up; a script that opened this window can aim at it now
@@ -409,7 +424,10 @@ function restoreWindowState () { //true if there was something to restore
 		database remembers; the cursor and scroll still come back.  */
 
 	const flSameOutline = (theState.ctLines === theNodes.length); //a state saved before today has no count and isn't trusted; the next save writes one
-	if (flSameOutline) {
+	if (!flSameOutline) {
+		zoomOutline (true); //10/7/26 by CC -- the saved folding can't be applied to an outline with other lines; it opens collapsed, his 10/6 ruling for an outline he hasn't opened, rather than with whatever the database has, which is most often everything. The cursor and the scroll still come back below.
+		}
+	else {
 
 		/*  10/1/26 by CC -- EACH LINE IS OPENED OR CLOSED WHERE IT STANDS. This
 			walked the outline moving Concord's cursor to every line whose
@@ -820,7 +838,7 @@ function updateCompileButton (theBody) { //10/5/26 by CC -- theBody: the outline
 	buttonCompile.prop ("disabled", !flEdited);
 	}
 
-function zoomOutline () { //collapse everything, cursor to the first summit, top level showing
+function zoomOutline (flSilent) { //collapse everything, cursor to the first summit, top level showing. 10/7/26 by CC -- flSilent true: a first open folding the outline for the view, not a change to save (the Zoom button passes its click event, which isn't true)
 
 	/*  10/5/26 by CC -- ONE PASS, NO JQUERY PER LINE. DW's 10/5 report on his
 		pageParkWebsites project (12,132 lines): "the zoom button... is too
@@ -853,7 +871,9 @@ function zoomOutline () { //collapse everything, cursor to the first summit, top
 	if (firstSummit !== undefined) {
 		theOp.setCursor ($(firstSummit));
 		}
-	theOp.markChanged (); //the expansion is part of what the window saves
+	if (flSilent !== true) {
+		theOp.markChanged (); //the expansion is part of what the window saves
+		}
 	}
 
 function landOnFindLine (ixLine) { //9/11/26 by CC -- a Find hit lands the cursor on this line, expanding whatever hides it, the way compileScript's jump does

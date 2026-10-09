@@ -68,8 +68,18 @@ function flTableValue (theValue) { //8/18/26 by CC -- a table, as opposed to a s
 		return (true);
 		}
 	return ((theValue.flOdbScript === undefined) && (theValue.flOdbMenubar === undefined) && (theValue.flWpText === undefined) &&
-		(theValue.flOdbAddressText === undefined) && (theValue.flAddress !== true) && (theValue.type === undefined) &&
+		(theValue.flOdbAddressText === undefined) && (theValue.flAddress !== true) && !flTypedValueShape (theValue) &&
 		(!Array.isArray (theValue)) && (!(theValue instanceof Date)));
+	}
+
+function flTypedValueShape (theValue) { //10/8/26 by CC -- the two value shapes that carry a field named type: a binary ({type: "binary", data}) and a wptext ({type: "wptext"}). Before this the test was theValue.type === undefined, so a TABLE with an entry named type -- params.type = "text/plain", the shape every http glue builds -- was taken for a scalar, and params = adrparams^ in feedland.call stopped with "only another table can replace a table". Found 10/8 writing feedland.uploadUserDataFile
+	if (theValue.flOdbSqlTable === true) { //a database table is a table whatever its entries are named
+		return (false);
+		}
+	if ((theValue.type !== undefined) && (typeof theValue.length === "number")) { //a marker: a value the reader kept as its Frontier type and byte count (a filespec, a rect...), odbSql's flMarkerValue; user.log.prefs.folder is one
+		return (true);
+		}
+	return (((theValue.type === "binary") && (theValue.data !== undefined)) || (theValue.type === "wptext"));
 	}
 
 function addressPartText (theName) { //9/6/26 by CC -- the text of one name in an address: a plain identifier as is, anything else in brackets and quotes, the way the kernel writes roots.["frontier.root"]; a numeric part is already "[3]" and stays
@@ -918,7 +928,7 @@ function makeEvaluator (environment) {
 			return (false);
 			}
 		return ((theValue.flOdbScript === undefined) && (theValue.flOdbMenubar === undefined) && (theValue.flWpText === undefined) &&
-			(theValue.flOdbAddressText === undefined) && (theValue.flAddress !== true) && (theValue.type === undefined) &&
+			(theValue.flOdbAddressText === undefined) && (theValue.flAddress !== true) && !flTypedValueShape (theValue) && //10/8/26 by CC -- a table with an entry named type is a table; see flTypedValueShape
 			(!Array.isArray (theValue)) && (!(theValue instanceof Date)));
 		}
 	
@@ -1002,6 +1012,42 @@ function makeEvaluator (environment) {
 		return (evalExpr (theNode));
 		}
 	
+	function throwUnlessTableBeforeDot (container, theLeftNode) {
+
+		/*  10/7/26 by CC -- A SCRIPT BEFORE THE DOT IS NOT A TABLE. The kernel's
+			langgetdotparams (langvalue.c) resolves the left side of a dot with
+			langgettableval and raises nosuchtableerror when the value it finds
+			isn't a table: "Can't find a sub-table named “x”." Here any JavaScript
+			object served as the container, so a package called by its own name
+			-- this the script, not an instance -- ran this^.ct = 0 and wrote ct
+			onto the script value in memory; nothing complained, and the value
+			was gone with the run. DW's 10/7 batch, the package edge from 10/6.
+			The same for an outline, a wptext, a menubar, an address, a list, a
+			date, a binary. A table is left alone; so is anything the test can't
+			name, because a table with an entry called type is still a table.  */
+
+		var flNotATable = (container.flOdbScript === true) || (container.flOdbMenubar === true) || (container.flWpText === true) ||
+			(container.flOdbAddressText === true) || (container.flAddress === true) || Array.isArray (container) || (container instanceof Date) ||
+			((container.type === "binary") && (typeof container.data === "string"));
+		if (!flNotATable) {
+			return;
+			}
+		var theName;
+		if (theLeftNode.op === "deref") { //this^.ct: the kernel names the object the address points at
+			try {
+				const theText = String (environment.verbs ["string"] ([evalExpr (theLeftNode.expr)], environment));
+				theName = theText.split (".").pop ();
+				}
+			catch (err) {
+				}
+			}
+		if (theName === undefined) {
+			theName = pathTextForNode (theLeftNode).split (".").pop ();
+			}
+		const message = "Can't find a sub-table named “" + theName + "”."; //left double quotation mark, right double quotation mark
+		throw new Error (message);
+		}
+
 	function nameForRecordKey (theNode) { //8/21/26 by CC -- a record's key is a name, not a value to look up
 		if (theNode.op === "id") {
 			return (theNode.name);
@@ -1064,6 +1110,7 @@ function makeEvaluator (environment) {
 					const message = "Can't access " + theNode.name + " because the value before the dot isn't a table.";
 					throw new Error (message);
 					}
+				throwUnlessTableBeforeDot (container, theNode.left); //10/7/26 by CC -- a script before the dot is not a table
 				var key = findKey (container, theNode.name);
 				if (key === undefined) {
 					key = theNode.name;
@@ -1183,6 +1230,7 @@ function makeEvaluator (environment) {
 						});
 					}
 				if ((container !== undefined) && (typeof container === "object")) {
+					throwUnlessTableBeforeDot (container, theNode.left); //10/7/26 by CC -- x.[name] on a script, a wptext, a menubar: not a table either
 					if ((typeof index === "number") && (theNode.flComputedName !== true)) { //bare subscript: nth entry, in Frontier's sorted order
 						const keys = sortedTableKeys (container);
 						var keyAt = keys [index - 1];

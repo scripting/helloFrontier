@@ -117,7 +117,7 @@ body {
 	margin-top: 30px;
 	}
 
-.divDialogPrompt {
+.divDialogPrompt { /*the page's own dialogs -- Find, the type question, a message; the script dialogs below have his shapes*/
 	font-size: 15px;
 	margin-bottom: 14px;
 	}
@@ -132,6 +132,164 @@ body {
 
 .divDialogButtons {
 	text-align: right;
+	}
+
+/*  10/7/26 by CC -- THE DIALOGS IN HIS NEWEST SHAPES: dialogs.css (alert
+	2/5/23, threeWay 5/9/25 by DW) at the bottom of his libraries export,
+	rule for rule, over Bootstrap 2's modal, header, body, footer and btn,
+	which his pages load and this one doesn't -- those rules are written out
+	here. The box is 560 wide (570 for ask, his .divAskDialog), no padding of
+	its own; the icons are his two gifs, in images/. See showDialog in
+	common.js.  */
+
+.divAlertDialog, .divThreeWayDialog, .divAskDialog { /*Bootstrap's .modal*/
+	width: 560px;
+	max-width: 560px;
+	padding: 0;
+	border: 1px solid rgba(0, 0, 0, 0.3);
+	border-radius: 6px;
+	box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+	overflow: hidden;
+	}
+.divAskDialog {
+	width: 570px;
+	max-width: 570px;
+	}
+.divDialog .btn { /*Bootstrap's .btn*/
+	display: inline-block;
+	padding: 4px 12px;
+	font-size: 14px;
+	line-height: 20px;
+	text-align: center;
+	text-decoration: none;
+	vertical-align: middle;
+	cursor: pointer;
+	color: #333;
+	text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
+	background-color: #f5f5f5;
+	background-image: linear-gradient(to bottom, #fff, #e6e6e6);
+	border: 1px solid #ccc;
+	border-bottom-color: #b3b3b3;
+	border-radius: 4px;
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+	}
+.divDialog .btn:hover, .divDialog .btn:focus {
+	background-color: #e6e6e6;
+	background-position: 0 -15px;
+	outline: none;
+	}
+.divDialog .btn-primary { /*Bootstrap's .btn-primary*/
+	color: #fff;
+	text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+	background-color: #006dcc;
+	background-image: linear-gradient(to bottom, #08c, #04c);
+	border-color: #04c #04c #002a80;
+	}
+.divDialog .btn-primary:hover, .divDialog .btn-primary:focus {
+	background-color: #04c;
+	}
+.divDialogHeader { /*Bootstrap's .modal-header*/
+	padding: 9px 15px;
+	border-bottom: 1px solid #eee;
+	}
+.aDialogClose { /*Bootstrap's .close*/
+	float: right;
+	font-size: 20px;
+	font-weight: bold;
+	line-height: 20px;
+	color: #000;
+	text-decoration: none;
+	opacity: 0.2;
+	margin-top: 4px;
+	}
+.aDialogClose:hover {
+	opacity: 0.4;
+	}
+.h3DialogPrompt { /*his askDialog prompt: an h3 at 18px*/
+	font-size: 18px;
+	font-weight: bold;
+	line-height: 30px;
+	margin: 0;
+	}
+.divDialogBody { /*Bootstrap's .modal-body*/
+	padding: 15px;
+	overflow: hidden;
+	}
+.divDialogFooter { /*Bootstrap's .modal-footer*/
+	padding: 14px 15px 15px;
+	margin-bottom: 0;
+	text-align: right;
+	background-color: #f5f5f5;
+	border-top: 1px solid #ddd;
+	border-radius: 0 0 6px 6px;
+	box-shadow: inset 0 1px 0 #fff;
+	}
+.divDialogFooter .btn {
+	width: 80px;
+	margin-left: 5px;
+	}
+.divAskDialog .inputDialogAnswer { /*his .divAskDialog input*/
+	font-size: 17px;
+	padding: 3px;
+	height: auto;
+	width: 515px;
+	margin: 0;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	box-sizing: content-box;
+	}
+.divAlertDialog .imgDialogIcon { /*his .divAlertDialogImg*/
+	width: 32px;
+	height: 32px;
+	border: 0;
+	float: left;
+	margin-left: 15px;
+	margin-top: 15px;
+	}
+.divAlertDialog .divPrompt {
+	font-size: 16px;
+	line-height: 130%;
+	margin-left: 65px;
+	margin-top: 15px;
+	margin-right: 15px;
+	}
+.divAlertDialog .btn {
+	width: 70px;
+	margin-bottom: 8px;
+	margin-right: 15px;
+	margin-top: 30px;
+	float: right;
+	}
+.divAlertDialog::after { /*the floated button is inside the box*/
+	content: "";
+	display: block;
+	clear: both;
+	}
+.divThreeWayDialog .imgDialogIcon {
+	float: left;
+	width: 42px;
+	height: 42px;
+	}
+.divThreeWayDialog .divPrompt {
+	font-size: 16px;
+	margin-top: 2px;
+	margin-left: 50px;
+	margin-right: 15px;
+	}
+.divThreeWayDialog .btn {
+	width: 70px;
+	margin-right: 15px;
+	margin-top: 30px;
+	float: right;
+	}
+.divThreeWayDialog .btn-left {
+	float: left;
+	margin-left: 15px;
+	}
+.divThreeWayDialog .divButtons::after {
+	content: "";
+	display: block;
+	clear: both;
 	}
 
 .divPasswordEntry {

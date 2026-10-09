@@ -1780,6 +1780,7 @@ const theAnswerBytes = new Uint8Array (workerData.sharedData);
 			"wp.intextmode", "wp.insert", //8/13/26 by CC -- cmd-4's real path: the stamp goes INTO the line, at the insertion point
 			"op.sethtmlformatting", "op.gethtmlformatting", //10/3/26 by CC -- sethtmlformattingfunc and gethtmlformattingfunc (opverbs.c, 7.0b28): the outline window's HTML formatting flag, Concord's render mode here; the HTML menu's cmd-` toggles with them (=html.menu.formatText ())
 			"op.attributes.edit", //10/3/26 by CC -- the attribute editor dialog on the cursor line, DW's 10/3 ask; cribbed from Drummer
+			"op.attributes.setone", "op.attributes.makeempty", "op.attributes.deleteone", //10/8/26 by CC -- the cursor line's attributes, over Concord's own setOne/makeEmpty/addGroup; the 2000 glue packed them into the line's refcon with op.setRefcon, which has no home here. getOne and addGroup take an address and are below, beside getAll
 			"script.iscomment", "script.makecomment", "script.uncomment",
 			"op.promote", "op.demote", "op.reorg", "op.deletesubs", "op.level", //8/19/26 by CC -- the op family grows; each one checked against the kernel before it was written, see misc/theStringAndOpVerbs.md
 			"op.countsubs", "op.countsummits", "op.getheadnumber", "op.setmodified", "op.getsuboutline",
@@ -2089,6 +2090,41 @@ const theAnswerBytes = new Uint8Array (workerData.sharedData);
 				return (undefined);
 				}
 			return (verbs ["lang.address"] ([String (theAddress)], environment));
+			};
+
+		verbs ["op.attributes.getone"] = function (args) { //10/8/26 by CC -- op.attributes.getOne (attname, @val): the one attribute's value lands at the address; false when the line hasn't got it
+			const theAddress = args [1];
+			if ((theAddress === undefined) || (theAddress === null) || (theAddress.flAddress !== true)) {
+				const message = "Can't get the attribute because the second parameter isn't the address its value goes to.";
+				throw new Error (message);
+				}
+			const theValue = windowCall ("op.attributes.getone", [String (args [0])]);
+			if ((theValue === undefined) || (theValue === null)) {
+				return (false);
+				}
+			theAddress.reference.set (theValue);
+			return (true);
+			};
+
+		verbs ["op.attributes.addgroup"] = function (args) { //10/8/26 by CC -- op.attributes.addGroup (@atts): every entry of the table at the address goes onto the cursor line, over what it had
+			const theAddress = args [0];
+			if ((theAddress === undefined) || (theAddress === null) || (theAddress.flAddress !== true)) {
+				const message = "Can't add the attributes because the parameter isn't the address of their table.";
+				throw new Error (message);
+				}
+			const theTable = theAddress.reference.get ();
+			if ((theTable === undefined) || (theTable === null) || (typeof theTable !== "object")) {
+				const message = "Can't add the attributes because " + String (theAddress.pathText) + " isn't a table.";
+				throw new Error (message);
+				}
+			const theGroup = {};
+			Object.keys (theTable).forEach (function (theName) {
+				if ((theName === "flOdbSqlTable") || (theName === "odbId")) {
+					return;
+					}
+				theGroup [theName] = String (jsonSafe (theTable [theName]));
+				});
+			return (windowCall ("op.attributes.addgroup", [theGroup]));
 			};
 
 		verbs ["op.attributes.getall"] = function (args) { //op.attributes.getAll (@atts) -- the cursor line's attributes land at the address

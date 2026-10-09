@@ -1,6 +1,4 @@
-# Full current list of verbs in Atlantis
 
-This is a list prepared by Claude of all the verbs in the Atlantis version of Frontier, in development, as of <!--date-->10/4/26<!--/date-->. I asked Claude to make this list, and we will try to keep it current. It's in two parts, the verbs that <a href="#implemented">are implemented</a> as of the last release, and those that are <a href="#notImplemented">not implemented</a>. I may add notes here as things change. 9/22/26 by DW
 
 <a name="implemented"></a>
 ## Implemented verbs
@@ -220,6 +218,7 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * <a name="date.sameMonth"></a>date.sameMonth
 * <a name="date.second"></a>date.second
 * <a name="date.secondsSince"></a>date.secondsSince
+* <a name="date.secondsSinceFractional"></a>date.secondsSinceFractional
 * <a name="date.set"></a>date.set
 * <a name="date.shortString"></a>date.shortString
 * <a name="date.timeString"></a>date.timeString
@@ -456,6 +455,7 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * <a name="fileMenu.saveCopy"></a>fileMenu.saveCopy
 * <a name="fileMenu.saveCopyOpenDatabases"></a>fileMenu.saveCopyOpenDatabases
 * <a name="fileMenu.saveMyRoot"></a>fileMenu.saveMyRoot
+* <a name="fileMenu.saveNamedRoot"></a>fileMenu.saveNamedRoot
 * <a name="fileMenu.saveOpenDatabases"></a>fileMenu.saveOpenDatabases
 
 <a name="fileSynch.implemented"></a>
@@ -723,6 +723,7 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * <a name="html.getGifHeightWidth"></a>html.getGifHeightWidth
 * <a name="html.getImageData"></a>html.getImageData
 * <a name="html.getImageHeightWidth"></a>html.getImageHeightWidth
+* <a name="html.getImageInfo"></a>html.getImageInfo
 * <a name="html.getJpegHeightWidth"></a>html.getJpegHeightWidth
 * <a name="html.getLink"></a>html.getLink
 * <a name="html.getOneDirective"></a>html.getOneDirective
@@ -877,6 +878,7 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 ### json verbs
 
 * <a name="json.compile"></a>json.compile
+* <a name="json.decompile"></a>json.decompile
 * <a name="json.encode"></a>json.encode
 
 <a name="kb.implemented"></a>
@@ -1285,6 +1287,7 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 
 * <a name="op.attributes.addGroup"></a>op.attributes.addGroup
 * <a name="op.attributes.deleteOne"></a>op.attributes.deleteOne
+* <a name="op.attributes.edit"></a>op.attributes.edit
 * <a name="op.attributes.getAll"></a>op.attributes.getAll
 * <a name="op.attributes.getOne"></a>op.attributes.getOne
 * <a name="op.attributes.makeEmpty"></a>op.attributes.makeEmpty
@@ -1307,6 +1310,7 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * <a name="op.getDisplay"></a>op.getDisplay
 * <a name="op.getExpansionState"></a>op.getExpansionState
 * <a name="op.getHeadNumber"></a>op.getHeadNumber
+* <a name="op.getHtmlFormatting"></a>op.getHtmlFormatting
 * <a name="op.getLineText"></a>op.getLineText
 * <a name="op.getNetOutline"></a>op.getNetOutline
 * <a name="op.getNetXstruct"></a>op.getNetXstruct
@@ -1332,6 +1336,7 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * <a name="op.setCursor"></a>op.setCursor
 * <a name="op.setDisplay"></a>op.setDisplay
 * <a name="op.setExpansionState"></a>op.setExpansionState
+* <a name="op.setHtmlFormatting"></a>op.setHtmlFormatting
 * <a name="op.setLineText"></a>op.setLineText
 * <a name="op.setModified"></a>op.setModified
 * <a name="op.setScrollState"></a>op.setScrollState
@@ -1848,12 +1853,14 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * <a name="string.getLinkFromString"></a>string.getLinkFromString
 * <a name="string.getNextMonth"></a>string.getNextMonth
 * <a name="string.getRandomPassword"></a>string.getRandomPassword
+* <a name="string.getRandomSnarkySlogan"></a>string.getRandomSnarkySlogan
 * <a name="string.getWordChar"></a>string.getWordChar
 * <a name="string.gigabyteString"></a>string.gigabyteString
 * <a name="string.hashMD5"></a>string.hashMD5
 * <a name="string.hasSuffix"></a>string.hasSuffix
 * <a name="string.hex"></a>string.hex
 * <a name="string.htmlToEmail"></a>string.htmlToEmail
+* <a name="string.htmlToMarkdown"></a>string.htmlToMarkdown
 * <a name="string.httpResultSplit"></a>string.httpResultSplit
 * <a name="string.innerCaseName"></a>string.innerCaseName
 * <a name="string.insert"></a>string.insert
@@ -1870,6 +1877,7 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * <a name="string.lower"></a>string.lower
 * <a name="string.macToLatin"></a>string.macToLatin
 * <a name="string.mailMessageToTable"></a>string.mailMessageToTable
+* <a name="string.markdownToHtml"></a>string.markdownToHtml
 * <a name="string.maxLength"></a>string.maxLength
 * <a name="string.megabyteString"></a>string.megabyteString
 * <a name="string.memAvailString"></a>string.memAvailString
@@ -1949,6 +1957,7 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * <a name="table.getRootAddress"></a>table.getRootAddress
 * <a name="table.gotoAddress"></a>table.gotoAddress
 * <a name="table.inGuestDatabase"></a>table.inGuestDatabase
+* <a name="table.mergeOptions"></a>table.mergeOptions
 * <a name="table.move"></a>table.move
 * <a name="table.moveAndRename"></a>table.moveAndRename
 * <a name="table.moveContents"></a>table.moveContents
@@ -2198,6 +2207,13 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 * <a name="tcp.readStreamUntilClosed"></a>tcp.readStreamUntilClosed
 * <a name="tcp.sendMail"></a>tcp.sendMail
 * <a name="tcp.statusStream"></a>tcp.statusStream
+* <a name="tcp.websocket.broadcast"></a>tcp.websocket.broadcast
+* <a name="tcp.websocket.close"></a>tcp.websocket.close
+* <a name="tcp.websocket.getOpenSockets"></a>tcp.websocket.getOpenSockets
+* <a name="tcp.websocket.isOpen"></a>tcp.websocket.isOpen
+* <a name="tcp.websocket.listen"></a>tcp.websocket.listen
+* <a name="tcp.websocket.open"></a>tcp.websocket.open
+* <a name="tcp.websocket.send"></a>tcp.websocket.send
 * <a name="tcp.writeFileToStream"></a>tcp.writeFileToStream
 * <a name="tcp.writeStream"></a>tcp.writeStream
 * <a name="tcp.writeStringToStream"></a>tcp.writeStringToStream
@@ -2745,11 +2761,6 @@ This is a list prepared by Claude of all the verbs in the Atlantis version of Fr
 
 * <a name="io.client.menuCommands.newPost"></a>io.client.menuCommands.newPost
 * <a name="io.client.saveBlogPost"></a>io.client.saveBlogPost
-
-<a name="json.notImplemented"></a>
-### json verbs
-
-* <a name="json.decompile"></a>json.decompile
 
 <a name="launch.notImplemented"></a>
 ### launch verbs

@@ -206,6 +206,42 @@ const theFailures = [];
 		checkThat ("and it doesn't cry wolf when nothing changed", theServer.theStore.checkForOutsideChanges (), false);
 		}
 
+	function testTwoConnectionsSameName () {
+
+		/*  10/8/26 by CC -- COLIN'S DUPLICATE ROWS (helloFrontier issue 16), and
+			DW's own user.scheduler.stats.log.overnight twice, made in the same
+			millisecond on 9/17. Two threads (the worldOutline Tool's hourly
+			task updating frontier.root twice at once, 10/7) each looked for a
+			name, saw nothing, and inserted it; the odb table has no unique
+			index on (parentid, lowername), so both rows went in, and from
+			then on the table lists one name twice. The shape here: two
+			connections, each with a cached miss for the name, each making it.
+			The store has to end with ONE row, whichever connection made it,
+			and the other connection's write has to land on that row.  */
+
+		section ("Two connections make the same name at once");
+
+		const pathDatabase = freshDatabase ("sameName");
+		const theFirst = openTheDatabase (pathDatabase);
+		const theSecond = openTheDatabase (pathDatabase);
+		checkThat ("the first looks, and it isn't there", valueOf (theFirst, "defined (workspace.ccSameName)"), false);
+		checkThat ("the second looks, and it isn't there", valueOf (theSecond, "defined (workspace.ccSameName)"), false);
+		runText (theFirst, "new (tableType, @workspace.ccSameName); workspace.ccSameName.who = \"first\"");
+		runText (theSecond, "new (tableType, @workspace.ccSameName); workspace.ccSameName.who = \"second\"");
+		const sqlite3 = require (pathTool.join (__dirname, "..", "node_modules", "better-sqlite3"));
+		const theDatabase = new sqlite3 (pathDatabase, {readonly: true});
+		const idWorkspace = theDatabase.prepare ("select id from odb where parentid = 0 and lowername = 'workspace'").get ().id;
+		checkThat ("one row named ccSameName under workspace", theDatabase.prepare ("select count (*) as ct from odb where parentid = ? and lowername = 'ccsamename'").get (idWorkspace).ct, 1);
+		checkThat ("the second connection's write landed in that one table", theDatabase.prepare ("select count (*) as ct from odb where parentid = (select id from odb where parentid = ? and lowername = 'ccsamename') and lowername = 'who'").get (idWorkspace).ct, 1);
+		checkThat ("a scalar made twice is one row too", (function () {
+			runText (theFirst, "workspace.ccSameScalar = 1");
+			runText (theSecond, "workspace.ccSameScalar = 2");
+			return (theDatabase.prepare ("select count (*) as ct from odb where parentid = ? and lowername = 'ccsamescalar'").get (idWorkspace).ct);
+			}) (), 1);
+		checkThat ("and holds the last value written", valueOf (openTheDatabase (pathDatabase), "workspace.ccSameScalar"), 2);
+		theDatabase.close ();
+		}
+
 	function testRootAddress () {
 
 		/*  9/12/26 by CC -- two things found while DW ran rootUpdates.update.
@@ -1137,6 +1173,19 @@ const theFailures = [];
 
 		const pathDatabase = freshDatabase ("tableAssignmentCopies");
 		const theOpen = openTheDatabase (pathDatabase);
+
+		/*  10/8/26 by CC -- A TABLE WITH AN ENTRY NAMED type IS STILL A TABLE.
+			The evaluator's table test said a value with a type field isn't a
+			table (a binary is {type: "binary", data}), so a params table built
+			the way every http glue builds one -- params.type = "text/plain" --
+			couldn't be assigned to a table local: feedland.call stopped on
+			params = adrparams^ with "only another table can replace a table",
+			found writing feedland.uploadUserDataFile.  */
+
+		checkThat ("a local table with an entry named type assigns to a table local", valueOf (theOpen, "local (p); new (tableType, @p); p.type = \"text/plain\"; local (q); new (tableType, @q); q = p; sizeof (q)"), 1);
+		checkThat ("through an address too", valueOf (theOpen, "local (p); new (tableType, @p); p.type = \"x\"; p.other = 2; local (q); new (tableType, @q); local (adr = @p); q = adr^; sizeof (q)"), 2);
+		checkThat ("and into a database table", valueOf (theOpen, "local (p); new (tableType, @p); p.type = \"x\"; new (tableType, @scratchpad.ccTyped); scratchpad.ccTyped = p; typeOf (scratchpad.ccTyped)"), "tabl");
+		checkThat ("a binary is still a value, not a table", valueOf (theOpen, "local (b = binary (\"abc\")); typeOf (b)"), "data");
 		const theWalk = [
 			"new (tableType, @scratchpad.ccGlobals)",
 			"scratchpad.ccGlobals.bgcolor = \"FFFFFF\"",
@@ -1996,12 +2045,16 @@ const theFailures = [];
 			{level: 1, text: "return (secret () + \" \" + s + \" \" + this^.ct)", flExpanded: true, flComment: false, flBreakpoint: false},
 			{level: 0, text: "on secret ()", flExpanded: true, flComment: false, flBreakpoint: false},
 			{level: 1, text: "return (\"sent\")", flExpanded: true, flComment: false, flBreakpoint: false},
+			{level: 0, text: "on version ()", flExpanded: true, flComment: false, flBreakpoint: false},
+			{level: 1, text: "return (\"0.1\")", flExpanded: true, flComment: false, flBreakpoint: false},
 			{level: 0, text: "exports.init = init", flExpanded: true, flComment: false, flBreakpoint: false},
 			{level: 0, text: "exports.send = send", flExpanded: true, flComment: false, flBreakpoint: false},
+			{level: 0, text: "exports.version = version", flExpanded: true, flComment: false, flBreakpoint: false},
 			{level: 0, text: "bundle //test code", flExpanded: true, flComment: false, flBreakpoint: false},
 			{level: 1, text: "init (\"x\")", flExpanded: true, flComment: false, flBreakpoint: false}
 			]};
-		checkThat ("the package's exported handler runs by dotted name: scratchpad.socketClient.init (url)", valueOf (theOpen, "scratchpad.socketClient.init (\"ws://a\")"), "init ws://a");
+		checkThat ("the package's exported handler runs by dotted name: scratchpad.socketClient.version ()", valueOf (theOpen, "scratchpad.socketClient.version ()"), "0.1");
+		checkThat ("called on the package itself, this is the script, and a handler that writes this^.url gets the kernel's error (10/7/26: it used to write onto the script value in memory)", String (valueOf (theOpen, "scratchpad.socketClient.init (\"ws://a\")")).indexOf ("Can't find a sub-table named “socketClient”.") !== -1, true); //left double quotation mark, right double quotation mark
 		checkThat ("a handler the package didn't export can't be called from outside, and the error says so", String (valueOf (theOpen, "scratchpad.socketClient.secret ()")).indexOf ("doesn't export secret") !== -1, true);
 		checkThat ("an exported handler calls the private one from inside", valueOf (theOpen, "local (c = new scratchpad.socketClient ())\nc.init (\"ws://b\")\nc.send (\"hi\")"), "sent hi 1");
 		checkThat ("new makes an instance in a local, and the package keeps its data in it: this^.url, this^.ct", valueOf (theOpen, "local (c = new scratchpad.socketClient ())\nc.init (\"ws://b\")\nc.send (\"hi\")\nc.send (\"again\") + \" | \" + c.url + \" \" + c.ct"), "sent again 2 | ws://b 2");
@@ -2038,6 +2091,17 @@ const theFailures = [];
 			]};
 		checkThat ("new with arguments calls the package's init, this the new instance in the odb: scratchpad.a = new counter (10), then bumpcount", valueOf (theOpenAgain, "scratchpad.a = new scratchpad.counter (10)\nscratchpad.a.bumpcount ()"), 11);
 		checkThat ("and in a local: local (c = new counter (100))", valueOf (theOpenAgain, "local (c = new scratchpad.counter (100))\nc.bumpcount ()\nc.bumpcount ()"), 102);
+
+		/*  10/7/26 by CC -- the package edge from 10/6: a package called by its
+			own name has this = the script, and this^.ct wrote onto the script
+			value in memory with no complaint. The kernel's langgetdotparams
+			raises nosuchtableerror, "Can't find a sub-table named “counter”.",
+			and so does the evaluator now (throwUnlessTableBeforeDot).  */
+
+		checkThat ("a package called by its own name: this^.ct on the script is the kernel's error, Can't find a sub-table named “counter”.", String (valueOf (theOpenAgain, "scratchpad.counter.bumpcount ()")).indexOf ("Can't find a sub-table named “counter”.") !== -1, true); //left double quotation mark, right double quotation mark
+		checkThat ("and so is a dot on any script: scratchpad.counter.ct = 1", String (valueOf (theOpenAgain, "scratchpad.counter.ct = 1")).indexOf ("Can't find a sub-table named “counter”.") !== -1, true);
+		checkThat ("the script itself is untouched by the attempt: it still runs as a package", valueOf (theOpenAgain, "local (c = new scratchpad.counter (5))\nc.bumpcount ()"), 6);
+		checkThat ("defined on such a path answers false, the kernel's way", valueOf (theOpenAgain, "defined (scratchpad.counter.ct)"), false);
 		theOpenAgain.theStore.odb.scratchpad.greeter = {flOdbScript: true, scriptType: "script", lines: [ //a package with no init
 			{level: 0, text: "on greet (name)", flExpanded: true, flComment: false, flBreakpoint: false},
 			{level: 1, text: "return (\"Hello \" + name)", flExpanded: true, flComment: false, flBreakpoint: false},
@@ -3614,6 +3678,7 @@ const theFailures = [];
 		[
 			testNewAndPersistence,
 			testTwoConnections,
+			testTwoConnectionsSameName, //10/8/26 by CC
 			testWritingDoesNotWipe,
 			testRootAddress, //9/12/26 by CC
 			testNamedParametersReachTheKernel,

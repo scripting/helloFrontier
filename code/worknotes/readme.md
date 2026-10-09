@@ -1,5 +1,29 @@
 # Claude's worknotes
 
+### 10/8/26; 6:40:00 PM by CC
+
+A name can't go into a table twice anymore. Two scripts running at the same moment could each make the same new entry in a table, and the table would list that name twice from then on; this is what Colin saw after his scheduled updates ran doubled. Now the database checks for the name as it writes, so whichever script gets there first makes the entry and the other one writes into it.
+
+A table with an entry named type is a table. Before this, assigning such a table to another table stopped with "only another table can replace a table", which is what you hit if you built a params table with a type entry for an http call.
+
+Six op.attributes verbs work now: op.attributes.setOne, getOne, getAll, addGroup, makeEmpty and deleteOne read and write the attributes of the line under the bar cursor in the front outline window. They come as parts.
+
+Nine more feedland verbs, named as in FeedLand's api.js: userIsWhitelisted, downloadFile, getUserDataFile, uploadUserDataFile, createNewUser, sendConfirmingEmail, getOneUserCategory, getTextFromWeb, getOutlineFromWeb. The feedland table comes as a part.
+
+A sample, workspace.userlandSamples.saveAsInclude: with the cursor on a headline, it saves the outline under it to S3 as OPML and turns the headline into an include that points at the file. Set user.temp.s3LocForInclude to the place on S3 first, a path like /mybucket/includes/.
+
+### 10/7/26; 6:45:00 PM by CC
+
+A FeedLand glue table, system.verbs.apps.feedland: one verb for each thing FeedLand's own pages ask their server for, named the way api.js names them, with feedland.call as the one door. Your settings live in config.feedland.prefs: the server (feedland.dev to start), and the email address and code the server knows you by. workspace.userlandSamples.feedland has four samples to start from; checkIdentity tells you who you're signed in as and how many subscriptions you have. Both come as parts.
+
+### 10/7/26; 3:30:00 PM by CC
+
+An outline you've never opened comes up with its summits showing and everything under them closed, the cursor on the first summit; after that it opens the way you left it.
+
+The script dialogs look like Dave's newest dialogs: dialog.alert, dialog.confirm, dialog.ask and the two- and three-way questions.
+
+Calling a script with a dot after it, as if it were a table, says what Frontier says: Can't find a sub-table named that.
+
 ### 10/6/26; 1:49:32 PM by CC
 
 Packages, the way they came out of a day of trying them. new takes arguments now: scratchpad.feedland = new userlandSamples.socketClient (url) makes the instance and calls the package's init with the url, this set to the instance. A socket's callback can be the instance itself: inside init, tcp.websocket.open (url, this), and every message runs the instance's handleMessage. Calling a package by its own name tells you it's a package and names what it exports. exports is always there, so running a package script from its window works.

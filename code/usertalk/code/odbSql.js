@@ -474,6 +474,17 @@ function openDatabase (pathDatabase) {
 	const updateLinked = theDatabase.prepare ("update odb set linked = ? where id = ?;"); //9/10/26 by CC -- the linked code alone; the modified date is the text's
 	const selectLinked = theDatabase.prepare ("select linked from odb where id = ?;");
 	const insertChild = theDatabase.prepare ("insert into odb (parentid, name, lowername, type, value, whencreated, whenmodified) values (?, ?, ?, ?, ?, ?, ?);");
+	const insertChildIfMissing = theDatabase.prepare ("insert into odb (parentid, name, lowername, type, value, whencreated, whenmodified) select ?, ?, ?, ?, ?, ?, ? where not exists (select 1 from odb where parentid = ? and lowername = ?);"); /*  10/8/26 by CC -- A NAME GOES INTO A TABLE ONCE, whichever
+		connection gets there first. Colin's duplicate rows (helloFrontier
+		issue 16) and DW's own user.scheduler.stats.log.overnight twice, made
+		in the same millisecond on 9/17: two threads each looked for the name,
+		saw nothing (a cached miss, or a real one), and inserted it, and the
+		odb table has no unique index on (parentid, lowername) -- a unique
+		index can't be added to a database that already holds doubles. So the
+		insert itself checks, inside SQLite's write lock, where no other
+		connection can slip in between the look and the write; when it
+		inserts nothing, the row is there now and the write goes onto it.
+		See writeValue.  */
 	const updateChild = theDatabase.prepare ("update odb set type = ?, value = ?, whenmodified = ?, linked = null where id = ?;"); //9/10/26 by CC -- a new value is a new object: nothing linked, until it compiles
 	const selectDates = theDatabase.prepare ("select whencreated, whenmodified from odb where id = ?;");
 	const deleteById = theDatabase.prepare ("delete from odb where id = ?;");
@@ -591,12 +602,19 @@ function openDatabase (pathDatabase) {
 			structureGeneration++;
 			}
 		var theId;
+		var theRowNow = existing; //10/8/26 by CC -- the row as it is at the moment of the write, which another connection may have made since we looked
 		if (existing === undefined) {
-			theId = insertChild.run (parentId, name, String (name).toLowerCase (), theType, theColumn, nowText, nowText).lastInsertRowid;
+			const theInsert = insertChildIfMissing.run (parentId, name, String (name).toLowerCase (), theType, theColumn, nowText, nowText, parentId, String (name).toLowerCase ());
+			if (theInsert.changes === 1) {
+				theId = theInsert.lastInsertRowid;
+				}
+			else { //another connection made this name between our look and our write: the value goes onto its row
+				theRowNow = selectChild.get (parentId, String (name).toLowerCase ());
+				}
 			}
-		else {
-			theId = existing.id;
-			if (existing.type === "table") { //replacing a table drops what was under it
+		if (theRowNow !== undefined) {
+			theId = theRowNow.id;
+			if (theRowNow.type === "table") { //replacing a table drops what was under it
 				selectChildren.all (theId).forEach (function (row) {
 					const child = childRow (theId, row.name);
 					forgetRow (theId, row.name); /*  8/18/26 by CC -- found in the

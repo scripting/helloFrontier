@@ -3250,6 +3250,33 @@ function executeEditorVerb (theVerb, theParams) {
 			const attributes = theNode.data ("attributes");
 			return ((attributes === undefined) ? {} : attributes);
 			}
+		case "op.attributes.getone": { //10/8/26 by CC -- one attribute of the cursor line, or nothing
+			const attributes = theOp.getCursor ().data ("attributes");
+			return (((attributes === undefined) || (attributes [String (theParams [0])] === undefined)) ? null : attributes [String (theParams [0])]);
+			}
+		case "op.attributes.setone": //10/8/26 by CC -- Concord's own setter, built for the line under the cursor now (op.attributes is bound to the cursor of the moment the outline was made)
+			lineAttributes (theOp).setOne (String (theParams [0]), String (theParams [1]));
+			theOp.markChanged ();
+			return (true);
+		case "op.attributes.addgroup": //10/8/26 by CC -- the group's entries go onto the line, over what it had
+			lineAttributes (theOp).addGroup ($.extend ({}, theOp.getCursor ().data ("attributes") || {}, theParams [0] || {}));
+			theOp.markChanged ();
+			return (true);
+		case "op.attributes.makeempty": //10/8/26 by CC -- every attribute off the line; true when there were any
+			return (lineAttributes (theOp).makeEmpty ());
+		case "op.attributes.deleteone": { //10/8/26 by CC -- one attribute off the line; true when it was there
+			const theName = String (theParams [0]);
+			const attributes = $.extend ({}, theOp.getCursor ().data ("attributes") || {});
+			if (attributes [theName] === undefined) {
+				return (false);
+				}
+			delete attributes [theName];
+			const theAtts = lineAttributes (theOp);
+			theAtts.makeEmpty ();
+			theAtts.addGroup (attributes);
+			theOp.markChanged ();
+			return (true);
+			}
 		case "console.log": //8/26/26 by CC -- DW's ruling: the real console.log; this window's JavaScript console is the one Inspect opens
 			console.log (String (theParams [0]));
 			return (true);
@@ -3866,6 +3893,10 @@ function setHtmlFormatting (theOp, flOn) { //10/3/26 by CC -- the window's lines
 	theOp.setRenderMode (flOn);
 	}
 
+function lineAttributes (theOp) { //10/8/26 by CC -- Concord's attribute setter for the line under the cursor NOW: op.attributes is built once, for the cursor of the moment the outline was made, so the verbs that write attributes make a fresh one, the way the attribute editor's OK does
+	return (new ConcordOpAttributes ($("#divOutliner").concord (), theOp.getCursor ()));
+	}
+
 function editAttributesDialog (theOp) { //10/3/26 by CC -- op.attributes.edit: the cursor line's attributes in a dialog of name and value rows; + adds a row, the trash can deletes one, Save puts them on the line; answers true for Save, false for Cancel
 
 	/*  Cribbed from Drummer's Edit attributes dialog (tableeditor.js:
@@ -4060,16 +4091,35 @@ function opmlWithoutIncludedSubs (theOp) { //10/3/26 by CC -- the outline as OPM
 	}
 
 function showDialog (theDialog, runId) { //the script is standing still until one of these buttons is clicked
+
+	/*  10/7/26 by CC -- THE DIALOGS IN HIS NEWEST SHAPES. The source is
+		dialogs.js and dialogs.css at the bottom of his libraries export
+		(dwExports/projects.libraries.DW226.fttb): alertDialog (7/11/22 by
+		DW), askDialog (12/8/23), threeWayDialog (5/9/25) -- the authority for
+		how a dialog looks, his 10/5 word: "this stuff is an authority almost
+		as much as the C kernel." His 10/4 ruling: the rest of the dialogs
+		matched to it one by one, after the attribute editor (10/5). Each kind
+		the scripts put up has his shape now:
+
+		alert -- the alert icon at the left, the prompt beside it, OK at the
+		lower right (alertDialog).
+
+		confirm, and the kernel's twoway and threeway (dialog.confirm,
+		dialog.twoWay, dialog.threeWay) -- threeWayDialog: the question mark
+		at the left, the prompt, the default button first at the right in
+		blue, the next beside it, a third at the left.
+
+		ask (dialog.ask, dialog.getInt and friends) -- askDialog: a header
+		with the close × and the prompt, the text box, Cancel and OK in the
+		footer.
+
+		Bootstrap's modal, header, body and footer become the divs below,
+		under this page's mask; his rules are in odbbrowser.css rule for
+		rule. The answer, the Return key and the mask are as they were.  */
+
 	const divMask = $("<div class=\"divDialogMask\"></div>");
 	const divDialog = $("<div class=\"divDialog\"></div>");
-	const divPrompt = $("<div class=\"divDialogPrompt\"></div>").text (theDialog.prompt);
-	divDialog.append (divPrompt);
-	var inputAnswer;
-	if (theDialog.kind === "ask") {
-		inputAnswer = $("<input type=\"text\" class=\"inputDialogAnswer\">").val (theDialog.startValue);
-		divDialog.append (inputAnswer);
-		}
-	const divButtons = $("<div class=\"divDialogButtons\"></div>");
+	var inputAnswer, buttonDefault;
 	const theSelectionBefore = saveLineSelection (); //10/1/26 by CC -- see restoreLineSelection
 	function answer (theButton) {
 		divMask.remove ();
@@ -4091,48 +4141,101 @@ function showDialog (theDialog, runId) { //the script is standing still until on
 			}
 		serverCall ("/dialoganswer", {runid: runId, opmltext: JSON.stringify (theAnswer)}, "POST", handleRunAnswer);
 		}
-	var buttonDefault;
-	if (theDialog.kind === "buttons") {
-
-		/*  8/24/26 by CC -- the kernel's twoway and threeway dialogs: the
-			prompt with the caller's own button names. Button 1 is the
-			default and sits at the right, the way twowaydialog lays it out;
-			the answer says which number was hit.  */
-
-		var ixButton;
-		for (ixButton = theDialog.buttons.length; ixButton >= 1; ixButton--) {
-			const theNumber = ixButton;
-			const theButton = $("<button class=\"buttonBar" + ((theNumber === 1) ? " buttonDefault" : "") + "\"></button>").text (String (theDialog.buttons [theNumber - 1])).click (function () {
-				answer (theNumber);
-				});
-			divButtons.append (theButton);
-			if (theNumber === 1) {
-				buttonDefault = theButton;
-				}
-			}
-		}
-	else {
-		if ((theDialog.kind === "confirm") || (theDialog.kind === "ask")) {
-			const buttonCancel = $("<button class=\"buttonBar\">Cancel</button>").click (function () {
-				answer ("cancel");
-				});
-			divButtons.append (buttonCancel);
-			}
-		buttonDefault = $("<button class=\"buttonBar buttonDefault\">OK</button>").click (function () {
-			answer ("ok");
+	function makeButton (theText, flPrimary, onClick) { //his buttons are links with Bootstrap's btn classes
+		const theButton = $("<a href=\"#\" class=\"btn\"></a>").text (String (theText)).click (function (event) {
+			event.preventDefault ();
+			onClick ();
 			});
-		divButtons.append (buttonDefault);
+		if (flPrimary) {
+			theButton.addClass ("btn-primary");
+			}
+		return (theButton);
 		}
-	divDialog.append (divButtons);
+	switch (theDialog.kind) {
+		case "ask": { //askDialog
+			divDialog.addClass ("divAskDialog");
+			const divHeader = $("<div class=\"divDialogHeader\"></div>");
+			divHeader.append ($("<a href=\"#\" class=\"aDialogClose\">&times;</a>").click (function (event) {
+				event.preventDefault ();
+				answer ("cancel");
+				}));
+			divHeader.append ($("<h3 class=\"h3DialogPrompt\"></h3>").text (theDialog.prompt));
+			const divBody = $("<div class=\"divDialogBody\"></div>");
+			inputAnswer = $("<input type=\"text\" class=\"inputDialogAnswer\">").val (theDialog.startValue);
+			divBody.append (inputAnswer);
+			const divFooter = $("<div class=\"divDialogFooter\"></div>");
+			divFooter.append (makeButton ("Cancel", false, function () {
+				answer ("cancel");
+				}));
+			buttonDefault = makeButton ("OK", true, function () {
+				answer ("ok");
+				});
+			divFooter.append (buttonDefault);
+			divDialog.append (divHeader, divBody, divFooter);
+			break;
+			}
+		case "alert": { //alertDialog
+			divDialog.addClass ("divAlertDialog");
+			divDialog.append ($("<img class=\"imgDialogIcon\" src=\"images/alert.gif\">"));
+			divDialog.append ($("<div class=\"divPrompt\"></div>").text (theDialog.prompt));
+			buttonDefault = makeButton ("OK", true, function () {
+				answer ("ok");
+				});
+			divDialog.append (buttonDefault);
+			break;
+			}
+		default: { //confirm, and the kernel's twoway and threeway: threeWayDialog
+			divDialog.addClass ("divThreeWayDialog");
+			const divBody = $("<div class=\"divDialogBody\"></div>");
+			divBody.append ($("<img class=\"imgDialogIcon\" src=\"images/questionMarkIcon.gif\">"));
+			divBody.append ($("<div class=\"divPrompt\"></div>").text (theDialog.prompt));
+			const divButtons = $("<div class=\"divButtons\"></div>");
+			if (theDialog.kind === "buttons") {
+
+				/*  8/24/26 by CC -- the kernel's twoway and threeway dialogs: the
+					prompt with the caller's own button names. Button 1 is the
+					default and sits at the right, the way twowaydialog lays it
+					out; the answer says which number was hit. 10/7/26 -- in his
+					threeWayDialog the first button is the blue one at the right,
+					the second sits beside it, the third floats to the left.  */
+
+				theDialog.buttons.forEach (function (theText, ix) {
+					const theNumber = ix + 1;
+					const theButton = makeButton (theText, theNumber === 1, function () {
+						answer (theNumber);
+						});
+					if (theNumber === 3) {
+						theButton.addClass ("btn-left");
+						}
+					divButtons.append (theButton);
+					if (theNumber === 1) {
+						buttonDefault = theButton;
+						}
+					});
+				}
+			else { //confirm: OK is the default at the right, Cancel beside it
+				buttonDefault = makeButton ("OK", true, function () {
+					answer ("ok");
+					});
+				divButtons.append (buttonDefault);
+				divButtons.append (makeButton ("Cancel", false, function () {
+					answer ("cancel");
+					}));
+				}
+			divBody.append (divButtons);
+			divDialog.append (divBody);
+			}
+		}
 	divMask.append (divDialog);
 	$("body").append (divMask);
-	function returnKeyAnswers (event) {
+	divDialog.keydown (function (event) { //his askDialog listens on the dialog itself; Return is the default button
 		if (event.which === 13) { //return key
+			event.preventDefault ();
 			answer ((theDialog.kind === "buttons") ? 1 : "ok");
 			}
-		}
+		});
 	if (inputAnswer !== undefined) {
-		inputAnswer.focus ().select ().keydown (returnKeyAnswers); //8/12/26 by CC -- what's there is selected, so typing an address replaces it instead of appending to it
+		inputAnswer.focus ().select (); //8/12/26 by CC -- what's there is selected, so typing an address replaces it instead of appending to it
 		}
 	else {
 		buttonDefault.focus ();
